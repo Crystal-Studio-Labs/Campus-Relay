@@ -225,20 +225,20 @@
   }
 }
 
-/* A short settle when the route changes, so a screen does not simply snap into
-   place. Keyed on the pathname in the shell; reduced-motion users get none. */
+/* Fluid page transition: elegant subtle translation and scale settle */
 @keyframes page-enter {
-  from {
+  0% {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(8px) scale(0.998);
   }
-  to {
+  100% {
     opacity: 1;
-    transform: none;
+    transform: translateY(0) scale(1);
   }
 }
 .page-transition {
-  animation: page-enter 0.22s ease-out both;
+  animation: page-enter 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+  will-change: transform, opacity;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-transition {

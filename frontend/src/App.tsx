@@ -54,16 +54,22 @@ export function App() {
   // tablet gets the kiosk *sign-in*, in kiosk clothing, so the station is set up
   // where it stands instead of being configured on someone's laptop first.
   if (location.pathname.startsWith('/kiosk')) {
-    return status === 'authenticated' ? <KioskPage /> : <LoginPage variant="kiosk" />
+    return (
+      <div className="page-transition" key={location.pathname}>
+        {status === 'authenticated' ? <KioskPage /> : <LoginPage variant="kiosk" />}
+      </div>
+    )
   }
 
   if (status === 'anonymous') {
     return (
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginVariant />} />
-        <Route path="*" element={<LandingPage />} />
-      </Routes>
+      <div className="page-transition" key={location.pathname}>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginVariant />} />
+          <Route path="*" element={<LandingPage />} />
+        </Routes>
+      </div>
     )
   }
 
