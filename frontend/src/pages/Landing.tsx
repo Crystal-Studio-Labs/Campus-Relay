@@ -200,6 +200,134 @@ function VectorAiOperations() {
   )
 }
 
+function VectorArchTier1Edge() {
+  return (
+    <svg viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="636" height="156" rx="3" fill="var(--surface)" stroke="var(--line)" strokeWidth="1.5" />
+      <rect x="14" y="16" width="120" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="74" y="32" fill="var(--signal)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">STATION ENDPOINTS</text>
+      <rect x="22" y="40" width="104" height="20" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="74" y="53" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Student PWA Mobile</text>
+      <rect x="22" y="64" width="104" height="20" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="74" y="77" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Corridor Touch Kiosk</text>
+      <rect x="22" y="88" width="104" height="20" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="74" y="101" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Gate Security Reader</text>
+      <rect x="22" y="112" width="104" height="20" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="74" y="125" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Staff &amp; Helpdesk Desk</text>
+      <path d="M134 80H166M166 80L160 75M166 80L160 85" stroke="var(--signal)" strokeWidth="2" strokeLinecap="square" />
+      <text x="150" y="72" fill="var(--muted-ink)" fontSize="6.5" fontWeight="700" textAnchor="middle" fontFamily="var(--font-mono)">OFFLINE</text>
+      <rect x="168" y="16" width="230" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="283" y="32" fill="var(--ink)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">CLIENT-SIDE STORAGE &amp; OUTBOX</text>
+      <rect x="180" y="42" width="100" height="42" rx="2" fill="var(--surface)" stroke="var(--signal)" strokeWidth="1.5" />
+      <text x="230" y="58" fill="var(--signal)" fontSize="7.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">INDEXEDDB OUTBOX</text>
+      <text x="230" y="72" fill="var(--muted-ink)" fontSize="7" textAnchor="middle">Write-Ahead Queue</text>
+      <rect x="290" y="42" width="98" height="42" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="339" y="58" fill="var(--ink)" fontSize="7.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">SERVICE WORKER</text>
+      <text x="339" y="72" fill="var(--muted-ink)" fontSize="7" textAnchor="middle">Cache Storage Engine</text>
+      <rect x="180" y="92" width="208" height="42" rx="2" fill="var(--surface)" stroke="var(--mint)" strokeWidth="1.2" />
+      <text x="284" y="108" fill="var(--mint)" fontSize="7.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">CRYPTOGRAPHIC IDEMPOTENCY KEY</text>
+      <text x="284" y="122" fill="var(--muted-ink)" fontSize="7" textAnchor="middle">UUIDv4 Client Hash · Deduplication Guarantee</text>
+      <path d="M398 80H442M442 80L436 75M442 80L436 85" stroke="var(--mint)" strokeWidth="2" strokeLinecap="square" />
+      <text x="420" y="72" fill="var(--mint)" fontSize="6.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">RECONNECT</text>
+      <rect x="444" y="16" width="182" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="535" y="32" fill="var(--mint)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">EVENT LISTENER &amp; RECONNECT</text>
+      <rect x="456" y="44" width="158" height="38" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="535" y="60" fill="var(--ink)" fontSize="7.5" fontWeight="800" textAnchor="middle">Network Status Observer</text>
+      <text x="535" y="73" fill="var(--status-warn)" fontSize="6.8" textAnchor="middle">Online / Offline Event Hooks</text>
+      <rect x="456" y="90" width="158" height="44" rx="2" fill="var(--surface)" stroke="var(--mint)" strokeWidth="1.5" />
+      <text x="535" y="106" fill="var(--mint)" fontSize="8" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">AUTO-FLUSH QUEUE</text>
+      <text x="535" y="122" fill="var(--muted-ink)" fontSize="7" textAnchor="middle">Exponential Backoff Retry Strategy</text>
+    </svg>
+  )
+}
+
+function VectorArchTier2Engine() {
+  return (
+    <svg viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="636" height="156" rx="3" fill="var(--surface)" stroke="var(--line)" strokeWidth="1.5" />
+      <rect x="14" y="16" width="130" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="79" y="32" fill="var(--signal)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">FASTAPI INGRESS</text>
+      <rect x="24" y="42" width="110" height="26" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="79" y="58" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Async Python 3.12</text>
+      <rect x="24" y="74" width="110" height="26" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="79" y="90" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Pydantic v2 Contract</text>
+      <rect x="24" y="106" width="110" height="26" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="79" y="122" fill="var(--signal)" fontSize="7.5" fontWeight="700" textAnchor="middle">RBAC Permission Map</text>
+      <path d="M144 80H176M176 80L170 75M176 80L170 85" stroke="var(--signal)" strokeWidth="2" strokeLinecap="square" />
+      <rect x="178" y="16" width="280" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="318" y="32" fill="var(--ink)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">UNIVERSAL CASE STATE MACHINE</text>
+      <rect x="190" y="44" width="56" height="32" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="218" y="58" fill="var(--ink)" fontSize="6.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">SUBMITTED</text>
+      <text x="218" y="69" fill="var(--muted-ink)" fontSize="6" textAnchor="middle">New Case</text>
+      <path d="M246 60H260M260 60L256 57M260 60L256 63" stroke="var(--signal)" strokeWidth="1.2" />
+      <rect x="262" y="44" width="54" height="32" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="289" y="58" fill="var(--signal)" fontSize="6.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">ROUTED</text>
+      <text x="289" y="69" fill="var(--muted-ink)" fontSize="6" textAnchor="middle">Dept Bound</text>
+      <path d="M316 60H330M330 60L326 57M330 60L326 63" stroke="var(--signal)" strokeWidth="1.2" />
+      <rect x="332" y="44" width="56" height="32" rx="2" fill="var(--surface)" stroke="var(--sun)" strokeWidth="1" />
+      <text x="360" y="58" fill="var(--sun)" fontSize="6.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">IN_PROGRESS</text>
+      <text x="360" y="69" fill="var(--muted-ink)" fontSize="6" textAnchor="middle">Staff Work</text>
+      <path d="M388 60H402M402 60L398 57M402 60L398 63" stroke="var(--mint)" strokeWidth="1.2" />
+      <rect x="404" y="44" width="46" height="32" rx="2" fill="var(--surface)" stroke="var(--mint)" strokeWidth="1.5" />
+      <text x="427" y="58" fill="var(--mint)" fontSize="6.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">RESOLVED</text>
+      <text x="427" y="69" fill="var(--mint)" fontSize="6" textAnchor="middle">Verified</text>
+      <rect x="190" y="86" width="260" height="48" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="320" y="102" fill="var(--signal)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">TRANSITION GUARDS &amp; AUDIT LOGIC</text>
+      <text x="320" y="115" fill="var(--ink)" fontSize="7" textAnchor="middle">Requires Signature · Escalation Paths · Re-open Limits</text>
+      <text x="320" y="126" fill="var(--muted-ink)" fontSize="6.5" textAnchor="middle">Atomic State Transitions with Rollback Protection</text>
+      <path d="M458 80H484M484 80L478 75M484 80L478 85" stroke="var(--mint)" strokeWidth="2" strokeLinecap="square" />
+      <rect x="486" y="16" width="140" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="556" y="32" fill="var(--mint)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">SECURITY &amp; SLAS</text>
+      <rect x="496" y="42" width="120" height="42" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="556" y="58" fill="var(--ink)" fontSize="7.5" fontWeight="800" textAnchor="middle">HMAC-SHA256 Signer</text>
+      <text x="556" y="72" fill="var(--muted-ink)" fontSize="6.8" textAnchor="middle">Cryptographic QR Tokens</text>
+      <rect x="496" y="92" width="120" height="42" rx="2" fill="var(--surface)" stroke="var(--status-warn)" strokeWidth="1.2" />
+      <text x="556" y="108" fill="var(--status-warn)" fontSize="7.5" fontWeight="800" textAnchor="middle">Real-Time SLA Engine</text>
+      <text x="556" y="122" fill="var(--muted-ink)" fontSize="6.8" textAnchor="middle">60s Clock Sweep · Breaches</text>
+    </svg>
+  )
+}
+
+function VectorArchTier3Persistence() {
+  return (
+    <svg viewBox="0 0 640 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="636" height="156" rx="3" fill="var(--surface)" stroke="var(--line)" strokeWidth="1.5" />
+      <rect x="14" y="16" width="160" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="94" y="32" fill="var(--mint)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">POSTGRESQL 16 LEDGER</text>
+      <rect x="24" y="42" width="140" height="26" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="94" y="58" fill="var(--ink)" fontSize="7.5" fontWeight="700" textAnchor="middle">Append-Only Event Store</text>
+      <rect x="24" y="74" width="140" height="26" rx="2" fill="var(--surface)" stroke="var(--danger)" strokeWidth="1" />
+      <text x="94" y="90" fill="var(--danger)" fontSize="7.5" fontWeight="700" textAnchor="middle">No DELETE / No Overwrite</text>
+      <rect x="24" y="106" width="140" height="26" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="94" y="122" fill="var(--muted-ink)" fontSize="7" textAnchor="middle">Full History Audit Hash</text>
+      <path d="M174 80H200M200 80L194 75M200 80L194 85" stroke="var(--lilac)" strokeWidth="2" strokeLinecap="square" />
+      <rect x="202" y="16" width="240" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="322" y="32" fill="var(--lilac)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">CONTROLLED AI OPS FLEET</text>
+      <rect x="214" y="42" width="102" height="40" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="265" y="57" fill="var(--ink)" fontSize="7" fontWeight="800" textAnchor="middle">1. Triage Agent</text>
+      <text x="265" y="71" fill="var(--muted-ink)" fontSize="6.5" textAnchor="middle">Auto-Categorization</text>
+      <rect x="326" y="42" width="102" height="40" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="377" y="57" fill="var(--ink)" fontSize="7" fontWeight="800" textAnchor="middle">2. SLA Forecaster</text>
+      <text x="377" y="71" fill="var(--muted-ink)" fontSize="6.5" textAnchor="middle">Anomaly Sweep 60s</text>
+      <rect x="214" y="90" width="102" height="42" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="265" y="106" fill="var(--ink)" fontSize="7" fontWeight="800" textAnchor="middle">3. Smart Dispatch</text>
+      <text x="265" y="120" fill="var(--muted-ink)" fontSize="6.5" textAnchor="middle">Workload Balancing</text>
+      <rect x="326" y="90" width="102" height="42" rx="2" fill="var(--surface)" stroke="var(--lilac)" strokeWidth="1.2" />
+      <text x="377" y="106" fill="var(--lilac)" fontSize="7" fontWeight="800" textAnchor="middle">4. Daily Digest</text>
+      <text x="377" y="120" fill="var(--muted-ink)" fontSize="6.5" textAnchor="middle">06:00 Executive Brief</text>
+      <path d="M442 80H468M468 80L462 75M468 80L462 85" stroke="var(--signal)" strokeWidth="2" strokeLinecap="square" />
+      <rect x="470" y="16" width="156" height="128" rx="2" fill="var(--surface-alt)" stroke="var(--line)" strokeWidth="1.2" />
+      <text x="548" y="32" fill="var(--signal)" fontSize="8.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">EXTERNAL NOTIFICATIONS</text>
+      <rect x="480" y="44" width="136" height="38" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="548" y="60" fill="var(--ink)" fontSize="7.5" fontWeight="800" textAnchor="middle">Telegram Bot Webhook</text>
+      <text x="548" y="73" fill="var(--muted-ink)" fontSize="6.8" textAnchor="middle">Verified Delivery Proof</text>
+      <rect x="480" y="90" width="136" height="42" rx="2" fill="var(--surface)" stroke="var(--line)" strokeWidth="1" />
+      <text x="548" y="106" fill="var(--ink)" fontSize="7.5" fontWeight="800" textAnchor="middle">WhatsApp Engine</text>
+      <text x="548" y="120" fill="var(--muted-ink)" fontSize="6.8" textAnchor="middle">Gate Pass &amp; Urgent Notice Alerts</text>
+    </svg>
+  )
+}
+
 const PROBLEMS = [
   {
     icon: <IconAlert />,
@@ -313,6 +441,8 @@ export function LandingPage() {
   const institution = useInstitution()
   const [showAccounts, setShowAccounts] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [archTier, setArchTier] = useState<'tier1' | 'tier2' | 'tier3'>('tier1')
+  const [showOverviewDiagram, setShowOverviewDiagram] = useState(false)
   const accounts = useRemote<{ accounts: { role: string; email: string; label: string }[] }>(
     showAccounts ? 'landing-demo-accounts' : null,
     () => api.get('/auth/demo-accounts'),
@@ -642,52 +772,232 @@ export function LandingPage() {
             <Badge tone="ghost">System Topology</Badge>
             <span className="mono small muted">Multi-Tier Resilient Infrastructure</span>
           </div>
-          <h2>Campus Relay Architecture &amp; Data Pipeline</h2>
+          <h2>Multi-Tier Architecture &amp; Data Pipeline</h2>
           <p className="lede">
-            Designed for real-world campus constraints: sporadic connectivity in basements, high gate volume during curfew hours,
-            strict departmental isolation, and transparent administrative accountability:
+            Campus operations cannot rely on continuous cloud connectivity. Campus Relay is divided into three distinct,
+            fault-isolated architectural tiers that guarantee zero data loss and verifiable state transitions:
           </p>
 
-          <div className="card" style={{ padding: 0, overflow: 'hidden', marginTop: 20 }}>
-            <div className="hero-schematic-wrap">
-              <img
-                src="/assets/campus_architecture_graphic.jpg"
-                alt="Campus Relay System Topology Schematic - Edge Clients, Event Mesh, and PostgreSQL Ledger"
-                className="hero-schematic-img"
-                loading="lazy"
-              />
-            </div>
-            <div style={{ padding: 'var(--sp-4)' }}>
-              <div className="landing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 'var(--sp-4)' }}>
+          {/* Interactive Tier Switcher */}
+          <div className="arch-tier-nav" role="tablist" aria-label="Architecture Tiers">
+            <button
+              type="button"
+              className={`arch-tier-btn${archTier === 'tier1' ? ' is-active' : ''}`}
+              onClick={() => setArchTier('tier1')}
+              role="tab"
+              aria-selected={archTier === 'tier1'}
+            >
+              <span>01</span>
+              <span>Client Edge &amp; Stations</span>
+              <span className="tiny muted">(Offline-First)</span>
+            </button>
+            <button
+              type="button"
+              className={`arch-tier-btn${archTier === 'tier2' ? ' is-active' : ''}`}
+              onClick={() => setArchTier('tier2')}
+              role="tab"
+              aria-selected={archTier === 'tier2'}
+            >
+              <span>02</span>
+              <span>Event Mesh &amp; State Engine</span>
+              <span className="tiny muted">(FastAPI Core)</span>
+            </button>
+            <button
+              type="button"
+              className={`arch-tier-btn${archTier === 'tier3' ? ' is-active' : ''}`}
+              onClick={() => setArchTier('tier3')}
+              role="tab"
+              aria-selected={archTier === 'tier3'}
+            >
+              <span>03</span>
+              <span>Ledger &amp; Autonomous AI Fleet</span>
+              <span className="tiny muted">(PostgreSQL 16)</span>
+            </button>
+          </div>
+
+          {/* Tier Content Panels */}
+          {archTier === 'tier1' && (
+            <div className="arch-tier-panel">
+              <div className="row-between wrap" style={{ marginBottom: 12 }}>
                 <div>
-                  <div className="bold small mono" style={{ color: 'var(--signal)', marginBottom: 4 }}>
-                    01 · EDGE CLIENT TIER
-                  </div>
-                  <div className="bold" style={{ marginBottom: 4 }}>Local-First Offline Outbox</div>
-                  <p className="small muted" style={{ margin: 0 }}>
-                    IndexedDB transaction buffer stores tickets and pass requests instantly. Replays automatically with cryptographic idempotency keys upon Wi-Fi / cellular reconnection.
+                  <h3 className="section-title" style={{ margin: 0 }}>
+                    Tier 01: Client Edge &amp; Stations (Offline-First Store &amp; Forward)
+                  </h3>
+                  <p className="small muted" style={{ margin: '4px 0 0' }}>
+                    Captures student requests, gate scans, and staff acknowledgements locally before touching the network.
                   </p>
                 </div>
-                <div>
-                  <div className="bold small mono" style={{ color: 'var(--mint)', marginBottom: 4 }}>
-                    02 · FASTAPI EVENT MESH
-                  </div>
-                  <div className="bold" style={{ marginBottom: 4 }}>Universal State Machine</div>
-                  <p className="small muted" style={{ margin: 0 }}>
-                    High-throughput async Python 3.12 backend validates RBAC roles, checks curfew window policies, generates HMAC QR tokens, and schedules autonomous SLA sweeps.
+                <Badge tone="done">Local-First Validated</Badge>
+              </div>
+
+              {/* Bespoke Schematic SVG */}
+              <div className="arch-schematic-box">
+                <VectorArchTier1Edge />
+              </div>
+
+              {/* 3 Technical Specification Cards */}
+              <div className="arch-tier-grid">
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">1. Write-Ahead Outbox</span>
+                  <p className="arch-spec-detail">
+                    Every form submission (repairs, leave passes, incident reports) writes directly into client IndexedDB before initiating an HTTP request. Students receive an immediate offline tracking reference.
                   </p>
                 </div>
-                <div>
-                  <div className="bold small mono" style={{ color: 'var(--lilac)', marginBottom: 4 }}>
-                    03 · PERSISTENCE &amp; AI
-                  </div>
-                  <div className="bold" style={{ marginBottom: 4 }}>PostgreSQL &amp; AI Fleet</div>
-                  <p className="small muted" style={{ margin: 0 }}>
-                    Append-only immutable audit trail prevents ticket tampering. 4 autonomous agents classify issues, detect SLA anomalies, and deliver daily 06:00 executive digests.
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">2. Cryptographic Idempotency</span>
+                  <p className="arch-spec-detail">
+                    Each mutation carries a client-generated UUIDv4 idempotency key. When background sync triggers, the server guarantees duplicate submissions are safely ignored without double-entry.
+                  </p>
+                </div>
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">3. Autonomous Replay Engine</span>
+                  <p className="arch-spec-detail">
+                    A Service Worker network listener monitors connectivity changes. The moment a student enters Wi-Fi or cellular coverage, queued transactions replay automatically with exponential backoff.
                   </p>
                 </div>
               </div>
             </div>
+          )}
+
+          {archTier === 'tier2' && (
+            <div className="arch-tier-panel">
+              <div className="row-between wrap" style={{ marginBottom: 12 }}>
+                <div>
+                  <h3 className="section-title" style={{ margin: 0 }}>
+                    Tier 02: Event Mesh &amp; State Engine (FastAPI &amp; Transition Guards)
+                  </h3>
+                  <p className="small muted" style={{ margin: '4px 0 0' }}>
+                    Async Python 3.12 backend managing atomic state machine transitions, role policies, and cryptographic security.
+                  </p>
+                </div>
+                <Badge tone="open">Finite State Machine</Badge>
+              </div>
+
+              {/* Bespoke Schematic SVG */}
+              <div className="arch-schematic-box">
+                <VectorArchTier2Engine />
+              </div>
+
+              {/* 3 Technical Specification Cards */}
+              <div className="arch-tier-grid">
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">1. Guarded State Machine</span>
+                  <p className="arch-spec-detail">
+                    Unified 7-stage state machine (SUBMITTED → ROUTED → ASSIGNED → IN_PROGRESS → WAITING_APPROVAL → VERIFICATION → RESOLVED). Strictly prevents illegal skips or unsigned approvals.
+                  </p>
+                </div>
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">2. HMAC-SHA256 Gate Security</span>
+                  <p className="arch-spec-detail">
+                    Generates unforgeable, time-bounded QR tokens for leave passes. Security guards verify identity and curfew validity in &lt;150ms even with weak connectivity, keeping an accurate outside headcount.
+                  </p>
+                </div>
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">3. Real-Time SLA Monitor</span>
+                  <p className="arch-spec-detail">
+                    Independent 60-second background sweeper monitors countdown timers across all open cases. At-risk tickets are flagged before curfew; overdue items are automatically escalated with audit reason logging.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {archTier === 'tier3' && (
+            <div className="arch-tier-panel">
+              <div className="row-between wrap" style={{ marginBottom: 12 }}>
+                <div>
+                  <h3 className="section-title" style={{ margin: 0 }}>
+                    Tier 03: Enterprise Persistence &amp; AI Ops Fleet (PostgreSQL 16)
+                  </h3>
+                  <p className="small muted" style={{ margin: '4px 0 0' }}>
+                    Immutable append-only audit trail and human-in-the-loop autonomous operational intelligence.
+                  </p>
+                </div>
+                <Badge tone="agent">AI Fleet Governed</Badge>
+              </div>
+
+              {/* Bespoke Schematic SVG */}
+              <div className="arch-schematic-box">
+                <VectorArchTier3Persistence />
+              </div>
+
+              {/* 3 Technical Specification Cards */}
+              <div className="arch-tier-grid">
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">1. Append-Only Audit Ledger</span>
+                  <p className="arch-spec-detail">
+                    PostgreSQL 16 relational database with non-destructive triggers: rows are never silently updated or dropped. Every action records actor ID, station channel, timestamp, and transition rationale.
+                  </p>
+                </div>
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">2. 4 Autonomous AI Operators</span>
+                  <p className="arch-spec-detail">
+                    Specialized agents run within strict guardrails: Triage classifies unstructured text; SLA Sweeper predicts bottlenecks; Smart Dispatch balances technician workloads; Daily 06:00 Briefing synthesizes executive updates.
+                  </p>
+                </div>
+                <div className="arch-spec-card">
+                  <span className="arch-spec-title">3. Verified External Channels</span>
+                  <p className="arch-spec-detail">
+                    Integrated Telegram bot webhooks and WhatsApp notification adapters. Delivers confirmed read delivery receipts and broadcast emergency notices to parents and wardens.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* End-to-End Data Pipeline Flow */}
+          <div className="card" style={{ marginTop: 20 }}>
+            <div className="row-between wrap" style={{ marginBottom: 8 }}>
+              <div className="bold small mono" style={{ color: 'var(--signal)' }}>
+                END-TO-END DATA LIFECYCLE
+              </div>
+              <span className="tiny muted">How a single ticket travels from basement to resolution</span>
+            </div>
+            <div className="pipeline-flow-grid">
+              <div className="pipeline-flow-step">
+                <span className="tiny mono bold" style={{ color: 'var(--signal)' }}>01 · LOCAL CAPTURE</span>
+                <span className="small bold">IndexedDB Write</span>
+                <span className="tiny muted">User files request offline; gets immediate client reference ID.</span>
+              </div>
+              <div className="pipeline-flow-step">
+                <span className="tiny mono bold" style={{ color: 'var(--mint)' }}>02 · IDEMPOTENT SYNC</span>
+                <span className="small bold">Background Replay</span>
+                <span className="tiny muted">Network observer detects Wi-Fi; flushes outbox with UUIDv4 hash.</span>
+              </div>
+              <div className="pipeline-flow-step">
+                <span className="tiny mono bold" style={{ color: 'var(--sun)' }}>03 · STATE MACHINE</span>
+                <span className="small bold">Guarded Execution</span>
+                <span className="tiny muted">FastAPI routes to department; enforces SLA clock and permissions.</span>
+              </div>
+              <div className="pipeline-flow-step">
+                <span className="tiny mono bold" style={{ color: 'var(--lilac)' }}>04 · IMMUTABLE AUDIT</span>
+                <span className="small bold">PostgreSQL Commit</span>
+                <span className="tiny muted">Technician resolves; student verifies; immutable row stored forever.</span>
+              </div>
+            </div>
+
+            {/* Collapsible Panoramic Overview Toggle */}
+            <div style={{ marginTop: 16, paddingTop: 12, borderTop: '1px solid var(--line-soft)' }} className="row-between wrap">
+              <span className="small muted">Need the complete high-level system topology diagram?</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowOverviewDiagram((prev) => !prev)}
+              >
+                {showOverviewDiagram ? '▲ Hide Full Topology Diagram' : '▼ View Full Topology Diagram'}
+              </Button>
+            </div>
+
+            {showOverviewDiagram && (
+              <div className="hero-schematic-wrap" style={{ marginTop: 12 }}>
+                <img
+                  src="/assets/campus_architecture_graphic.jpg"
+                  alt="Campus Relay Full System Topology Schematic"
+                  className="hero-schematic-img"
+                  loading="lazy"
+                />
+              </div>
+            )}
           </div>
         </section>
 
