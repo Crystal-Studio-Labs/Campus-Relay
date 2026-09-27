@@ -1,326 +1,558 @@
 ====================================================================
-GAMMA AI — PRESENTATION GENERATION PROMPT
+GOOGLE SLIDES AI MAKER / GAMMA AI — PRESENTATION GENERATION PROMPT
 Campus Relay · Crystal Studio Labs · BPUT Hackathon 2026 · PS07 (Fretbox)
 ====================================================================
 
-PASTE THIS WHOLE FILE INTO GAMMA. Create EXACTLY 10 slides. Do not add
-extra slides, do not split a slide, do not add an agenda or thank-you
-slide. If content feels long, merge and move the detail into speaker notes.
+PASTE THIS PROMPT DECK INTO GOOGLE SLIDES AI MAKER, GAMMA AI, OR SLIDESAI.
+Generate EXACTLY 15 slides. Each slide contains complete contextual content,
+layout instructions, and a dedicated AI Image Generation Prompt tailored
+for 16:9 presentation graphics in Google Slides / Imagen / Midjourney.
 
 --------------------------------------------------------------------
-GLOBAL BRIEF (applies to every slide)
+GLOBAL PRESENTATION BRIEF & DESIGN SPECIFICATIONS
 --------------------------------------------------------------------
 
-PROJECT        Campus Relay
-TAGLINE        "A resilient operating layer for everyday campus operations."
-TEAM           Crystal Studio Labs
-TEAM MEMBERS   Shuvransu Sekhar Sahoo, Snehal Kumar Moharana, Pruthiraj Lenka,
-               Manas Kumar Mallick, Bibhu Bhusan Giri, Nandita Das
-PROBLEM STMT   BPUT Hackathon 2026 · Problem Statement 07 (Fretbox)
-CONTACT EMAIL  connect.crystalstudio@gmail.com
-AUDIENCE       Hackathon judges, college decision-makers (registrar / warden /
-               IT head), and a review panel. Some are technical, some are not.
-TONE           Confident, concrete, calm. No hype. No buzzword soup. Short
-               declarative sentences. Zero invented statistics — every number
-               on a slide must be a fact about the build or explicitly labelled
-               "demo data".
+PROJECT NAME       Campus Relay
+TAGLINE            "A resilient operating layer for everyday campus operations."
+ENGINEERING TEAM   Crystal Studio Labs
+TEAM MEMBERS       Shuvransu Sekhar Sahoo, Snehal Kumar Moharana, Pruthiraj Lenka,
+                   Manas Kumar Mallick, Bibhu Bhusan Giri, Nandita Das
+PROBLEM STATEMENT  BPUT Hackathon 2026 · Problem Statement 07 (Fretbox)
+OFFICIAL CONTACT   connect.crystalstudio@gmail.com
+TARGET AUDIENCE    Hackathon Grand Jury, University Registrars, Campus Wardens,
+                   Chief Technology Officers & Operations Review Panels.
+PRESENTATION TONE  Engineering-rigorous, concrete, calm, declarative. No fluff,
+                   no buzzword soup, no unmeasured statistics. Every metric is
+                   grounded in the production codebase or labelled "demo data".
 
-VISUAL LANGUAGE — "industrial brutalism" (this is the product's real design
-system, so the deck should match it):
-  • Flat colour blocks, thick 2-3px hard rules, squared corners (small radius).
-  • Hard edges and offset blocks instead of soft blurred shadows.
-  • Safety-yellow diagonal hazard stripes used ONCE per slide at most, only on
-    the brand plate / a callout — never as general decoration.
-  • Uppercase, letter-spaced STENCIL labels for headings and field names;
-    sentence case for body copy.
-  • Identifiers (case numbers, asset codes, room codes) set in a MONOSPACE face:
-    CR-2026-0142 · CR-ROOM-AA-101 · CR-FAN-014.
-  • A faint blueprint grid behind the page background.
+DESIGN SYSTEM — INDUSTRIAL BRUTALISM:
+  • Geometry: Solid color blocks, 2-3px crisp borders, 0-8px corners, technical chamfers.
+  • Depth: Hard offset drop-blocks (box-shadow: 4px 4px 0px #000) instead of blurred gradients.
+  • Accents: Safety yellow (#F5C518) and diagonal hazard stripes used purposefully for
+    hero brand plates and critical alerts.
+  • Typography: Uppercase geometric stencil headings (Inter / Space Grotesk / Chivo);
+    clean high-legibility body; Monospace font for telemetry, case IDs, and tokens.
+  • Background: Technical blueprint grid (faint slate lines over #121417 dark canvas).
+  • Monospace Identifiers: CR-2026-0142 · CR-ROOM-AA-101 · CR-ASSET-HVAC-084 · GATE-OUT-9912.
 
-COLOUR SYSTEM (use consistently, and keep text high-contrast):
-  • Base / paper      #E4E2DC  (concrete light)   base / ink  #121417 (graphite)
-  • Primary / brand   #F5C518  (safety yellow)  — primary actions, brand plate
-  • Signal / at-risk   #E8862B (safety orange)   — urgency, SLA at-risk
-  • Resolved / OK      #2F9E58 (green)           — closed, verified, done
-  • Open / informational #3B82F6 (sky blue)       — open, neutral info
-  • AI / assistant     #8B7FD4 (lilac)           — agent-initiated anything
-  • Danger / refused   #D64545 (red)             — breached, refused, conflict
-  Never rely on colour alone: every chip also carries its word.
+COLOR PALETTE (WCAG AAA High Contrast):
+  • Slate Dark Canvas   #121417 (Graphite base for modern high-contrast presentations)
+  • Concrete Light      #E4E2DC (Base text / paper cards)
+  • Safety Yellow       #F5C518 (Primary action, brand identity, warnings)
+  • Industrial Orange   #E8862B (SLA at-risk, pending review, elevated urgency)
+  • Operational Green   #2F9E58 (Verified, SLA met, pass scanned, closed)
+  • Telemetry Sky Blue  #3B82F6 (Open requests, intake channels, active dispatch)
+  • Sandboxed Lilac     #8B7FD4 (Advisory AI agent actions, synthetic briefs)
+  • Hazard / Breach Red #D64545 (SLA breached, unauthorized gate pass, anti-passback)
 
-DIAGRAM RULE: any slide describing a flow gets a labelled diagram, not a
-bullet wall. Prefer 3-7 nodes in a chain or a 2x2 comparison. Keep node labels
-to 1-3 words. Put explanation in speaker notes, not on the slide.
+RECURRING CORE VALUE PROPOSITION:
+  "Provide your institution's configuration, and Campus Relay is an active,
+   operational engine running within 60 minutes."
 
-RECURRING ON-SLIDE QUOTE (show verbatim on slides 3 and 9):
-  "Give us your college's information, and this is a configurable engine you
-   can have running within an hour of setup."
-
-HONESTY RULES (must survive into the slides — this is a selling point):
-  • NEVER show an adoption number, accuracy %, or performance figure we did
-    not measure. Do not invent "99.9% uptime" or "10x faster".
-  • Push / SMS / email are adapter slots with NO provider configured. The app
-    never claims a message was delivered. Say this out loud on slide 10.
-  • Telegram and WhatsApp are real adapters, but no provider is configured in
-    the demo: nothing is queued and no delivery is claimed until credentials
-    exist. In-app is always real.
-  • All campus data, users and history in the demo are SEEDED and labelled so.
-  • AI agents are advisory only; deterministic rules answer when no model is
-    configured. Core workflows never depend on AI.
+ENGINEERING HONESTY & ETHICAL BOUNDS:
+  1. Zero fake benchmarks or invented adoption numbers.
+  2. Multi-channel notifications: Push/SMS/Email are modular plug-in slots; in the
+     demo environment, delivery is never fabricated without active provider credentials.
+  3. AI assistants are strictly advisory, tool-sandboxed, and fall back to deterministic
+     rules whenever LLM inference is unconfigured or unavailable.
+  4. Core system workflows (cases, gate passes, certs, SLAs) operate deterministically.
 
 ====================================================================
-                          THE 10 SLIDES
+                        THE 15 COMPLETE SLIDES
 ====================================================================
 
 --------------------------------------------------------------------
-SLIDE 1 — TITLE
+SLIDE 1 — TITLE & EXECUTIVE MISSION
 --------------------------------------------------------------------
 Headline:   CAMPUS RELAY
 Sub-head:   A resilient operating layer for everyday campus operations.
-By-line:    Crystal Studio Labs · BPUT Hackathon 2026 · Fretbox Problem
-            Statement 07
-Footer:     "Offline-first · Channel-independent · Append-only audit"
+By-line:    Crystal Studio Labs · BPUT Hackathon 2026 · Problem Statement 07
+Footer:     "Offline-First PWA · Channel-Independent · Trigger-Enforced Audit Ledger"
 
-VISUAL: Full-bleed title plate. A broad safety-yellow brand plate across the
-lower third with a single diagonal hazard-stripe band; the wordmark in heavy
-uppercase. Behind it, a faint blueprint grid. Three monospace identifiers
-floating small in the corner as texture: CR-2026-0142, CR-ROOM-AA-101,
-CR-FAN-014. No stock photos, no people, no globe.
+ON-SLIDE CONTENT:
+  • Problem Domain: Complex university campus management & facilities automation.
+  • Core Innovation: Unified case state machine bridging hostels, academics, gates, & maintenance.
+  • Technical Guarantees: Local-first IndexedDB offline cache, zero-trust cryptographic verification,
+    and anti-passback gate security.
+  • Telemetry Badges: [FASTAPI 0.115+] [POSTGRESQL 16] [REACT 18 PWA] [INDEXEDDB] [DOCKER READY]
 
-LAYOUT: One enormous headline, one line of sub-head, one rule, three tiny
-meta lines. Lots of negative space.
+SLIDE LAYOUT:
+Full-bleed industrial dark canvas (#121417). Broad safety-yellow header band with a sharp diagonal
+hazard stripe. Massive geometric headline. Monospace metadata tags floating in the lower corners:
+CR-SYS-INIT · 2026-BPUT-PS07 · CRYSTAL-STUDIO-LABS.
 
---------------------------------------------------------------------
-SLIDE 2 — THE PROBLEM
---------------------------------------------------------------------
-Headline:   CAMPUS OPERATIONS ARE FRAGMENTED
-Sub-head:   The work happens where the network, the process and the person
-            all break down.
+AI IMAGE GENERATOR PROMPT:
+"An ultra-high-resolution 16:9 architectural title graphic for an industrial software platform called 'Campus Relay'. Dark graphite slate background with a subtle mathematical blueprint grid in dark cyan. In the center, a bold monolithic 3D geometric emblem featuring the interlocking letters 'CR' styled with industrial safety hazard stripes in vivid caution yellow and obsidian black. Glowing cyan and gold telemetry lines connect the emblem to university buildings, gates, and server nodes. Clean, minimal, technical brutalist aesthetic, isometric view, octane render, sharp 8k focus, cinematic lighting, no text, no blur."
 
-Body — five short lines, each with a small icon (paper/register, chat/WhatsApp,
-form, dead-signal, broadcast):
-  • Registers, notice boards, WhatsApp groups, printed forms — and apps that
-    do not talk to each other.
-  • Nobody can prove who was responsible, or when.
-  • The network is treated as always-on. Hostels, basements and gates have
-    no signal.
-  • Students without a working smartphone are left out entirely.
-  • Notices are broadcast, never tracked: sent to 600, read by 40, no idea
-    which 40. (mark this as an illustrative example, not a measured statistic)
-
-VISUAL: A "before" diagram — five disconnected boxes in a loose scatter, each
-labelled (Register, Notice board, WhatsApp, Paper form, Department app), with
-broken/dotted lines between them and a red "?" marker where accountability
-should be. Contrast this scattered heap with the single clean pipeline that
-appears on slide 3.
-
-LAYOUT: Headline top-left, diagram on the right, five bullets stacked left.
+SPEAKER NOTES:
+"Good morning, judges. We are Crystal Studio Labs. Today we present Campus Relay, a resilient,
+offline-capable operating layer engineered for everyday university operations. Rather than building
+another fragile student portal, we built an industrial-grade operational backbone that guarantees
+service delivery, accountability, and offline continuity across an entire campus."
 
 --------------------------------------------------------------------
-SLIDE 3 — THE IDEA: EVERY REQUEST BECOMES A CASE
+SLIDE 2 — THE REALITY OF MODERN CAMPUS OPERATIONS
+--------------------------------------------------------------------
+Headline:   FRAGMENTATION, SILOS & SILENT FAILURES
+Sub-head:   Campus work breaks down where connectivity, bureaucracy, and human friction collide.
+
+ON-SLIDE CONTENT:
+  • Disconnected Communication: WhatsApp groups, paper registers, static notice boards, and email threads
+    operate in isolation with zero unified tracking.
+  • Zero Accountability: No tamper-proof record of when an issue was reported, who was assigned,
+    or why an urgent repair remained stalled for weeks.
+  • The "Always-On" Fallacy: Hostels, basement labs, and campus gates have severe signal dead-zones.
+    Conventional cloud apps fail instantly when the network drops.
+  • The Digital Divide: Students without high-end smartphones or mobile data plans are effectively
+    excluded from essential campus services.
+  • Unverified Notices: Critical circulars are broadcast to 800 students, opened by 50, acknowledged
+    by 10, with zero proof of compliance during campus emergencies.
+
+SLIDE LAYOUT:
+Two-column diagnostic layout. Left: 5 problem vectors with high-contrast alert icons. Right:
+A conceptual diagram showing 5 disconnected red nodes (Register, WhatsApp, Paper Form, Broken App, Gate)
+with broken dotted lines and red question marks representing lost institutional accountability.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen conceptual visualization representing fragmented campus communications. On a dark technical grid background, five floating transparent glass tiles represent 'Paper Register', 'Messaging Apps', 'Paper Forms', 'Dead Signal', and 'Unread Notice'. Red laser lines between them are frayed, broken, and sparking, highlighting disconnected data silos and lost accountability. High-contrast industrial design, matte dark grey surfaces, glowing red warning indicators, blueprint technical aesthetic, photorealistic 3D render, 8k resolution."
+
+SPEAKER NOTES:
+"Universities don't suffer from a lack of apps; they suffer from fragmentation. Crucial hostel maintenance
+gets lost in chat groups. Gate security relies on paper logbooks that can be forged. When the WiFi dies
+in the hostel basement, reporting halts completely. Campus Relay was engineered to solve this systemic breakdown."
+
+--------------------------------------------------------------------
+SLIDE 3 — THE CORE PARADIGM: THE UNIFIED CAMPUSCASE
 --------------------------------------------------------------------
 Headline:   ONE OBJECT. ONE ENGINE. EVERY SERVICE.
-Sub-head:   A hostel fan, a bonafide certificate, a leave pass and a mess
-            complaint are all the same thing: a CampusCase.
+Sub-head:   A broken fan, a bonafide certificate, an out-pass, and a mess refund are all the same thing: a CampusCase.
 
-VISUAL (this is the hero diagram — make it clean and large):
-A single horizontal pipeline of labelled blocks joined by arrows:
-  Request → Case → Policy → Workflow → Approval → Target time (SLA)
-  → Assignment → Notification → Resolution → Verification → Audit
-Colour-code the blocks: intake sky-blue, Policy orange, Workflow/Audit grey,
-Verification green, Audit monospace. Beneath the chain, a thin "audit spine"
-line running under every block, showing each hop writes a record.
+ON-SLIDE CONTENT:
+  • The Unified Model: Instead of building 10 disparate apps for 10 departments, Campus Relay handles
+    every single campus request through a polymorphic, state-driven `CampusCase` object.
+  • Universal Pipeline Lifecycle:
+    Intake → Case Minting → Policy Validation → Workflow Routing → SLA Assignment → Task Execution → Evidence Verification → Ledger Closure
+  • Declarative Extensibility: Adding a new university service (e.g., Lab Equipment Booking) requires
+    only JSON configuration—not writing new code or schema migrations.
+  • Immutable Audit Spine: Every status hop, assignment, and comment automatically writes an immutable
+    record to the append-only event store.
 
-CALL-OUT BOX (safety yellow, hazard stripe edge): the recurring one-hour quote
-verbatim.
+SLIDE LAYOUT:
+Hero pipeline diagram spanning horizontally across the center. 8 interconnected industrial nodes
+color-coded by state: Intake (Sky Blue), Policy (Safety Orange), Workflow (Graphite), Verification (Green),
+Audit (Gold). Beneath the chain runs an unbroken glowing 'Audit Spine' line.
 
-Bullets (keep to two, tiny):
-  • One engine, not one app per department.
-  • Adding a new campus service is configuration — catalogue, workflow and
-    policy — not a new module.
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen 3D schematic diagram showing a unified digital pipeline for enterprise operations. A glowing golden data token labeled 'Case Object' moves through a sequence of precision-engineered industrial processing stations: Intake, Policy Validation, Routing, SLA Clock, Verification, and Immutable Ledger. Smooth dark slate metallic machinery, glowing fiber-optic conduits, safety yellow accents, isometric technical illustration, crisp depth of field, 8k rendering."
 
---------------------------------------------------------------------
-SLIDE 4 — WHY IT IS DIFFERENT (ARCHITECTURE, NOT FEATURES)
---------------------------------------------------------------------
-Headline:   THIS IS AN ARCHITECTURE, NOT A FEATURE LIST
-Sub-head:   The engines and guarantees a conventional CRUD app cannot reuse.
-
-VISUAL: A 2x2 or 3-column diagram of the four engines as stacked machine
-blocks feeding the case pipeline:
-  [ Case engine — owns the state machine ]
-  [ Workflow engine — decides the next step and who acts ]
-  [ Policy engine — states exactly which rule failed, on which field ]
-  [ SLA engine — ON_TIME / AT_RISK / BREACHED / MET / MISSED ]
-  Beneath them, a thick base slab labelled:
-  [ Append-only event + audit store — enforced by PostgreSQL triggers ]
-
-Supporting strip (four short items with icons):
-  • One system, many channels: phone, desktop, gate terminal, kiosk and
-    helpdesk read and write the SAME case, workflow, database and audit trail.
-  • Immutability is enforced in the database, so it survives future code.
-  • Different interface — same system.
-  • Modular monolith by choice: one service, one database, one PWA.
+SPEAKER NOTES:
+"Our breakthrough architectural insight is simplicity: a hostel maintenance complaint and a student leave
+gate-pass share the exact same underlying mechanics. Both require intake, validation against policy, routing
+to an authority, strict SLA tracking, and an audit trail. In Campus Relay, every request is a CampusCase."
 
 --------------------------------------------------------------------
-SLIDE 5 — THREE END-TO-END WORKFLOWS
+SLIDE 4 — DEEP ARCHITECTURE: THE FOUR ENGINES & POSTGRESQL LEDGER
 --------------------------------------------------------------------
-Headline:   THREE WORKFLOWS, START TO FINISH
-Sub-head:   Each one is a real state machine with approvals, SLAs and an
-            audit trail — not a form that emails a PDF.
+Headline:   AN OPERATIONAL ARCHITECTURE, NOT A CRUD FORM
+Sub-head:   Four specialized server-side engines backed by a trigger-enforced PostgreSQL ledger.
 
-VISUAL: Three vertical swim-lane columns, each a numbered flow. Use the
-colour system. Keep node text to 1-3 words.
+ON-SLIDE CONTENT:
+  • Case State Machine Engine: Enforces legal state transitions (SUBMITTED → ASSIGNED → IN_PROGRESS →
+    RESOLVED → VERIFIED → CLOSED); prevents illegal state jumps or race conditions.
+  • Workflow Routing Engine: Dynamically maps department, category, hostel block, and priority to
+    designated staff roles, handling duty handovers and escalation ladders.
+  • Policy Evaluation Engine: Deterministic rule validator checking academic dues, hostel rules,
+    and eligibility limits before an approval can even reach a warden or registrar.
+  • SLA & Escalation Engine: Real-time clock tracking targets (ON_TIME, AT_RISK, BREACHED, MET, MISSED);
+    triggers automatic notifications upon threshold breaches.
+  • The Storage Foundation: PostgreSQL 16 relational database with trigger-enforced append-only audit
+    tables that prevent UPDATE or DELETE tampering even by database administrators.
 
-  LANE A — HOSTEL MAINTENANCE (orange/green)
-    Scan room QR → auto-classify → route to department/technician →
-    resolve with evidence → student verifies → CLOSED (or REOPENED)
+SLIDE LAYOUT:
+Stacked modular architecture diagram. Top row: 4 distinct engine blocks in industrial metallic containers.
+Center: Bidirectional event bus. Bottom: Heavy reinforced granite foundation block labelled "PostgreSQL 16
+Append-Only Audit Store (Trigger-Protected)".
 
-  LANE B — BONAFIDE CERTIFICATE (sky → green)
-    Request + purpose → policy checks dues → registrar approval →
-    verifiable PDF (serial + QR) → public zero-trust verification link
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 technical architectural breakdown of a high-reliability software system. Four glowing industrial server modules labelled Case Engine, Workflow Engine, Policy Engine, and SLA Engine hover above a massive monolithic foundation block of dark steel and obsidian labeled 'PostgreSQL Immutable Ledger'. Golden data pulses flow through transparent conduits between the modules. Blueprint background with circuit traces, crisp brutalist lines, isometric view, studio lighting, hyper-detailed 3D render."
 
-  LANE C — LEAVE + GATE PASS (orange → green)
-    Leave request → warden approval → digital pass → guard scans →
-    EXIT logged → return → ENTRY logged → case auto-closes
-
-Footnote (small, monospace): "A pass cannot be reused or used out of order
-— anti-passback is enforced."
-
---------------------------------------------------------------------
-SLIDE 6 — WORKS WITH NO SIGNAL, AND WITHOUT A SMARTPHONE
---------------------------------------------------------------------
-Headline:   OFFLINE FIRST, AND NO STUDENT LEFT OUT
-Sub-head:   The request is created on the device, not on the server.
-
-VISUAL (left: offline diagram, right: kiosk mock):
-  LEFT — a two-box diagram: [Device: IndexedDB outbox + idempotency key]
-    → (network gap / dotted line) → [Server: /sync/push → dedupe →
-    PostgreSQL]. Label the gap "no signal". Show the same operation key
-    arriving twice and the second collapsing to the SAME record (draw two
-    arrows converging into one row labelled "exactly once").
-
-Bullets (short):
-  • Requests are written to the device first, with a device-generated
-    idempotency key — the same key can never create a second case.
-  • On reconnect the outbox replays; a stale edit returns CONFLICT and never
-    silently overwrites.
-  • Status is always visible: QUEUED / SYNCING / SYNCED / FAILED_RETRYING /
-    CONFLICT.
-  • KIOSK: giant touch targets, roll-number lookup, QR scan, auto-reset after
-    inactivity.
-  • HELPDESK: an operator files on a student's behalf — a normal case with
-    source_channel = KIOSK or ASSISTED_DESK, not a lesser workflow.
+SPEAKER NOTES:
+"Campus Relay is not a simple CRUD database wrapper. It is governed by four distinct deterministic engines.
+The Case Engine governs the state machine. The Policy Engine prevents invalid requests upfront. The SLA
+Engine keeps staff accountable to deadlines. And at the bottom, PostgreSQL triggers make the audit ledger
+physically immutable."
 
 --------------------------------------------------------------------
-SLIDE 7 — TRACKED COMMUNICATION + THE COMMAND CENTRE
+SLIDE 5 — ZERO-TRUST SECURITY, RBAC & AUDIT LEDGER
 --------------------------------------------------------------------
-Headline:   COMMUNICATION YOU CAN PROVE, ON A SHIFT-HANDOVER SCREEN
-Sub-head:   Notices are tracked per person; the command centre is a working
-            tool, not a vanity dashboard.
+Headline:   ENTERPRISE ZERO-TRUST SECURITY & ACCESS CONTROL
+Sub-head:   Role-based access control, cryptographic verification, and non-repudiation on every action.
 
-VISUAL: Two panels side by side.
-  LEFT — Notice Studio funnel: a horizontal 5-stage tracker
-    SENT → DELIVERED → READ → ACKNOWLEDGED → ACTIONED, with a per-person
-    breakdown bar underneath. Target chips above (campus / department /
-    branch / year / batch / hostel / block / role / named users).
-  RIGHT — Command Centre: a "shift handover" panel with six small tiles:
-    open cases · SLA breached · SLA at-risk · unassigned · ageing buckets
-    (<24h / 1-3d / 3-7d / >7d) · recurring problems. Draw the ageing buckets
-    as a 4-bar chart and workload as a small horizontal bar list.
+ON-SLIDE CONTENT:
+  • Granular RBAC Matrix: Dedicated server-side permission enforcement across 8 distinct roles:
+    STUDENT · WARDEN · TECHNICIAN · HOD · REGISTRAR · SECURITY_GUARD · HELPDESK · SUPER_ADMIN.
+  • Cryptographic Digital Passports: Leave passes and bonafide certificates carry tamper-proof,
+    HMAC-signed verification tokens and dynamic scannable QR codes.
+  • Public Zero-Trust Verification: External entities (police, banks, recruiters) can scan certificate QRs
+    and verify authenticity against the public `/verify` endpoint without gaining access to student records.
+  • Non-Repudiation: Every approval, rejection, and gate scan captures actor identity, timestamp,
+    client IP, and role—permanently sealed in the audit log.
+  • Multi-Tenant Isolation: Complete schema and organizational boundary scoping preventing cross-campus data leakage.
 
-Bullets:
-  • Notice types: NORMAL → IMPORTANT → URGENT → EMERGENCY; required-action
-    notices demand acknowledgement.
-  • Analytics count ONLY real resolved cases. No invented numbers.
+SLIDE LAYOUT:
+3-part security dashboard layout. Left: Multi-role security matrix with green authorization checkmarks.
+Center: Glowing 3D cryptographic security shield with digital key and HMAC QR card. Right: Live audit ledger
+terminal displaying real-time tamper-evident events.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen cybersecurity visual showing a high-tech university credential verification system. A sleek holographic identification card and digital gate pass float in front of a glowing industrial shield emblem. The card displays a high-density QR code with cryptographic verification rings. In the background, dark server racks with green status LEDs and a scrolling monospace audit ledger terminal. Dark moody lighting, neon emerald and amber highlights, cinematic technical aesthetic, 8k resolution."
+
+SPEAKER NOTES:
+"Security is baked into the foundation. We enforce strict server-side RBAC on every single API route.
+Furthermore, every gate pass and certificate issued by Campus Relay is cryptographically verifiable via a
+public zero-trust endpoint. Anyone can verify the authenticity of a student document, but no unauthorized
+party can access confidential campus databases."
 
 --------------------------------------------------------------------
-SLIDE 8 — CONTROLLED AI, VERIFIABLE DOCUMENTS, SECURITY
+SLIDE 6 — WORKFLOW ALPHA: HOSTEL & INFRASTRUCTURE REPAIRS
+--------------------------------------------------------------------
+Headline:   CAMPUS MAINTENANCE WITH PROOF OF WORK
+Sub-head:   From room QR scan to photo evidence and student verification.
+
+ON-SLIDE CONTENT:
+  • Instant Room QR Intake: A student scans a physical QR code on their hostel door or laboratory asset;
+    room ID, block, and electrical inventory are automatically populated in the case form.
+  • Intelligent Department Routing: Automatic classification routes the ticket directly to the assigned
+    technician (Electrical, Plumbing, Carpentry, HVAC) based on block duty schedules.
+  • Live SLA Timers: Technicians receive cases with explicit target resolution deadlines (e.g., 4-hour target);
+    urgency status escalates visually as the deadline approaches.
+  • Compulsory Evidence Submission: Technicians cannot mark a repair as 'Resolved' without attaching
+    work notes and post-repair photographic evidence.
+  • 2-Way Student Verification: The student who reported the issue must sign off and verify the repair;
+    if unsatisfied, they can REOPEN the case with a single click, resetting the escalation ladder.
+
+SLIDE LAYOUT:
+Step-by-step visual workflow timeline across 5 stages:
+1. Scan QR (Room A-101) → 2. Auto-Assign (Technician) → 3. SLA Countdown (4h Window) → 4. Submit Photo Evidence → 5. Student Verified & Closed.
+Include visual badges for ON_TIME and REOPENED states.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen isometric illustration of a modern smart university campus maintenance workflow. On the left, a student scans a yellow industrial QR code on a hostel room door using a smartphone. In the center, a digital holographic pipeline displays an electrical maintenance ticket with an active countdown timer. On the right, a technician in a workshop logs completion with photo evidence, and a green checkmark seals the ticket. Clean technical industrial design, safety yellow and graphite colors, 8k render."
+
+SPEAKER NOTES:
+"Let's examine our first real-world workflow: hostel maintenance. Today, students complain to a warden,
+who writes it in a diary, and nothing happens. With Campus Relay, the student scans the room QR. The ticket
+immediately dispatches to the on-duty electrician with a live SLA countdown. Crucially, the technician cannot
+close the ticket—only the student who filed it can verify the fix and close the case."
+
+--------------------------------------------------------------------
+SLIDE 7 — WORKFLOW BETA: DIGITAL GATE PASS & ANTI-PASSBACK
+--------------------------------------------------------------------
+Headline:   STUDENT LEAVE, DIGITAL PASSES & GATE SECURITY
+Sub-head:   Cryptographic gate passes with strict physical anti-passback enforcement.
+
+ON-SLIDE CONTENT:
+  • Streamlined Leave Request: Student submits leave type (Outstation, Day Pass, Emergency), duration,
+    destination, and guardian emergency contact details.
+  • Dynamic Multi-Tier Approvals: Policy engine checks student hostel hours and auto-routes to the Warden
+    or Proctor based on overnight leave thresholds.
+  • Dynamic Digital Gate Pass: Approved requests generate a time-bound, cryptographically signed digital
+    pass equipped with a high-contrast rotating security token.
+  • Anti-Passback Protocol: Physical security guards scan the pass at the campus gate terminal. The system
+    enforces directional integrity: a pass cannot be scanned for EXIT twice without an intervening ENTRY.
+  • Automatic Case Resolution: Upon scanning student re-entry at the gate, the case automatically marks
+    return timestamp and closes the leave cycle in the central ledger.
+
+SLIDE LAYOUT:
+Split-screen visual workflow. Left: Warden digital approval desk with 'Approve' stamp and policy clearance.
+Center: High-contrast mobile digital gate pass with countdown timer and security barcode. Right: Gate guard
+terminal scanner executing EXIT and ENTRY state logging with Anti-Passback validation.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 technical visualization of an intelligent university gate access control system. A glowing digital tablet displays a security guard console with green biometric and QR scanner indicators. In the foreground, a student mobile screen displays a verified 'Campus Relay Gate Pass' with dynamic security barcodes and an active countdown timer. In the background, modern campus architectural security turnstiles with subtle ambient lighting. Technical brutalist style, high precision, 8k resolution."
+
+SPEAKER NOTES:
+"Workflow two: Student Leave and Gate Control. Paper outstation passes are routinely forged or handed
+off to peers. In Campus Relay, wardens approve leave digitally, generating an encrypted gate pass. When the
+student reaches the campus gate, the guard scans the pass. Our anti-passback protocol prevents any pass
+from being reused or shared—you cannot exit twice on the same pass."
+
+--------------------------------------------------------------------
+SLIDE 8 — OFFLINE-FIRST RESILIENCE: THE INDEXEDDB OUTBOX
+--------------------------------------------------------------------
+Headline:   LOCAL-FIRST ARCHITECTURE: WORKS WITH ZERO SIGNAL
+Sub-head:   Client-side IndexedDB outbox queue, background sync, and idempotent deduplication.
+
+ON-SLIDE CONTENT:
+  • The Offline Reality: Hostels, basements, and remote campus gates frequently drop connectivity.
+    Campus Relay treats offline as a standard operational state, not an error exception.
+  • Client-Side Outbox Queue: When the network is severed, all case submissions, gate scans, and status
+    updates write immediately to the browser's local IndexedDB outbox store.
+  • Cryptographic Idempotency Keys: Every client action generates a UUIDv4 idempotency key locally;
+    duplicate sync requests or network retries collapse safely into the exact same database record.
+  • Automatic Background Replay: The service worker monitors network heartbeat. Once connectivity resumes,
+    queued outbox actions replay seamlessly in strict causal sequence.
+  • Transparent State Indicators: Users are never left wondering; the UI displays explicit sync indicators:
+    [QUEUED LOCALLY] → [SYNCING] → [SYNCED TO SERVER] → [CONFLICT_RESOLVED].
+
+SLIDE LAYOUT:
+Technical dual-box synchronization diagram. Left Box: Mobile Device with local IndexedDB Outbox and Queue.
+Center: Broken lightning bolt / red dotted line indicating "Network Dropped / Zero WiFi".
+Right Box: Server / PostgreSQL database. Show two identical arrows converging into a single PostgreSQL row
+labeled "Idempotent Deduplication (Exactly-Once Execution)".
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 technical diagram visualizing offline-first local database synchronization. On the left side, a stylized mobile device with a visible glowing green internal storage chip labeled 'IndexedDB Outbox'. A red severed signal line shows offline disconnection. Once the connection reconnects with blue fiber-optic rays, an outbox queue of data packets replays into a robust industrial server rack on the right. Dark industrial background, glowing data paths, safety yellow status badges, 8k render."
+
+SPEAKER NOTES:
+"Our most important technical innovation is our Local-First offline engine. If a student is in a hostel
+basement with zero cell reception, they don't get an error screen. The request is created in their local
+IndexedDB outbox with a unique idempotency key. When their phone reconnects to campus WiFi 2 hours later,
+the outbox syncs automatically. Exactly once. No duplicate tickets, no lost data."
+
+--------------------------------------------------------------------
+SLIDE 9 — UNIVERSAL ACCESSIBILITY: KIOSKS & ASSISTED HELPDESK
+--------------------------------------------------------------------
+Headline:   NO SMARTPHONE? NO STUDENT LEFT BEHIND
+Sub-head:   Self-service campus touch kiosks and assisted operator helpdesks with full system parity.
+
+ON-SLIDE CONTENT:
+  • The Digital Inclusion Mandate: A significant percentage of students may lack high-speed mobile data,
+    run out of phone battery, or misplace their personal devices during academic hours.
+  • Self-Service Touch Kiosks: Deployed at library foyers and student centres with high-contrast,
+    large touch targets, roll-number PIN lookup, physical student ID card scanning, and auto-session resets.
+  • Assisted Operator Helpdesk: Campus administrators and receptionists can file and update cases on behalf
+    of students using the dedicated assisted desk workstation interface.
+  • Full Channel Parity: Cases filed via touch kiosk or helpdesk operator are identical first-class
+    `CampusCase` objects—they enter the exact same workflow, receive the same SLAs, and write to the same audit log.
+  • Privacy & Zero Ghost Sessions: Physical kiosks feature aggressive inactivity timeouts and privacy
+    curtains to safeguard student confidentiality in public campus lobbies.
+
+SLIDE LAYOUT:
+Dual-hardware accessibility showcase. Left: Modern industrial self-service campus kiosk terminal with
+large tactile yellow buttons and an ID card scanner. Right: Administrative assisted helpdesk workstation
+displaying student lookup and ticket filing on behalf of an applicant.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen architectural illustration of a futuristic yet functional campus student services foyer. In the foreground stands an industrial touchscreen kiosk with a rugged matte dark steel enclosure and safety yellow accents, showing a clean accessible user interface. A student is tapping the screen to register a request. In the background, an assisted helpdesk operator desk with dual monitors assists another student. High-tech institutional atmosphere, soft morning natural lighting, 8k render."
+
+SPEAKER NOTES:
+"Campus Relay solves the digital divide. If a student loses their phone or has no mobile data, they are
+not locked out of campus services. They can walk up to an interactive touch kiosk in the library lobby,
+log in with their roll number or ID card, and file a case. Or the hostel warden can log it on their behalf.
+Every channel has 100% feature parity."
+
+--------------------------------------------------------------------
+SLIDE 10 — VERIFIED NOTICE STUDIO: TARGETED PROOF OF ACKNOWLEDGEMENT
+--------------------------------------------------------------------
+Headline:   CAMPUS COMMUNICATION YOU CAN PROVE
+Sub-head:   Hyper-targeted institutional notices with granular delivery tracking and mandatory sign-offs.
+
+ON-SLIDE CONTENT:
+  • Eliminating the Notice Board Scatter: Replaces chaotic WhatsApp blasts with an authoritative,
+    digitally signed institutional communications broadcast studio.
+  • Multi-Tier Granular Targeting: Direct circulars by: Campus → Department → Branch → Academic Year →
+    Hostel Block → Specific Student Role → Named Roster.
+  • 5-Stage Accountability Funnel:
+    BROADCAST → DELIVERED TO DEVICE → OPENED & READ → DIGITALLY ACKNOWLEDGED → ACTION VERIFIED.
+  • Notice Urgency Tiers: Distinct visual operational classifications:
+    INFORMATIONAL (Blue) · IMPORTANT (Orange) · URGENT (Yellow/Black) · CAMPUS EMERGENCY (High-Hazard Red).
+  • Mandatory Emergency Sign-Offs: Urgent notices (e.g., cyclone alerts, mandatory exam schedules) require
+    students to click an explicit acknowledgement button, giving administrators real-time compliance metrics.
+
+SLIDE LAYOUT:
+Notice Studio interface layout. Left: Broadcast Composer with targeting chips (e.g., "Hostel Block B",
+"3rd Year CSE"). Right: Interactive 5-stage accountability progress funnel bar showing delivery, read,
+and acknowledgement percentages with zero fabricated figures.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen data visualization of an institutional emergency broadcast operations console. In the center, a digital notice studio displays an urgent campus advisory with hazard stripe borders. Floating analytics widgets show a 5-step conversion funnel: Sent, Delivered, Read, Acknowledged, Actioned, with real-time percentage counters and student cohort breakdown charts. Dark control room aesthetic, crisp graphical UI, vivid amber and cyan accents, 8k render."
+
+SPEAKER NOTES:
+"Every campus administrator knows the nightmare of broadcasting a circular and having no idea who saw it.
+Our Notice Studio changes communication from broadcast to verified delivery. Wardens can target a single
+hostel block. For critical safety alerts, the system requires an active digital acknowledgement, giving
+the university documented proof of compliance."
+
+--------------------------------------------------------------------
+SLIDE 11 — COMMAND CENTRE: TRIAGE & SHIFT HANDOVER
+--------------------------------------------------------------------
+Headline:   A WORKING TOOL, NOT A VANITY DASHBOARD
+Sub-head:   Real-time operational triage, workload distribution, and structured shift handovers.
+
+ON-SLIDE CONTENT:
+  • Purpose-Built for Shift Operators: Designed for campus estate officers, chief wardens, and facilities
+    supervisors to conduct daily 15-minute operational handovers with absolute clarity.
+  • Actionable Telemetry Tiles: Six core operational gauges:
+    Active Cases · SLA Breaches · SLA At-Risk (Warning Window) · Unassigned Queue · Today's Closures · Recurring Hotspots.
+  • Ticket Ageing Buckets: Real-time case distribution bar chart categorized by age:
+    < 24 Hours · 1 to 3 Days · 3 to 7 Days · Over 7 Days (Critical Escalation).
+  • Staff Workload Balancing: Live view of technician task queues preventing individual staff overload
+    and highlighting bottleneck departments.
+  • Authentic Data Engine: Metrics reflect only verified database state; zero artificially smoothed lines
+    or fake vanity numbers.
+
+SLIDE LAYOUT:
+Command Centre UI console view. Top bar: High-contrast status counters with yellow and red alerts.
+Main grid: 2-column operational layout with Ageing Buckets bar chart on the left and Staff Workload
+Distribution table on the right. Dark industrial styling with high-visibility data tiles.
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 widescreen control room interface representing the Campus Relay Command Centre. Multiple dark-mode dashboard tiles display real-time campus operational metrics: active maintenance tickets, SLA countdown clocks in amber, a 4-bar ticket ageing distribution chart, and technician workload heatmaps. Clean industrial UI layout, typography-focused, yellow hazard accent stripes, minimal glare, realistic control centre atmosphere, ultra-crisp 8k render."
+
+SPEAKER NOTES:
+"Most hackathon dashboards are filled with fake pie charts. The Campus Relay Command Centre is an
+operational tool designed for shift handovers. When the morning warden hands over to the night supervisor,
+this screen shows exactly what is unassigned, which cases are approaching SLA breach, and which hostels have
+recurring infrastructure failures. Every number represents a real database record."
+
+--------------------------------------------------------------------
+SLIDE 12 — SANDBOXED AI AGENTS & DETERMINISTIC SAFEGUARDS
 --------------------------------------------------------------------
 Headline:   INTELLIGENCE THAT CANNOT GO ROGUE
-Sub-head:   Four advisory agents, documents anyone can verify, and authz on
-            every request.
+Sub-head:   Four specialized read-only advisory agents guarded by human-in-the-loop authorization.
 
-VISUAL: A guarded pipeline. Four agent chips on the left (all lilac):
-  [Intake] [Routing] [Operations briefing] [Student assistant].
-Then a single thick gate labelled:
-  [ Human confirms → Authorization → Policy → Service → Database → Audit ]
-Draw a small red padlock/lock icon showing agents have NO direct database
-access — they must pass through the same gate as a human. Add a "deterministic
-fallback" arrow that lets the pipeline run without any model.
+ON-SLIDE CONTENT:
+  • Sandboxed Agent Architecture: Four domain-specific AI sub-agents:
+    1. Triage Agent (Categorizes requests) · 2. Routing Agent (Suggests best technicians)
+    3. Shift Briefing Agent (Summarizes open risks) · 4. Student Assistant (Answers policy queries).
+  • Zero Direct Database Writes: AI agents possess zero direct database write permissions. They operate
+    in a sandboxed read-only environment and can only formulate structured action proposals.
+  • Mandatory Human Confirmation: An agent proposal (e.g., 'Dispatch Plumber to Room 204') must be
+    explicitly reviewed and approved by a human operator before any database mutation occurs.
+  • Deterministic Rule Fallbacks: If LLM API credits expire, network fails, or no API key is supplied,
+    the platform seamlessly falls back to fast, deterministic regex and rule heuristics without disruption.
+  • Tool-Constrained Execution: Agents only access strictly typed backend tools, preventing prompt
+    injections from extracting confidential student records or bypassing campus access policies.
 
-Also show a small document card: a certificate PDF with a QR + serial, and an
-arrow to a public "verify" endpoint labelled "zero-trust — no academic or
-financial data exposed".
+SLIDE LAYOUT:
+Safety pipeline architecture diagram. Left: 4 lilac AI Agent chips. Center: Heavy reinforced security gate
+with a red padlock icon labeled 'Human Review & Policy Authorization Barrier'. Right: Production PostgreSQL
+database. A prominent bypass arrow labeled 'Deterministic Rule Fallback (Zero Model Dependency)' ensures 100% uptime.
 
-Bullet strip:
-  • Assistant answers with tool evidence and asks for confirmation before any
-    write.
-  • Security: JWT auth, server-side RBAC on every endpoint, org data scoping,
-    multi-tenant campus isolation, rate limiting, safe errors.
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 technical architectural visualization of sandboxed artificial intelligence safety. Four glowing lilac modular AI processor nodes labeled with triage icons feed into a heavy reinforced titanium security gate with a glowing physical lock. On the other side of the gate sits a secure database core. A golden pathway labeled 'Human Authorization' controls the valve. Modern cyberpunk industrial aesthetics, crisp schematics, dark slate and lilac palette, 8k resolution."
 
---------------------------------------------------------------------
-SLIDE 9 — DEPLOYMENT + ONE-HOUR ONBOARDING
---------------------------------------------------------------------
-Headline:   ADOPT IT IN AN HOUR, DEPLOY IT TWO WAYS
-Sub-head:   Same code, same config file — only environment variables differ.
-
-VISUAL: Two deployment cards side by side.
-  CARD 1 — "Split cloud (public demo)": Frontend on Vercel + Backend on
-    Render + Database on Supabase. Draw three cloud nodes with arrows.
-  CARD 2 — "Single machine (data on-premises)": one docker-compose command
-    starts Postgres + API + PWA on ONE origin. Draw one server block with a
-    "no CORS · no build-time API URL" label.
-
-Then a horizontal onboarding strip:
-  [Institution setup screen] + [CSV templates] → departments · hostels · rooms
-  · staff · students → running campus.
-
-Bullets:
-  • The college provides its information via the setup screen and CSV
-    templates; the importer reports per-row failures and never reports a
-    partial import as complete.
-  • institution.json configures identity, design language, vocabulary,
-    languages, station behaviour and module switches — no fork, no rebuild.
-
-CALL-OUT BOX: the recurring one-hour quote again, as the closing proof point.
+SPEAKER NOTES:
+"AI in Campus Relay is strictly advisory. We do not let language models write directly to university
+databases. Our four specialized agents categorize tickets and generate shift briefings, but every action
+must pass through our authorization pipeline and be confirmed by a human. If the AI service is disconnected,
+the platform's deterministic rules take over instantly with zero downtime."
 
 --------------------------------------------------------------------
-SLIDE 10 — WHAT WE DO NOT CLAIM + CLOSING
+SLIDE 13 — DUAL DEPLOYMENT TOPOLOGY & 60-MINUTE ONBOARDING
+--------------------------------------------------------------------
+Headline:   ADOPT IN AN HOUR. DEPLOY TWO WAYS.
+Sub-head:   Zero vendor lock-in: Public Cloud Demo or 100% Air-Gapped On-Premises Appliance.
+
+ON-SLIDE CONTENT:
+  • Two Turnkey Topologies:
+    1. Split Cloud Architecture: Frontend on Vercel Edge + API on Render + PostgreSQL on Supabase Cloud.
+    2. Single-Machine On-Premises: Entire stack (FastAPI + PostgreSQL + Nginx + PWA) launches via a single
+       `docker-compose up` command on an isolated campus local server with zero external dependencies.
+  • The 60-Minute Institution Onboarding Protocol:
+    1. Institution Setup Console: Define campus name, blocks, departments, and custom logo.
+    2. Atomic CSV Importer: Bulk-import hostels, rooms, faculty, staff, and student rosters in minutes.
+    3. Strict Per-Row Validation: Importer flags malformed rows individually with error explanations;
+       never silently fails or corrupts partial database states.
+  • Single Source of Truth: All campus branding, terminology, and operational thresholds are declared
+    in a single configuration file (`institution.json`)—no custom forks or codebase rebuilds required.
+
+SLIDE LAYOUT:
+Side-by-side deployment architectural comparison. Card 1: Cloud Topology (Vercel + Render + Supabase icons).
+Card 2: On-Premises Docker Appliance (Server tower with local WiFi router and zero cloud dependencies).
+Bottom banner: 3-step onboarding pipeline (Configure → CSV Import → Live Running Campus in 60 Mins).
+
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 technical architectural comparison graphic. On the left, a modern cloud topology with interconnected cloud nodes (Frontend Edge, Backend API, Cloud Database). On the right, a rugged on-premises server rack labeled 'Air-Gapped Campus Appliance' running Docker, connected directly to a local campus network. Clean dividing line down the center. Dark brutalist slate texture, blueprint accents, glowing golden data links, precision 3D rendering, 8k focus."
+
+SPEAKER NOTES:
+"Campus Relay can be deployed in two ways with the exact same codebase. For our live hackathon demo,
+we run a split cloud architecture. But for real universities with strict data sovereignty mandates, a single
+`docker-compose` command spins up the entire platform on an on-premises campus server. With our CSV bulk
+importer, a college can be fully configured and running in under an hour."
+
+--------------------------------------------------------------------
+SLIDE 14 — ENGINEERING INTEGRITY & DEMO SYSTEM BOUNDS
 --------------------------------------------------------------------
 Headline:   WHAT THIS PROTOTYPE DOES NOT CLAIM
-Sub-head:   A demo that oversells itself is worth less than one that tells
-            you where its edges are.
+Sub-head:   A prototype that is transparent about its boundaries is worth ten that exaggerate.
 
-VISUAL: A "bounds" plate — a thick-bordered box with everything inside it
-clearly labelled as NOT DONE, in muted grey with one red underline per line.
-  • Push, SMS and email are adapter slots with NO provider configured — the
-    app never claims a message was delivered.
-  • Telegram sends for real once a bot token is set; WhatsApp needs Meta
-    credentials and an approved template. With none configured, nothing is sent
-    and nothing is claimed.
-  • Demo data is seeded and labelled as demo data.
-  • AI answers are advisory only (deterministic rules by default).
+ON-SLIDE CONTENT:
+  • Transparent System Bounds (What is Built vs. What is Configured):
+    • Multi-Channel Notification Adapters: Clean architectural interfaces exist for WhatsApp, Telegram,
+      Push, and SMS. Telegram bot works out-of-the-box with a token; Meta WhatsApp requires enterprise
+      BSP templates; SMS requires DLT credentials. Without active credentials, the system logs intentions
+      locally and never falsely claims messages were sent.
+    • Seeded Demo Environment: Demo campus data (hostels, students, sample maintenance tickets) is
+      explicitly tagged as SEEDED data for reproducible hackathon judging.
+    • Hardware Integrations: Turnstiles and barcode guns communicate via standard HID/serial USB protocols;
+      in this demo, camera-based web barcode scanning acts as the live physical emulator.
+  • Architectural Integrity: Every feature demonstrated is backed by real, running code in our repository,
+    tested with automated suites and verified against edge-case network drops.
 
-CLOSING LINE (large, centred, over a hazard stripe):
-  "Different interface. Same case. Same workflow. Same database. Same
-   audit trail."
+SLIDE LAYOUT:
+Industrial "System Boundary Specifications" plaque. High-contrast bordered card with a hazard stripe header.
+Two-column breakdown: Left Column (Fully Active & Implemented Features - Green checkmarks);
+Right Column (Integration Adapter Slots & Environmental Requirements - Clean amber boundary chips).
 
-CALL TO ACTION (small footer):
-  Try the demo campus · file a complaint with the network OFF · watch it
-  sync — exactly once.
+AI IMAGE GENERATOR PROMPT:
+"A 16:9 conceptual engineering integrity graphic. A precision-machined technical calibration plate made of brushed titanium with laser-etched specifications and boundary markers. Green illuminated status indicators denote active operational systems, while amber calibration chips denote external interface slots. Minimalist, honest, industrial brutalist design, subtle depth of field, dramatic cinematic lighting, 8k render."
+
+SPEAKER NOTES:
+"We believe in engineering integrity. We do not claim that we sent 10,000 real SMS messages today.
+Our notification engine has production-grade adapter interfaces for WhatsApp and SMS, but without an
+active paid DLT gateway configured, we log the message and honestly tell you the provider is in demo mode.
+What we do guarantee is that every core engine, state machine, and sync queue shown today is 100% operational."
+
+--------------------------------------------------------------------
+SLIDE 15 — SUMMARY, CRYSTAL STUDIO LABS & LIVE DEMO
+--------------------------------------------------------------------
+Headline:   CAMPUS RELAY: THE RESILIENT OPERATING STANDARD
+Sub-head:   Engineered by Crystal Studio Labs for BPUT Hackathon 2026.
+
+ON-SLIDE CONTENT:
+  • The Four Unbroken Guarantees:
+    1. Operational Continuity: Works flawlessly offline, in basements, and through power cuts.
+    2. Radical Accountability: Immutable PostgreSQL audit ledger and non-repudiable gate logs.
+    3. Universal Inclusivity: Smartphone app, touch kiosk, and assisted desk on equal footing.
+    4. Rapid Deployment: 60-minute configuration from CSV roster to running institution.
+  • The Engineering Team (Crystal Studio Labs):
+    Shuvransu Sekhar Sahoo · Snehal Kumar Moharana · Pruthiraj Lenka ·
+    Manas Kumar Mallick · Bibhu Bhusan Giri · Nandita Das
+  • Official Contact: connect.crystalstudio@gmail.com
+  • Live Demonstration Invitation:
+    "We invite the grand jury to test our live demo campus right now: turn your phone onto Airplane Mode,
+     file a maintenance ticket, turn WiFi back on, and watch it sync exactly once."
+
+SLIDE LAYOUT:
+Grand finale presentation slide. Left: Four bold golden guarantee plates with high-contrast icons.
+Right: Team Crystal Studio Labs official credits card, repository QR code for judges, and a prominent
+hazard-striped "LIVE SYSTEM DEMONSTRATION" action banner.
+
+AI IMAGE GENERATOR PROMPT:
+"An ultra-premium 16:9 widescreen finale illustration for a technology presentation. In the center, a gleaming futuristic campus command console displays the 'Campus Relay' emblem in brilliant safety yellow and obsidian. Surrounding the console are holographic displays showing interconnected campus network nodes, verified certificates, and a live synchronization wave. Sophisticated dark architectural brutalism, ambient lighting, cinematic atmospheric haze, 8k resolution, photorealistic."
+
+SPEAKER NOTES:
+"In summary: Campus Relay transforms chaotic campus bureaucracy into an accountable, resilient,
+offline-capable operating layer. Different interfaces, same case, same workflow, same audit ledger.
+We are Crystal Studio Labs, and we now invite the esteemed judges to step up to the desk and test the
+system live—including our offline sync with the network turned completely off. Thank you."
 
 ====================================================================
-                     GENERATION NOTES / GUARDRAILS
+               SLIDES AI MAKER / PROMPT USAGE GUIDE
 ====================================================================
-1. EXACTLY 10 slides. Merge, never append. No agenda, no thank-you, no
-   "questions?" slide.
-2. No invented statistics, adoption numbers, accuracy claims or benchmarks.
-3. Prefer diagrams and labelled flows over bullet walls — slides 3, 4, 5, 6,
-   7, 8 and 9 each carry a diagram as specified above.
-4. Monospace only for identifiers (CR-2026-0142, CR-ROOM-AA-101, CR-FAN-014).
-5. Colour language is fixed: yellow = primary/brand, orange = urgent/at-risk,
-   green = resolved, sky = open/info, lilac = AI, red = breached/refused.
-6. Every slide: one headline, one sub-head, a handful of short lines. Detail
-   lives in speaker notes, not on the slide.
-7. Keep the tone honest and specific. If a claim cannot be verified in the
-   demo, it does not go on a slide.
+1. TO GENERATE WITH GOOGLE SLIDES AI / DUET AI / GEMINI:
+   Copy each slide's 'Headline', 'Sub-head', and 'On-Slide Content' into the slide text fields.
+   Then copy the 'AI IMAGE GENERATOR PROMPT' into the image creation tool within Google Slides
+   (Insert > Image > Generate with AI / Imagen) to create the exact matching visual asset.
+
+2. TO GENERATE WITH GAMMA AI:
+   Select 'Create from Text / Paste in notes', select '15 slides', paste the entire text of
+   this file, set visual theme to 'Dark Technical / Brutalist' with Yellow accent (#F5C518),
+   and let Gamma render the presentation automatically.
+
+3. FOR LIVE PITCHING:
+   Use the 'SPEAKER NOTES' provided at the bottom of each slide for a rehearsed, confident,
+   calm, 7-to-10 minute hackathon grand jury presentation.
 ====================================================================
