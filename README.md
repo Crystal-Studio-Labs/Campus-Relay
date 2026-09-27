@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/app-icon.jpg" alt="Campus Relay Logo" width="130" style="border-radius: 26px; box-shadow: 0 12px 32px rgba(0,0,0,0.18);" />
+  <img src="docs/assets/app-icon.jpg" alt="Campus Relay App Icon" width="140" style="border-radius: 28px; box-shadow: 0 14px 36px rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.15);" />
 </p>
 
 <h1 align="center">🏛️ Campus Relay</h1>
@@ -7,6 +7,17 @@
 <p align="center">
   <strong>A resilient operating layer for everyday campus operations.</strong><br>
   <em>Engineered by <strong>Crystal Studio Labs</strong> for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)</em>
+</p>
+
+<p align="center">
+  <!-- GitHub Metrics & Activity Stats -->
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/stargazers"><img src="https://img.shields.io/github/stars/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/network/members"><img src="https://img.shields.io/github/forks/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=0284c7" alt="GitHub Forks" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/watchers"><img src="https://img.shields.io/github/watchers/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=8b5cf6" alt="GitHub Watchers" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/commit-activity/t/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=git&color=10b981&label=Commits" alt="Total Commits" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/last-commit/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=2563eb" alt="Last Commit" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/github/repo-size/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=475569" alt="Repo Size" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/graphs/contributors"><img src="https://img.shields.io/github/contributors/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=ec4899" alt="Contributors" /></a>
 </p>
 
 <p align="center">
