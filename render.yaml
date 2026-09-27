@@ -19,8 +19,8 @@ services:
     plan: free
     region: singapore
     buildCommand: pip install -r requirements.txt
-    # Migrations run on every deploy; they are additive and idempotent.
-    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    # Migrations and bootstrap run on every deploy; they are additive and idempotent.
+    startCommand: alembic upgrade head && python -m scripts.bootstrap && uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/v1/health
     autoDeploy: true
     envVars:
