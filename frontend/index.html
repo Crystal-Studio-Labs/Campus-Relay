@@ -67,74 +67,217 @@
       })()
     </script>
     <style>
-      /* Decisive Brutalist Boot Screen */
-      html,
-      body {
-        margin: 0;
-        background: #f8fafc;
-        color: #0f172a;
-        font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+      /* ==========================================================================
+         INDUSTRIAL BRUTALIST PRE-BOOT SPLASH SCREEN
+         ========================================================================== */
+      :root {
+        --boot-bg: #f8fafc;
+        --boot-surface: #ffffff;
+        --boot-line: #cbd5e1;
+        --boot-ink: #0f172a;
+        --boot-muted: #64748b;
+        --boot-signal: #1d4ed8;
+        --boot-mint: #16a34a;
+        --boot-shadow: #0f172a;
       }
-      html[data-theme='dark'],
-      html[data-theme='dark'] body {
-        background: #090d14;
-        color: #f1f5f9;
+      html[data-theme='dark'] {
+        --boot-bg: #090d14;
+        --boot-surface: #111723;
+        --boot-line: #2e3b52;
+        --boot-ink: #f1f5f9;
+        --boot-muted: #94a3b8;
+        --boot-signal: #3b82f6;
+        --boot-mint: #10b981;
+        --boot-shadow: #000000;
+      }
+      html, body {
+        margin: 0;
+        background: var(--boot-bg);
+        color: var(--boot-ink);
+        font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+        height: 100%;
       }
       #boot {
         min-height: 100vh;
+        min-height: 100dvh;
         display: grid;
         place-items: center;
-        text-align: center;
-        padding: 24px;
+        padding: 20px;
+        box-sizing: border-box;
+        background-image: 
+          linear-gradient(to right, var(--boot-line) 1px, transparent 1px),
+          linear-gradient(to bottom, var(--boot-line) 1px, transparent 1px);
+        background-size: 32px 32px;
       }
-      #boot .mark {
-        display: inline-flex;
+      #boot-chassis {
+        position: relative;
+        width: 100%;
+        max-width: 480px;
+        background: var(--boot-surface);
+        border: 2px solid var(--boot-line);
+        box-shadow: 6px 6px 0px var(--boot-shadow);
+        border-radius: 2px;
+        padding: 28px 24px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        animation: boot-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes boot-in {
+        from { opacity: 0; transform: scale(0.97) translateY(6px); }
+        to { opacity: 1; transform: scale(1) translateY(0); }
+      }
+      .boot-corner {
+        position: absolute;
+        font-weight: 900;
+        font-size: 14px;
+        line-height: 1;
+        color: var(--boot-signal);
+        user-select: none;
+      }
+      .boot-tl { top: 6px; left: 8px; }
+      .boot-tr { top: 6px; right: 8px; }
+      .boot-bl { bottom: 6px; left: 8px; }
+      .boot-br { bottom: 6px; right: 8px; }
+
+      .boot-header-strip {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 12px;
-        background: #ffffff;
-        color: #0f172a;
+        border-bottom: 1.5px solid var(--boot-line);
+        padding-bottom: 10px;
+        font-size: 11px;
         font-weight: 800;
-        font-size: 15px;
-        text-transform: uppercase;
         letter-spacing: 0.08em;
-        padding: 12px 20px;
+      }
+      .boot-beacon-dot {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--boot-mint);
+        margin-right: 6px;
+        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+        animation: boot-pulse 1.4s infinite;
+      }
+      @keyframes boot-pulse {
+        0% { transform: scale(0.9); opacity: 0.7; }
+        50% { transform: scale(1.15); opacity: 1; }
+        100% { transform: scale(0.9); opacity: 0.7; }
+      }
+
+      .boot-brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .boot-emblem {
+        width: 44px;
+        height: 44px;
+        background: var(--boot-signal);
+        border: 2px solid var(--boot-ink);
+        box-shadow: 2px 2px 0px var(--boot-shadow);
         border-radius: 2px;
-        border: 2px solid #334155;
-        box-shadow: 3px 3px 0px #0f172a;
+        display: grid;
+        place-items: center;
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 18px;
+        letter-spacing: 0.04em;
+        flex-shrink: 0;
       }
-      #boot .mark::before {
-        content: '';
-        width: 14px;
-        height: 14px;
-        border-radius: 2px;
-        background: #1d4ed8;
-        border: 1.5px solid #0f172a;
+      .boot-title {
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--boot-ink);
+        margin: 0 0 4px;
       }
-      html[data-theme='dark'] #boot .mark {
-        background: #111723;
-        color: #f1f5f9;
-        border-color: #2e3b52;
-        box-shadow: 3px 3px 0px #000000;
-      }
-      #boot p {
-        margin: 18px 0 0;
+      .boot-tagline {
+        font-size: 11px;
         font-weight: 700;
-        font-size: 12px;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--boot-muted);
+        margin: 0;
+      }
+
+      .boot-progress-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .boot-bar {
+        width: 100%;
+        height: 8px;
+        background: var(--boot-bg);
+        border: 1.5px solid var(--boot-line);
+        border-radius: 2px;
+        overflow: hidden;
+        position: relative;
+      }
+      .boot-bar-fill {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 55%;
+        background: var(--boot-signal);
+        animation: boot-slide 1.5s infinite ease-in-out;
+      }
+      @keyframes boot-slide {
+        0% { left: -40%; width: 40%; }
+        50% { left: 30%; width: 50%; }
+        100% { left: 100%; width: 30%; }
+      }
+
+      .boot-status {
+        font-size: 11px;
+        font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: #475569;
-      }
-      html[data-theme='dark'] #boot p {
-        color: #94a3b8;
+        color: var(--boot-muted);
+        display: flex;
+        justify-content: space-between;
       }
     </style>
   </head>
   <body>
     <div id="root">
       <div id="boot">
-        <div>
-          <div class="mark">Campus Relay</div>
-          <p>Starting the campus operating layer…</p>
+        <div id="boot-chassis">
+          <span class="boot-corner boot-tl">+</span>
+          <span class="boot-corner boot-tr">+</span>
+          <span class="boot-corner boot-bl">+</span>
+          <span class="boot-corner boot-br">+</span>
+
+          <div class="boot-header-strip">
+            <div>
+              <span class="boot-beacon-dot"></span>
+              <span>SYS.BOOT // PROTOCOL ONLINE</span>
+            </div>
+            <span style="color: var(--boot-signal)">v2.6 MESH</span>
+          </div>
+
+          <div class="boot-brand">
+            <div class="boot-emblem">CR</div>
+            <div>
+              <div class="boot-title">Campus Relay</div>
+              <p class="boot-tagline">Operating Layer for Everyday Operations</p>
+            </div>
+          </div>
+
+          <div class="boot-progress-wrap">
+            <div class="boot-bar">
+              <div class="boot-bar-fill"></div>
+            </div>
+            <div class="boot-status">
+              <span>[CORE] INITIALIZING STORAGE...</span>
+              <span>ESTABLISHING LINK</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

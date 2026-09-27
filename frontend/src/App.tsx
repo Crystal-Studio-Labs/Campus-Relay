@@ -36,18 +36,18 @@ import { StaffTasks } from './pages/staff/Tasks'
 import { GateDesk } from './pages/security/GateDesk'
 import { KioskPage } from './pages/kiosk/Kiosk'
 import { HelpDesk } from './pages/helpdesk/HelpDesk'
-import { EmptyState, LoadingState } from './components/ui'
+import { EmptyState } from './components/ui'
+import { SplashScreen } from './components/SplashScreen'
+import type { RoleKey } from './lib/types'
+
+const AUTHORIZED_KIOSK_ROLES: RoleKey[] = ['HELPDESK_OPERATOR', 'ADMIN', 'SUPER_ADMIN', 'WARDEN']
 
 export function App() {
-  const { status } = useSession()
+  const { status, profile } = useSession()
   const location = useLocation()
 
   if (status === 'loading') {
-    return (
-      <div className="page">
-        <LoadingState label="Restoring your session" />
-      </div>
-    )
+    return <SplashScreen />
   }
 
   // The kiosk is deliberately reachable without a personal session, because the
@@ -55,9 +55,14 @@ export function App() {
   // tablet gets the kiosk *sign-in*, in kiosk clothing, so the station is set up
   // where it stands instead of being configured on someone's laptop first.
   if (location.pathname.startsWith('/kiosk')) {
+    const isAuthorizedOperator =
+      status === 'authenticated' &&
+      profile &&
+      AUTHORIZED_KIOSK_ROLES.includes(profile.role as RoleKey)
+
     return (
       <div className="page-transition" key={location.pathname}>
-        {status === 'authenticated' ? <KioskPage /> : <LoginPage variant="kiosk" />}
+        {isAuthorizedOperator ? <KioskPage /> : <LoginPage variant="kiosk" />}
       </div>
     )
   }

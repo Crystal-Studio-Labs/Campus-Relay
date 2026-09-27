@@ -19,6 +19,7 @@ import { Badge, Button, Card, Field, Select, TextArea, TextInput } from '../../c
 import { KioskShell } from '../../layouts/KioskShell'
 import { CaseStatusBadge, PriorityBadge } from '../../components/StatusChip'
 import { useLanguage } from '../../lib/i18n'
+import { useKioskSection } from '../../lib/kioskSection'
 import type { CaseBrief } from '../../lib/types'
 
 interface KioskService {
@@ -57,6 +58,7 @@ const QUICK_TEST_ROLLS = [
 export function KioskPage() {
   const navigate = useNavigate()
   const { t, language } = useLanguage()
+  const { section } = useKioskSection()
   const [step, setStep] = useState<Step>('identify')
   const [roll, setRoll] = useState('')
   const [student, setStudent] = useState<LookupResult | null>(null)
@@ -82,6 +84,7 @@ export function KioskPage() {
     setService(null)
     setDescription('')
     setValues({})
+    setLocationCode('')
     setReceipt(null)
     setError(null)
   }
@@ -121,7 +124,7 @@ export function KioskPage() {
         service_key: service.key,
         description,
         priority,
-        location_code: locationCode || undefined,
+        location_code: locationCode || section.locationCode,
         state_payload: values,
         language: language || 'en',
         client_ref: `kiosk-${Date.now()}`,
@@ -155,8 +158,11 @@ export function KioskPage() {
             <div className="kiosk-terminal-header">
               <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
                 <span className="hero-kicker-beacon" aria-hidden="true" />
-                <Badge tone="warn">STATION 06</Badge>
-                <span className="mono tiny bold">TERMINAL ID: KSK-NORTH-01</span>
+                <Badge tone="warn">{section.stationName}</Badge>
+                <span className="mono tiny bold">TERMINAL ID: {section.stationId}</span>
+                <span className="mono tiny hide-mobile" style={{ color: 'var(--muted)' }}>
+                  [{section.sectionName}]
+                </span>
               </div>
               <div className="mono tiny bold hide-mobile" style={{ color: 'var(--mint)' }}>
                 ● MESH.ONLINE · ZERO-RESIDUAL STORAGE

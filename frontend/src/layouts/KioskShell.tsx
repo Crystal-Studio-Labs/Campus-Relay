@@ -19,6 +19,8 @@ import { LANGUAGES, useLanguage } from '../lib/i18n'
 import { useInstitution } from '../state/institution'
 import { useSession } from '../state/session'
 import { useTheme } from '../state/theme'
+import { useKioskSection } from '../lib/kioskSection'
+import { KioskSupervisorModal } from '../components/KioskSupervisorModal'
 
 export function KioskShell({ children, onReset }: { children: ReactNode; onReset?: () => void }) {
   const navigate = useNavigate()
@@ -26,8 +28,10 @@ export function KioskShell({ children, onReset }: { children: ReactNode; onReset
   const institution = useInstitution()
   const { theme, toggleTheme } = useTheme()
   const { language, setLanguage, t } = useLanguage()
+  const { section } = useKioskSection()
   const [clock, setClock] = useState(() => new Date())
   const [idle, setIdle] = useState(false)
+  const [showSupervisorModal, setShowSupervisorModal] = useState(false)
   const timer = useRef<number | null>(null)
 
   const idleMs = Math.max(15, institution.config.stations.kiosk_idle_seconds) * 1000
@@ -74,7 +78,7 @@ export function KioskShell({ children, onReset }: { children: ReactNode; onReset
             </div>
             <div className="hide-mobile">
               <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>
-                [STATION 06 · CORRIDOR TERMINAL]
+                [{section.stationName} · {section.sectionName.toUpperCase()}]
               </span>
             </div>
           </div>
@@ -114,21 +118,33 @@ export function KioskShell({ children, onReset }: { children: ReactNode; onReset
         <div className="kiosk-header-brand">
           <div className="kiosk-title">{institution.shortName}</div>
           <div className="kiosk-hint">
-            {t('kiosk.title')} · {t('kiosk.welcome')}
+            {t('kiosk.title')} · {section.sectionName}
           </div>
         </div>
       </header>
 
       <div className="kiosk-body">{children}</div>
 
-      <footer className="no-print row center wrap" style={{ padding: 'var(--sp-3)', gap: 'var(--sp-3)' }}>
+      <footer className="no-print row center wrap" style={{ padding: 'var(--sp-3)', gap: 'var(--sp-3)', justifyContent: 'space-between' }}>
         <span className="tiny muted">
-          {t('kiosk.idleReset')}
+          {t('kiosk.idleReset')} · {section.stationName} ({section.locationCode})
         </span>
-        <button className="btn btn-ghost btn-sm" onClick={() => logout()}>
-          {t('kiosk.endSession')}
+        <button
+          type="button"
+          className="kiosk-admin-lock-btn"
+          onClick={() => setShowSupervisorModal(true)}
+          title="Restricted Administrator / Supervisor Station Management"
+        >
+          <span aria-hidden="true">🔒</span>
+          <span>STATION SECURED · SUPERVISOR ACCESS</span>
         </button>
       </footer>
+
+      <KioskSupervisorModal
+        isOpen={showSupervisorModal}
+        onClose={() => setShowSupervisorModal(false)}
+        onLogout={logout}
+      />
     </div>
   )
 }

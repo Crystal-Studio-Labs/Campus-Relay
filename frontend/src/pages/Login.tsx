@@ -21,6 +21,7 @@ import { useInstitution } from '../state/institution'
 import { useTheme } from '../state/theme'
 import { Badge, Button, Field, TextInput } from '../components/ui'
 import { THEME_OPTIONS } from '../state/theme'
+import { useKioskSection } from '../lib/kioskSection'
 import type { Profile, RoleKey } from '../lib/types'
 
 interface DemoAccount {
@@ -184,9 +185,10 @@ export function landingFor(profile: Profile, mode: DeviceMode): string {
 }
 
 export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'kiosk' | 'desk' }) {
-  const { login, status } = useSession()
+  const { login, logout, status } = useSession()
   const institution = useInstitution()
   const navigate = useNavigate()
+  const { section, setSection, allSections } = useKioskSection()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
@@ -210,6 +212,13 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
     setDeviceMode(station)
     try {
       const profile = await login(nextEmail, nextPassword)
+      if (station === 'kiosk' && !KIOSK_ROLES.includes(profile.role as RoleKey)) {
+        await logout()
+        setError(
+          'SECURITY LOCKOUT: Corridor Kiosk terminals can only be authorized by an Administrator, Warden, or Helpdesk Operator. Personal student and staff accounts cannot hijack or run a shared public kiosk.',
+        )
+        return
+      }
       navigate(landingFor(profile, station), { replace: true })
     } catch (requestError) {
       setError(
@@ -324,7 +333,7 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
 
           <div className="auth-brand-inner">
             <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
-              <Badge tone="warn">STATION 06</Badge>
+              <Badge tone="warn">{section.stationName}</Badge>
               <Badge tone="open">CORRIDOR KIOSK BOOTLOADER</Badge>
               <Badge tone="done">90S IDLE PURGE</Badge>
             </div>
@@ -374,11 +383,54 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
 
             <div>
               <h2 className="section-title" style={{ margin: '0 0 4px', fontSize: 'var(--fs-xl)' }}>
-                Unlock Corridor Terminal
+                Unlock {section.stationName}
               </h2>
               <p className="page-sub" style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>
-                Operator credentials required to initialize student self-service kiosk.
+                Provisioning {section.sectionName} ({section.locationCode})
               </p>
+            </div>
+
+            {/* Target Station Section Selector for Admins */}
+            <div
+              style={{
+                background: 'var(--surface-sunken)',
+                border: 'var(--border-w) solid var(--line)',
+                borderRadius: 'var(--radius-sm)',
+                padding: 'var(--sp-2) var(--sp-3)',
+              }}
+            >
+              <div className="row between" style={{ alignItems: 'center', marginBottom: 4 }}>
+                <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>
+                  ASSIGN TERMINAL SECTION:
+                </span>
+                <span className="mono tiny muted">{section.locationCode}</span>
+              </div>
+              <select
+                value={section.id}
+                onChange={(e) => {
+                  const target = allSections.find((s) => s.id === e.target.value)
+                  if (target) setSection(target)
+                }}
+                style={{
+                  width: '100%',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: 'var(--fs-xs)',
+                  fontWeight: 700,
+                  padding: '6px 8px',
+                  background: 'var(--surface)',
+                  border: 'var(--border-w) solid var(--line)',
+                  borderRadius: 'var(--radius-sm)',
+                  color: 'var(--ink)',
+                  cursor: 'pointer',
+                }}
+                aria-label="Assign Terminal Section"
+              >
+                {allSections.map((sec) => (
+                  <option key={sec.id} value={sec.id}>
+                    {sec.stationName} · {sec.sectionName} ({sec.locationCode})
+                  </option>
+                ))}
+              </select>
             </div>
 
             {form}
