@@ -176,7 +176,7 @@ export const SKIN_KEY = 'campusrelay.skin'
  *
  *  Every item below is additive by construction: a new skin is a token block, a
  *  new theme is a palette block, and neither requires changing a component. The
- *  full walkthrough is in docs/THEMES.md. */
+ *  full walkthrough is in docs/specifications/THEMES.md. */
 export interface RoadmapItem {
   title: string
   detail: string

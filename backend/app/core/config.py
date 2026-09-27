@@ -123,7 +123,7 @@ class Settings(BaseSettings):
     # --- Institution template ---
     # The one file a college edits: name, design language, vocabulary, station
     # behaviour, feature switches. Empty means config/institution.json at the
-    # repository root. See docs/CONFIGURATION.md and app/core/institution.py.
+    # repository root. See docs/specifications/CONFIGURATION.md and app/core/institution.py.
     institution_config_path: str = ""
 
     # --- Storage ---

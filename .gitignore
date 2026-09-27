@@ -1,7 +1,3 @@
-# Local task materials (not part of the repository)
-prompt.txt
-Problem_Statement_7.pdf
-
 # --- Secrets and local environment ---
 .env
 .env.local

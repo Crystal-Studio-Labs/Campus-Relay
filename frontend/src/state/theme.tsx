@@ -11,7 +11,7 @@
  *  All three are applied as attributes on <html> so that portalled overlays and
  *  native form controls follow, and so the pre-paint script in index.html can
  *  set them before the first frame. The defaults come from the institution
- *  config (see docs/CONFIGURATION.md), which is why a second college can ship a
+ *  config (see docs/specifications/CONFIGURATION.md), which is why a second college can ship a
  *  different look without this file being edited.
  */
 

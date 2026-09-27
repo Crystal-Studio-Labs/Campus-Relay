@@ -40,7 +40,7 @@ createRoot(container).render(
     <BrowserRouter>
       {/* Institution wraps everything: the deployment's identity, language set
           and default design skin come from the institution config, not from
-          code. See docs/CONFIGURATION.md. */}
+          code. See docs/specifications/CONFIGURATION.md. */}
       <InstitutionProvider>
         <ThemeProvider>
           <SessionProvider>

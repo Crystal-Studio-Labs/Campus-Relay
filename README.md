@@ -41,7 +41,7 @@ Campus operations across universities and colleges suffer from acute fragmentati
 
 **Campus Relay** transforms this landscape by replacing disjointed point solutions with a single, resilient operational layer. Every operational request—whether a leaking hostel washroom tap, a bonafide certificate for an education loan, a hostel leave pass, or a mess complaint—is represented as a trackable **Campus Case**, governed by formal state machines, deterministic service level agreements (SLAs), append-only audit histories, and offline-first client replication.
 
-> **The adoption promise.** *Give us your college's information and this is a configurable engine you can have running within an hour of setup.* Departments, hostels, rooms, staff and students are configuration and CSV import — not a fork and not a rebuild. See **[docs/adoption-plan.md](docs/adoption-plan.md)** for the migration order and **[docs/setup-guide.md](docs/setup-guide.md)** for the hour-by-hour walkthrough.
+> **The adoption promise.** *Give us your college's information and this is a configurable engine you can have running within an hour of setup.* Departments, hostels, rooms, staff and students are configuration and CSV import — not a fork and not a rebuild. See **[docs/guides/adoption-plan.md](docs/guides/adoption-plan.md)** for the migration order and **[docs/guides/setup-guide.md](docs/guides/setup-guide.md)** for the hour-by-hour walkthrough.
 
 ---
 
@@ -240,7 +240,7 @@ platform that reads as trustworthy to a registrar and familiar to a student.
 - **Two independent axes**: *theme* (light/dark, chosen per person) and *skin*
   (the design language, chosen per institution). Four skins ship — modern
   institutional (default), engineering blueprint, government portal and
-  university portal. See `docs/THEMES.md`.
+  university portal. See `docs/specifications/THEMES.md`.
 - **Fixed module navigation**: one information architecture across roles —
   Overview, Requests, Communication, Security, Insights, People, Stations and
   System — with items filtered by permission. Breadcrumbs and a quick switcher
@@ -294,8 +294,12 @@ Campus-Relay/
 ├── config/
 │   └── institution.json       # THE template file a college edits (identity, skin, vocabulary, features)
 ├── docs/
-│   ├── CONFIGURATION.md       # Institution configuration reference & adoption checklist
-│   └── THEMES.md              # Theme/skin architecture, skin registry & design roadmap
+│   ├── README.md              # Central documentation hub
+│   ├── architecture/          # Modular monolith architecture, data models, workflows, offline sync
+│   ├── guides/                # Adoption plan, setup guide, demo script, competitive gaps
+│   ├── specifications/        # Configuration schema, theme specifications, UI design tokens, API docs
+│   ├── deployment/            # Docker, Render, self-hosted deployment, Supabase setup
+│   └── hackathon/             # BPUT Hackathon PS07 brief, Gamma pitch prompt, master prompt
 ├── README.md                  # Comprehensive project documentation
 ├── backend/
 │   ├── alembic.ini            # Alembic database migration configuration
@@ -454,7 +458,7 @@ makes any college adoptable without forking — lives in
 `config/institution.json` (identity, design language, vocabulary, languages,
 station behaviour, module switches, accessibility guardrails). It is served by
 `GET /api/v1/institution`, editable without a rebuild, and documented in
-**[docs/CONFIGURATION.md](docs/CONFIGURATION.md)**. Administrators can inspect
+**[docs/specifications/CONFIGURATION.md](docs/specifications/CONFIGURATION.md)**. Administrators can inspect
 and reload it live on the **Institution setup** screen (`/setup`).
 
 **Environment variables** (in `.env`) carry secrets and infrastructure:

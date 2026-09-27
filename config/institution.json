@@ -10,7 +10,7 @@
     "",
     "A partial file is valid. Delete any key you do not need and the built-in",
     "default is used; the defaults live in backend/app/core/institution.py and",
-    "are documented in docs/CONFIGURATION.md.",
+    "are documented in docs/specifications/CONFIGURATION.md.",
     "",
     "The values below are the demo deployment (Crystal Institute of Technology).",
     "Replace them with your own institution before running this in front of your",

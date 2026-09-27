@@ -1,0 +1,2937 @@
+# ============================================================
+# CRYSTAL STUDIO LABS — CAMPUS RELAY
+# BPUT HACKATHON 2026 — PROBLEM STATEMENT 07
+# FINAL MASTER BUILD PROMPT
+# ============================================================
+
+You are the Lead Product Architect, Senior Full-Stack Engineer,
+Database Architect, PWA Engineer, Offline Systems Engineer,
+AI-Agent Engineer, Security Engineer, UX/UI Architect,
+Accessibility Engineer, DevOps Engineer, QA Engineer,
+and Hackathon Technical Strategist for:
+
+CRYSTAL STUDIO LABS
+
+We are participating in:
+
+BPUT HACKATHON 2026
+Problem Statement 07
+Organization: Fretbox
+
+PROJECT:
+
+CAMPUS RELAY
+
+TAGLINE:
+
+"A resilient operating layer for everyday campus operations."
+
+Your responsibility is to ACTUALLY DESIGN, IMPLEMENT, TEST,
+DEBUG, OPTIMIZE, and DOCUMENT a working hackathon prototype.
+
+Do NOT stop at planning.
+
+Do NOT only generate mock screens.
+
+Build a functional system with a real PostgreSQL database,
+real API layer, real authentication, real workflows,
+real offline persistence, real synchronization, and
+real administrator functionality.
+
+============================================================
+0. READ THE SOURCE REQUIREMENTS FIRST
+============================================================
+
+Read the official BPUT Problem Statement 07 provided in the
+project/repository before implementation.
+
+The problem statement describes the campus operational
+fragmentation caused by:
+
+- registers
+- notice boards
+- WhatsApp groups
+- printed forms
+- separate applications
+- disconnected systems
+
+It requires a solution addressing combinations of:
+
+STUDENT OPERATIONS
+- attendance visibility
+- timetable/class updates
+- leave requests
+- gate-pass requests
+- certificates/documents
+- fees/dues
+- notices/announcements
+
+HOSTEL/FACILITY OPERATIONS
+- maintenance complaints
+- complaint tracking
+- room records
+- asset records
+- mess menu
+- mess feedback
+- visitor/gate logs
+
+COMMUNICATION
+- targeted notifications
+- batch targeting
+- branch targeting
+- hostel targeting
+- year targeting
+- delivery tracking
+- read tracking
+- action tracking
+
+ADMINISTRATION
+- pending requests
+- complaint ageing
+- resolution time
+- recurring issues
+- workload distribution
+
+ACCESSIBILITY
+- low-bandwidth operation
+- low-end devices
+- regional languages
+- offline alternatives
+- students without smartphones
+
+OPTIONAL INTELLIGENCE
+- automatic complaint routing
+- recurring issue detection
+- facility demand prediction
+- campus assistant/chatbot
+
+Required deliverables include:
+
+- minimum three complete end-to-end workflows
+- administrator dashboard
+- pending items
+- ageing
+- resolution time
+- recurring issue patterns
+- communication layer
+- targeted notifications
+- delivery/action tracking
+- low-end/poor-network demonstration
+- no-smartphone fallback
+- adoption strategy
+- data migration strategy
+
+Treat the official problem statement as the primary requirements
+source.
+
+Do not invent requirements that contradict it.
+
+============================================================
+1. COMPETITIVE REALITY
+============================================================
+
+Before implementation, research the CURRENT official Fretbox
+product and feature surface.
+
+Create:
+
+docs/competitive-gap.md
+
+Document:
+
+1. Existing Fretbox capabilities.
+2. Areas where Campus Relay overlaps.
+3. Areas where basic functionality is not sufficiently
+   differentiated.
+4. Campus Relay's architectural differentiation.
+5. Why Campus Relay is more than another campus-management CRUD app.
+
+Do not claim:
+
+- first
+- only
+- unique
+- revolutionary
+- Fretbox cannot do X
+
+unless independently verified.
+
+The project must NOT depend on pretending that Fretbox lacks
+features that it actually provides.
+
+Our differentiation is primarily architectural:
+
+UNIVERSAL CAMPUS CASE
++
+WORKFLOW ENGINE
++
+POLICY ENGINE
++
+SLA ENGINE
++
+EVENT/AUDIT SYSTEM
++
+LOCAL-FIRST PWA
++
+MULTI-CHANNEL ACCESS
++
+CONTROLLED AI AGENTS
+
+============================================================
+2. CORE PRODUCT VISION
+============================================================
+
+CAMPUS RELAY is NOT simply:
+
+"an all-in-one college app."
+
+It is:
+
+A CHANNEL-INDEPENDENT, LOCAL-FIRST, WORKFLOW-DRIVEN
+CAMPUS OPERATIONS PLATFORM.
+
+Every campus operational request becomes a:
+
+"CAMPUS CASE"
+
+Examples:
+
+- maintenance complaint
+- certificate request
+- bonafide request
+- leave request
+- gate pass
+- fee query
+- mess complaint
+- room-change request
+- academic query
+- document request
+- facility issue
+- visitor request
+- administrative request
+
+The same Case Engine processes all of them.
+
+Concept:
+
+REQUEST
+→ CASE
+→ WORKFLOW
+→ POLICY
+→ APPROVAL
+→ SLA
+→ ASSIGNMENT
+→ NOTIFICATION
+→ RESOLUTION
+→ VERIFICATION
+→ AUDIT
+
+Adding a new campus service should ideally require configuring
+a workflow instead of creating an entirely new application.
+
+============================================================
+3. PLATFORM — WEB APP + PWA
+============================================================
+
+Build CAMPUS RELAY as:
+
+A RESPONSIVE WEB APPLICATION + INSTALLABLE PWA.
+
+Do NOT build a native Android application as the primary product.
+
+The system must support:
+
+- Android smartphone
+- low-end Android phone
+- tablet
+- laptop
+- desktop
+- admin workstation
+- staff workstation
+- kiosk
+- helpdesk/assisted-access device
+
+The application must be installable as a PWA where supported.
+
+The backend remains centralized.
+
+The client uses local storage for offline capabilities.
+
+============================================================
+4. CRITICAL RESPONSIVE UI REQUIREMENT
+============================================================
+
+DO NOT create one desktop interface and simply scale it down.
+
+The application must provide ROLE-AWARE AND DEVICE-AWARE
+interfaces.
+
+The information architecture and interaction model should adapt
+to the scenario.
+
+------------------------------------------------------------
+STUDENT — MOBILE
+------------------------------------------------------------
+
+Design like a mobile application while remaining a PWA.
+
+Use:
+
+- bottom navigation
+- large touch targets
+- thumb-friendly actions
+- compact cards
+- mobile notification center
+- swipe-friendly lists where useful
+- floating primary action where appropriate
+- simplified forms
+- quick actions
+- offline status indicator
+
+Example:
+
+Home
+Cases
+Notices
+Notifications
+Profile
+
+Primary action:
+
+"Report / Request"
+
+------------------------------------------------------------
+STUDENT — DESKTOP
+------------------------------------------------------------
+
+Use:
+
+- sidebar navigation
+- wider dashboard
+- multi-column cards
+- richer case timeline
+- larger tables
+- document preview
+- expanded notice view
+
+Do not simply stretch the mobile layout.
+
+------------------------------------------------------------
+ADMIN — DESKTOP
+------------------------------------------------------------
+
+Admin desktop should be an operational command center.
+
+Use:
+
+- persistent sidebar
+- dense tables
+- filters
+- queue views
+- split-pane case management
+- analytics
+- workload visualization
+- audit timeline
+- bulk actions where safe
+- command/search interface
+
+------------------------------------------------------------
+ADMIN — MOBILE
+------------------------------------------------------------
+
+Administrators must still be able to operate the system from
+a phone.
+
+Provide:
+
+- mobile dashboard
+- urgent-case view
+- approval queue
+- case details
+- approve/reject
+- assign/reassign
+- escalate
+- notifications
+- quick analytics
+- staff workload summary
+
+Do NOT show an unreadable desktop table squeezed into a phone.
+
+Convert tables into:
+
+- cards
+- expandable rows
+- bottom sheets
+- filter drawers
+- stacked information sections
+
+------------------------------------------------------------
+STAFF — MOBILE
+------------------------------------------------------------
+
+Staff primarily need tasks.
+
+Interface should emphasize:
+
+TODAY'S TASKS
+
+[NEW]
+[IN PROGRESS]
+[OVERDUE]
+[RESOLVED]
+
+Staff should be able to:
+
+- open assignment
+- view location
+- view evidence
+- update status
+- add comment
+- upload evidence
+- resolve
+- request assistance
+
+------------------------------------------------------------
+STAFF — DESKTOP
+------------------------------------------------------------
+
+Provide:
+
+- task queue
+- workload
+- case detail
+- filters
+- assignment management
+- history
+- analytics relevant to staff
+
+------------------------------------------------------------
+SECURITY — MOBILE
+------------------------------------------------------------
+
+Security interface should be extremely fast.
+
+Primary actions:
+
+SCAN PASS
+VERIFY
+CHECK VISITOR
+ENTRY
+EXIT
+
+Use:
+
+- large buttons
+- camera/QR interface
+- minimal text
+- obvious status
+- offline-safe logging where appropriate
+
+------------------------------------------------------------
+SECURITY — DESKTOP
+------------------------------------------------------------
+
+Provide:
+
+- live gate log
+- visitor log
+- active passes
+- recent exits/entries
+- search
+- incident history
+
+------------------------------------------------------------
+HELPDESK — DESKTOP
+------------------------------------------------------------
+
+Provide an assisted-service interface:
+
+Search Student
+→ select service
+→ fill request
+→ submit
+→ print/display confirmation
+
+------------------------------------------------------------
+HELPDESK — MOBILE/TABLET
+------------------------------------------------------------
+
+Provide a touch-friendly version for staff using tablets/phones.
+
+------------------------------------------------------------
+KIOSK
+------------------------------------------------------------
+
+Kiosk must be a DISTINCT interface.
+
+Do NOT simply display the normal student dashboard.
+
+Kiosk should have:
+
+WELCOME
+
+[ENTER STUDENT ID]
+
+[SCAN ID/QR]
+
+Then:
+
+What do you need?
+
+[Complaint]
+[Certificate]
+[Leave]
+[Case Status]
+[Other Help]
+
+Use:
+
+- huge buttons
+- minimal text
+- clear steps
+- high contrast
+- large typography
+- touch-first interactions
+- timeout/reset after inactivity
+
+Support both:
+
+PORTRAIT KIOSK
+and
+LANDSCAPE KIOSK
+
+through responsive layout.
+
+============================================================
+5. FRONTEND VISUAL DESIGN — NEUBRUTALISM
+============================================================
+
+The entire frontend must use a:
+
+MODERN NEUBRUTALIST DESIGN SYSTEM.
+
+The design should feel:
+
+- bold
+- structured
+- youthful
+- technical
+- memorable
+- accessible
+- professional enough for an institutional product
+
+Use Neubrutalism principles:
+
+- strong black/dark borders
+- thick outlines
+- hard/offset shadows
+- bold typography
+- flat color blocks
+- high contrast
+- geometric cards
+- intentional asymmetry
+- bold buttons
+- visible hierarchy
+- minimal unnecessary gradients
+- minimal glassmorphism
+- minimal decorative effects
+
+Avoid:
+
+- generic SaaS gradients
+- excessive glassmorphism
+- soft floating cards everywhere
+- excessive rounded corners
+- fake 3D
+- excessive animation
+- visual clutter
+
+Cards can use moderately rounded corners where usability requires,
+but the overall language must remain recognizably Neubrutalist.
+
+Use consistent design tokens.
+
+Example:
+
+border width:
+2–4px
+
+shadow:
+hard offset shadow rather than soft blur
+
+buttons:
+bold, obvious, tactile
+
+Use accessible contrast.
+
+Do NOT sacrifice accessibility for aesthetics.
+
+============================================================
+6. RESPONSIVE DESIGN PRINCIPLE
+============================================================
+
+The system has:
+
+ONE PRODUCT
+ONE DESIGN SYSTEM
+ONE DOMAIN MODEL
+
+but MULTIPLE INTERACTION EXPERIENCES.
+
+Do not duplicate business logic between mobile and desktop.
+
+Architecture:
+
+Shared backend
++
+Shared API
++
+Shared domain model
++
+Shared design tokens
++
+Responsive/adaptive components
++
+Scenario-specific layouts
+
+The frontend must detect:
+
+- viewport size
+- interaction capability where appropriate
+- authenticated role
+- kiosk mode
+
+and select the appropriate layout.
+
+============================================================
+7. MOBILE APP-LIKE EXPERIENCE
+============================================================
+
+When opened on mobile:
+
+The PWA should feel like a mobile application.
+
+Provide:
+
+- mobile navigation
+- installability
+- standalone display
+- splash/loading experience where appropriate
+- safe-area support
+- touch interactions
+- pull-to-refresh only where appropriate
+- offline status
+- sync status
+- push notification support where supported
+- compact forms
+
+Do not make users zoom into desktop UI.
+
+============================================================
+8. CAMPUS CASE ENGINE
+============================================================
+
+Core entity:
+
+CampusCase
+
+Fields:
+
+- id
+- campus_id
+- requester_id
+- requester_role
+- service_type
+- category
+- subcategory
+- title
+- description
+- location_id
+- asset_id
+- department_id
+- assigned_staff_id
+- priority
+- status
+- source_channel
+- language
+- SLA
+- due_at
+- evidence
+- required_approvals
+- current_approval
+- parent_case_id
+- duplicate_group_id
+- created_at
+- updated_at
+- resolved_at
+- closed_at
+- verification_state
+
+State machine:
+
+DRAFT
+SUBMITTED
+VALIDATING
+ROUTED
+ASSIGNED
+IN_PROGRESS
+WAITING_FOR_USER
+WAITING_FOR_APPROVAL
+ESCALATED
+RESOLVED
+VERIFICATION_REQUIRED
+CLOSED
+REOPENED
+CANCELLED
+
+Invalid transitions must be rejected by the backend.
+
+============================================================
+9. UNIVERSAL REQUEST / SERVICE CATALOG
+============================================================
+
+Create a Service Catalog.
+
+Example services:
+
+HOSTEL COMPLAINT
+BONAFIDE CERTIFICATE
+LEAVE REQUEST
+GATE PASS
+FEE QUERY
+MESS COMPLAINT
+ROOM CHANGE
+ACADEMIC QUERY
+DOCUMENT REQUEST
+FACILITY REQUEST
+LOST ITEM
+VISITOR REQUEST
+
+Each service should define:
+
+- form fields
+- workflow
+- approval rules
+- department
+- SLA
+- notification rules
+- permissions
+
+Administrators should be able to configure services in the future.
+
+============================================================
+10. SQL / DATABASE
+============================================================
+
+PostgreSQL MUST be the authoritative server-side database.
+
+Use:
+
+React
+→ FastAPI
+→ SQLAlchemy
+→ PostgreSQL
+
+Do NOT use:
+
+- JSON as primary database
+- localStorage as primary database
+- in-memory database for production workflow
+- fake CRUD storage
+
+Use:
+
+- migrations
+- foreign keys
+- indexes
+- unique constraints
+- transactions
+- proper normalization
+
+Core tables:
+
+campuses
+users
+roles
+permissions
+students
+staff
+departments
+branches
+batches
+years
+hostels
+blocks
+rooms
+locations
+assets
+
+services
+workflows
+workflow_steps
+policies
+sla_rules
+
+cases
+case_events
+case_assignments
+case_approvals
+case_comments
+case_attachments
+
+notices
+notice_targets
+notice_reads
+notice_actions
+notice_shares
+
+notifications
+notification_events
+notification_preferences
+
+devices
+sync_operations
+
+audit_logs
+
+============================================================
+11. OFFLINE DATABASE
+============================================================
+
+PostgreSQL is the server source of truth.
+
+IndexedDB is the client-side offline persistence layer.
+
+Architecture:
+
+PWA
+ ↓
+IndexedDB
+ ↓
+LOCAL OUTBOX
+ ↓
+SYNC ENGINE
+ ↓
+API
+ ↓
+POSTGRESQL
+
+Store:
+
+- cached relevant data
+- drafts
+- queued mutations
+- synchronization status
+
+Never treat IndexedDB as the permanent authoritative database.
+
+============================================================
+12. OFFLINE-FIRST REQUIREMENT
+============================================================
+
+Offline mode must be REAL.
+
+The student should be able to:
+
+- open the application
+- view previously synchronized data
+- view cached notices
+- view cached timetable
+- view relevant case information
+- create supported requests
+- save drafts
+- queue submissions
+
+When offline:
+
+Show:
+
+OFFLINE
+
+and:
+
+"Your request will sync automatically when connection returns."
+
+Every queued operation must display:
+
+QUEUED
+SYNCING
+SYNCED
+FAILED_RETRYING
+CONFLICT
+FAILED_REQUIRES_ACTION
+
+Never silently lose user data.
+
+============================================================
+13. SYNC ENGINE
+============================================================
+
+Implement:
+
+- IndexedDB
+- Outbox
+- idempotency keys
+- retries
+- exponential backoff
+- synchronization
+- conflict detection
+- server acknowledgement
+
+Example:
+
+User submits case offline.
+
+↓
+
+CASE STORED LOCALLY
+
+↓
+
+OUTBOX ENTRY CREATED
+
+↓
+
+QUEUED
+
+↓
+
+Internet returns
+
+↓
+
+SYNCING
+
+↓
+
+SERVER VALIDATES
+
+↓
+
+POSTGRESQL
+
+↓
+
+SYNCED
+
+↓
+
+Audit event generated
+
+============================================================
+14. CONFLICT RESOLUTION
+============================================================
+
+Do not use blind last-write-wins for critical operations.
+
+Approval:
+cannot be overwritten by stale offline data.
+
+State:
+must pass state-machine validation.
+
+Assignment:
+must respect current permissions/state.
+
+Audit:
+append-only.
+
+Duplicate submission:
+idempotency protection.
+
+Document:
+approved documents require controlled modification.
+
+Document the synchronization strategy in:
+
+docs/offline-sync.md
+
+============================================================
+15. NOTICES — FULL COMMUNICATION SYSTEM
+============================================================
+
+Build a complete NOTICE MANAGEMENT SYSTEM.
+
+This is a major feature.
+
+Administrators should be able to:
+
+CREATE NOTICE
+
+Fields:
+
+- title
+- content
+- category
+- priority
+- attachment
+- image where appropriate
+- publish time
+- expiry time
+- target audience
+- required action
+- acknowledgement requirement
+
+Target audience:
+
+- entire campus
+- department
+- branch
+- year
+- batch
+- hostel
+- block
+- selected users
+- selected roles
+
+------------------------------------------------------------
+NOTICE TYPES
+------------------------------------------------------------
+
+NORMAL
+IMPORTANT
+URGENT
+EMERGENCY
+
+Urgent notices should have stronger visibility.
+
+------------------------------------------------------------
+NOTICE ACTIONS
+------------------------------------------------------------
+
+Examples:
+
+[READ]
+[ACKNOWLEDGE]
+[SUBMIT FORM]
+[VIEW DOCUMENT]
+[REGISTER]
+[OPEN CASE]
+[VIEW TIMETABLE]
+
+Track action completion.
+
+------------------------------------------------------------
+NOTICE ANALYTICS
+------------------------------------------------------------
+
+Admin can see:
+
+Sent
+Delivered
+Read
+Acknowledged
+Actioned
+Pending
+
+Example:
+
+Notice:
+
+"Tomorrow's classes start at 10 AM."
+
+Target:
+
+3rd Year
+CSE
+Hostel B
+
+Analytics:
+
+Delivered: 487
+Read: 421
+Acknowledged: 398
+Actioned: 231
+
+============================================================
+16. NOTICE SHARING
+============================================================
+
+Users must be able to SHARE eligible notices.
+
+Student-facing notice screen should support:
+
+[Share]
+
+Depending on platform capabilities, allow:
+
+- native device share
+- copy share link
+- QR representation
+- internal share
+
+The shared notice should open a public-safe or authenticated
+notice view depending on privacy requirements.
+
+Do NOT expose private student information.
+
+Administrators can also:
+
+- publish notice
+- duplicate/reuse notice
+- schedule notice
+- expire notice
+- pin notice
+- archive notice
+
+Do NOT claim integration with WhatsApp/Telegram/etc. unless
+an actual integration is configured.
+
+If external sharing is not available, provide:
+
+"Copy Share Link"
+
+and native Web Share API where supported.
+
+============================================================
+17. NOTIFICATION CENTER
+============================================================
+
+Build a proper notification system separate from notices.
+
+Notification categories:
+
+- case updates
+- approvals
+- certificate ready
+- leave approval
+- gate-pass status
+- timetable changes
+- new notices
+- urgent announcements
+- SLA/escalation alerts for staff/admin
+- system notifications
+
+Student notification center:
+
+Unread
+All
+
+Each notification:
+
+- title
+- short description
+- timestamp
+- category
+- read state
+- action
+
+Example:
+
+"Your Bonafide Certificate is ready."
+
+[VIEW CERTIFICATE]
+
+Track:
+
+SENT
+DELIVERED
+READ
+ACTIONED
+
+============================================================
+18. NOTIFICATION PREFERENCES
+============================================================
+
+Students should be able to configure non-critical notifications.
+
+Examples:
+
+- case updates
+- announcements
+- mess
+- timetable
+- academic
+- hostel
+
+Critical institutional notifications cannot necessarily be disabled.
+
+Respect reasonable notification preferences.
+
+============================================================
+19. NOTIFICATION CHANNEL ARCHITECTURE
+============================================================
+
+Primary:
+
+- in-app notifications
+- PWA/browser push where supported
+
+Architecture should allow future:
+
+- SMS
+- email
+- institutional gateway
+- other channels
+
+Do not fake external delivery.
+
+Use:
+
+NotificationAdapter
+
+so future providers can be added.
+
+============================================================
+20. EVENT-DRIVEN AUDIT SYSTEM
+============================================================
+
+Every important mutation generates an immutable event.
+
+Examples:
+
+CASE_CREATED
+CASE_UPDATED
+CASE_ROUTED
+CASE_ASSIGNED
+CASE_ESCALATED
+APPROVAL_REQUESTED
+APPROVED
+REJECTED
+STATUS_CHANGED
+COMMENT_ADDED
+EVIDENCE_ATTACHED
+RESOLVED
+VERIFIED
+REOPENED
+NOTIFICATION_SENT
+NOTIFICATION_READ
+NOTIFICATION_ACTIONED
+NOTICE_PUBLISHED
+NOTICE_READ
+NOTICE_ACKNOWLEDGED
+NOTICE_SHARED
+SYNCED
+
+Store:
+
+- event_id
+- case_id where applicable
+- actor_id
+- actor_role
+- event_type
+- timestamp
+- device_id
+- source_channel
+- payload
+- idempotency_key
+
+Audit history must not be silently overwritten.
+
+============================================================
+21. WORKFLOW ENGINE
+============================================================
+
+Create reusable workflows.
+
+A workflow can define:
+
+- states
+- transitions
+- fields
+- approvals
+- responsible roles
+- SLA
+- notifications
+- escalation
+- policies
+
+Do not implement every service as unrelated hardcoded code.
+
+============================================================
+22. POLICY ENGINE
+============================================================
+
+Create a lightweight policy layer.
+
+Examples:
+
+Leave:
+→ approval required
+
+Gate pass:
+→ approved leave required
+
+Certificate:
+→ required student information
+
+Complaint:
+→ SLA based on category/priority
+
+Security:
+→ only valid approved passes may be accepted
+
+Policies must be enforced server-side.
+
+============================================================
+23. SLA ENGINE
+============================================================
+
+Cases can have:
+
+- SLA duration
+- due time
+- age
+- breach state
+
+Example DEMO policies:
+
+NORMAL → 24 hours
+HIGH → 8 hours
+CRITICAL → 2 hours
+
+Admin display:
+
+ON TIME
+AT RISK
+BREACHED
+
+These are demo values unless institution-provided values exist.
+
+============================================================
+24. THREE PERFECT END-TO-END WORKFLOWS
+============================================================
+
+These are P0.
+
+------------------------------------------------------------
+WORKFLOW A — HOSTEL MAINTENANCE
+------------------------------------------------------------
+
+Student scans QR.
+
+↓
+
+Location automatically detected.
+
+↓
+
+Student:
+
+"Water tap has been leaking for nine days."
+
+↓
+
+Intake system:
+
+classifies
+extracts location
+checks duplicate/recurrence
+determines priority
+
+↓
+
+Case created.
+
+↓
+
+Routing:
+
+Maintenance Department
+
+↓
+
+Staff assignment.
+
+↓
+
+SLA created.
+
+↓
+
+Staff notification.
+
+↓
+
+IN_PROGRESS
+
+↓
+
+RESOLVED
+
+↓
+
+Student verifies.
+
+↓
+
+CLOSED
+
+↓
+
+Analytics updated.
+
+------------------------------------------------------------
+WORKFLOW B — BONAFIDE CERTIFICATE
+------------------------------------------------------------
+
+Student:
+
+Request Bonafide Certificate
+
+↓
+
+Validation
+
+↓
+
+Case creation
+
+↓
+
+Approval routing
+
+↓
+
+Admin approval
+
+↓
+
+Certificate generation
+
+↓
+
+Notification
+
+↓
+
+Student views/downloads certificate
+
+↓
+
+Audit trail complete.
+
+------------------------------------------------------------
+WORKFLOW C — LEAVE + GATE PASS
+------------------------------------------------------------
+
+Student submits leave.
+
+↓
+
+Policy validation.
+
+↓
+
+Warden approval.
+
+↓
+
+Digital gate pass.
+
+↓
+
+Security scans/verifies.
+
+↓
+
+EXIT recorded.
+
+↓
+
+RETURN recorded.
+
+↓
+
+Workflow complete.
+
+↓
+
+Audit trail.
+
+============================================================
+25. QR CAMPUS SYSTEM
+============================================================
+
+QR codes can represent:
+
+- hostel room
+- washroom
+- classroom
+- lab
+- library
+- mess
+- water cooler
+- equipment
+- asset
+- facility
+
+Scanning QR automatically pre-fills:
+
+- location
+- building
+- hostel
+- asset
+- relevant department
+
+The QR must not contain sensitive personal information.
+
+============================================================
+26. ASSET INTELLIGENCE
+============================================================
+
+Assets should maintain operational history.
+
+Example:
+
+Water Cooler WC-17
+
+Cases:
+
+#201
+#219
+#241
+#283
+
+Admin sees:
+
+- incident count
+- last incident
+- average resolution
+- incident frequency
+- current status
+- previous resolutions
+
+This enables recurring issue detection.
+
+============================================================
+27. AI / AGENTIC SYSTEM
+============================================================
+
+Do NOT build a generic chatbot.
+
+Build controlled operational agents.
+
+------------------------------------------------------------
+AGENT 1 — INTAKE AGENT
+------------------------------------------------------------
+
+Input:
+
+Natural language request.
+
+Tasks:
+
+- classify service
+- classify category
+- extract location
+- detect urgency
+- identify missing information
+- detect possible duplicate
+
+Output must be structured.
+
+------------------------------------------------------------
+AGENT 2 — ROUTING AGENT
+------------------------------------------------------------
+
+Tasks:
+
+- recommend department
+- recommend staff
+- determine SLA
+- explain routing
+
+Must use existing campus data/policies.
+
+------------------------------------------------------------
+AGENT 3 — OPERATIONS AGENT
+------------------------------------------------------------
+
+Admin-facing.
+
+Tasks:
+
+- summarize pending cases
+- identify SLA breaches
+- detect recurring problems
+- identify workload concentration
+- summarize unresolved issues
+- recommend escalation
+
+Recommendations must be clearly marked.
+
+------------------------------------------------------------
+AGENT 4 — STUDENT ASSISTANT
+------------------------------------------------------------
+
+Must use actual backend tools.
+
+Examples:
+
+"Where is my certificate?"
+
+"Why is my leave request pending?"
+
+"Create a complaint about the water cooler."
+
+The assistant must not invent database facts.
+
+============================================================
+28. AGENT SECURITY
+============================================================
+
+LLMs must NEVER directly manipulate PostgreSQL.
+
+Correct:
+
+USER
+ ↓
+AGENT
+ ↓
+STRUCTURED TOOL
+ ↓
+AUTHORIZATION
+ ↓
+POLICY ENGINE
+ ↓
+APPLICATION SERVICE
+ ↓
+DATABASE
+ ↓
+AUDIT EVENT
+
+Every action must verify:
+
+- actor
+- role
+- permission
+- target
+- current state
+- policy
+
+============================================================
+29. AI FAILURE FALLBACK
+============================================================
+
+Core workflows MUST NOT depend on AI.
+
+AI routing:
+
+LLM
+→ intelligent classification
+
+Fallback:
+→ deterministic rules
+
+Duplicate detection:
+
+Embeddings
+→ semantic similarity
+
+Fallback:
+→ category + location + time heuristics
+
+Assistant:
+
+LLM
+→ tool-based natural language
+
+Fallback:
+→ search + predefined actions
+
+============================================================
+30. RECURRING ISSUE INTELLIGENCE
+============================================================
+
+Detect relationships between:
+
+- cases
+- assets
+- locations
+- categories
+- departments
+- time
+
+Example:
+
+Water Cooler WC-17
+
+4 cases in 30 days
+
+Display:
+
+RECURRING ISSUE DETECTED
+
+Do not claim predictive accuracy without testing.
+
+============================================================
+31. ADMIN COMMAND CENTER
+============================================================
+
+Desktop Admin:
+
+Command Center
+
+Metrics:
+
+Open Cases
+New Today
+SLA Breaches
+Awaiting Approval
+In Progress
+Resolved Today
+Average Resolution Time
+Reopened Cases
+Recurring Issues
+Department Workload
+
+Views:
+
+1. Command Center
+2. Case Queue
+3. Case Detail
+4. Approval Queue
+5. Staff Workload
+6. Departments
+7. Hostels
+8. Rooms
+9. Assets
+10. Locations
+11. Notices
+12. Notifications
+13. Analytics
+14. Audit Log
+15. Policies
+16. SLA Configuration
+17. Users/Roles
+18. Data Import/Export
+
+============================================================
+32. ADMIN MOBILE
+============================================================
+
+Admin mobile must prioritize:
+
+URGENT
+APPROVALS
+OVERDUE
+RECENT
+
+Example:
+
+URGENT CASES
+3
+
+PENDING APPROVALS
+7
+
+SLA BREACHES
+2
+
+Use cards and bottom sheets rather than giant desktop tables.
+
+Admin can:
+
+- approve
+- reject
+- assign
+- reassign
+- escalate
+- resolve where authorized
+- view audit history
+- publish urgent notices
+- send targeted notifications
+
+============================================================
+33. ADMIN NOTICE COMPOSER
+============================================================
+
+Build a polished notice composer.
+
+Flow:
+
+CREATE NOTICE
+
+↓
+
+Select type
+
+NORMAL
+IMPORTANT
+URGENT
+EMERGENCY
+
+↓
+
+Write content
+
+↓
+
+Attach file/image if needed
+
+↓
+
+Select audience
+
+↓
+
+Preview
+
+↓
+
+Publish now
+OR
+Schedule
+
+↓
+
+Track analytics
+
+The preview should show how the notice appears on:
+
+- mobile
+- desktop
+
+============================================================
+34. ADMIN ANALYTICS
+============================================================
+
+Provide actionable analytics.
+
+Examples:
+
+- cases by category
+- cases by department
+- SLA compliance
+- average resolution time
+- recurring issues
+- workload by staff
+- workload by department
+- complaints by location
+- notices read rate
+- notices action rate
+- request volume over time
+
+Avoid decorative charts without operational meaning.
+
+============================================================
+35. CASE DETAIL
+============================================================
+
+Show:
+
+Case ID
+Student
+Location
+Asset
+Category
+Priority
+Department
+Assigned Staff
+SLA
+Status
+
+Timeline:
+
+08:10 Submitted
+08:11 Classified
+08:11 Routed
+08:13 Assigned
+09:40 Viewed
+10:02 In Progress
+11:15 Resolved
+
+Actions must be permission-aware.
+
+============================================================
+36. RBAC
+============================================================
+
+Minimum roles:
+
+SUPER_ADMIN
+ADMIN
+WARDEN
+DEPARTMENT_HEAD
+STAFF
+SECURITY
+HELPDESK_OPERATOR
+STUDENT
+
+Enforce permissions server-side.
+
+============================================================
+37. KIOSK / NO-SMARTPHONE FALLBACK
+============================================================
+
+Create a separate kiosk/assisted interface.
+
+Flow:
+
+WELCOME
+
+↓
+
+ENTER STUDENT ID
+OR
+SCAN ID
+
+↓
+
+SELECT SERVICE
+
+↓
+
+CREATE REQUEST
+
+↓
+
+CONFIRM
+
+The resulting request is still a normal CampusCase.
+
+source_channel:
+
+KIOSK
+or
+ASSISTED_DESK
+
+The student must not become a separate type of workflow simply
+because they lack a smartphone.
+
+============================================================
+38. LOW-BANDWIDTH OPTIMIZATION
+============================================================
+
+Optimize for weak hostel networks.
+
+Use:
+
+- code splitting
+- lazy loading
+- compressed assets
+- pagination
+- small API payloads
+- caching
+- offline storage
+- minimal animations
+- optimized images
+- efficient SQL queries
+
+============================================================
+39. ACCESSIBILITY
+============================================================
+
+Support:
+
+- high contrast
+- readable typography
+- large touch targets
+- keyboard navigation
+- semantic HTML
+- screen readers where practical
+- reduced motion preference
+- clear error messages
+- accessible form labels
+- focus states
+
+Accessibility must coexist with Neubrutalism.
+
+============================================================
+40. MULTILINGUAL ARCHITECTURE
+============================================================
+
+Architect for:
+
+English
+Odia
+
+Visible UI strings must not be hardcoded throughout components.
+
+Use translation dictionaries.
+
+============================================================
+41. SECURITY
+============================================================
+
+Implement:
+
+- secure authentication
+- RBAC
+- input validation
+- authorization
+- secure attachments
+- rate limiting where practical
+- audit logs
+- tenant isolation
+- environment variables
+- safe error messages
+
+No secrets in source code.
+
+No sensitive information in public QR codes.
+
+============================================================
+42. MULTI-TENANT ARCHITECTURE
+============================================================
+
+Every campus-owned record should have:
+
+campus_id
+
+Backend must enforce tenant isolation.
+
+For the hackathon, one demo campus is sufficient.
+
+============================================================
+43. DATA MIGRATION
+============================================================
+
+Provide CSV templates for:
+
+- students
+- staff
+- departments
+- branches
+- hostels
+- rooms
+- assets
+- existing complaints
+- services
+
+Create:
+
+docs/adoption-plan.md
+
+Adoption:
+
+PHASE 1
+Data migration
+
+PHASE 2
+Three workflows
+
+PHASE 3
+Additional services
+
+PHASE 4
+Analytics and agents
+
+============================================================
+44. DEMO DATA
+============================================================
+
+Seed realistic data:
+
+- students
+- staff
+- administrators
+- hostels
+- rooms
+- departments
+- assets
+- cases
+- certificate requests
+- leave requests
+- gate passes
+- notices
+- notifications
+- SLA breaches
+- recurring issues
+
+Dashboard should look alive immediately.
+
+============================================================
+45. DEMO MODE
+============================================================
+
+Create a reliable demo environment.
+
+DEMO:
+
+1. Student opens PWA on mobile.
+2. Student scans hostel QR.
+3. Creates maintenance complaint.
+4. AI classifies it.
+5. Case is routed.
+6. Admin sees it.
+7. Staff receives assignment.
+8. Staff resolves it.
+9. Student verifies it.
+10. Analytics update.
+11. Admin creates targeted notice.
+12. Students receive notification.
+13. Student opens notice.
+14. Student acknowledges/action.
+15. Admin sees read/action analytics.
+16. Disable network.
+17. Student creates another request.
+18. Request shows QUEUED.
+19. Close/reopen PWA.
+20. Request still exists.
+21. Restore network.
+22. Request synchronizes.
+23. Admin sees synchronized case.
+24. Demonstrate certificate workflow.
+25. Demonstrate leave → approval → gate pass.
+26. Demonstrate security verification.
+27. Demonstrate kiosk/no-smartphone workflow.
+
+============================================================
+46. OFFLINE TEST — MANDATORY
+============================================================
+
+Perform:
+
+1. Open app online.
+2. Synchronize.
+3. Disable network.
+4. Create case.
+5. Confirm local persistence.
+6. Reload application.
+7. Confirm case remains.
+8. Restore network.
+9. Confirm synchronization.
+10. Confirm no duplicate.
+11. Confirm admin sees case.
+12. Confirm audit event.
+13. Confirm notification state.
+
+Fix every failure.
+
+============================================================
+47. TESTING
+============================================================
+
+Automated tests:
+
+- authentication
+- authorization
+- RBAC
+- case creation
+- state machine
+- workflow
+- SLA
+- idempotency
+- offline queue
+- sync
+- retry
+- conflict
+- notifications
+- notices
+- notice targeting
+- notice read tracking
+- notice action tracking
+- approvals
+- agent authorization
+- tenant isolation
+
+Manual tests:
+
+- Android mobile
+- desktop
+- tablet
+- kiosk
+- offline
+- slow network
+
+============================================================
+48. FAILURE RESILIENCE
+============================================================
+
+NETWORK OFF:
+→ supported workflows continue locally.
+
+SERVER DOWN:
+→ queue supported operations.
+
+AI DOWN:
+→ deterministic fallback.
+
+NOTIFICATION SERVICE DOWN:
+→ queue notification.
+
+DUPLICATE:
+→ idempotency protection.
+
+DATABASE ERROR:
+→ never falsely report success.
+
+The product must degrade gracefully.
+
+============================================================
+49. OBSERVABILITY
+============================================================
+
+Log:
+
+- API errors
+- sync failures
+- workflow errors
+- agent failures
+- authorization failures
+- notification failures
+
+Do not unnecessarily log sensitive personal information.
+
+============================================================
+50. DOCUMENTATION
+============================================================
+
+Create:
+
+README.md
+
+docs/
+
+competitive-gap.md
+requirements.md
+architecture.md
+data-model.md
+offline-sync.md
+workflow-engine.md
+agent-system.md
+security.md
+adoption-plan.md
+demo-script.md
+api.md
+ui-system.md
+notification-system.md
+
+============================================================
+51. ARCHITECTURE
+============================================================
+
+Conceptual architecture:
+
+                 CAMPUS RELAY
+                       |
+       +---------------+---------------+
+       |               |               |
+       v               v               v
+ Student PWA       Admin Web       Staff/Kiosk
+       |               |               |
+       +---------------+---------------+
+                       |
+                   API Layer
+                       |
+              Application Services
+                       |
+       +---------------+---------------+
+       |               |               |
+       v               v               v
+  Case Engine     Workflow Engine   Policy/SLA
+       |               |               |
+       +---------------+---------------+
+                       |
+                 Event/Audit Layer
+                       |
+                  PostgreSQL
+                       |
+             Analytics / AI Agents
+
+
+OFFLINE:
+
+PWA
+ ↓
+IndexedDB
+ ↓
+Outbox
+ ↓
+Sync Engine
+ ↓
+API
+ ↓
+PostgreSQL
+
+
+AGENTS:
+
+User
+ ↓
+Agent
+ ↓
+Tool
+ ↓
+Authorization
+ ↓
+Policy
+ ↓
+Application Service
+ ↓
+Database
+ ↓
+Audit Event
+
+
+NOTIFICATIONS:
+
+Event
+ ↓
+Notification Engine
+ ↓
+Targeting Rules
+ ↓
+Notification Adapter
+ ↓
+In-App / Push / Future Channels
+
+============================================================
+52. FRONTEND COMPONENT ARCHITECTURE
+============================================================
+
+Create reusable components:
+
+Buttons
+Cards
+Badges
+Tables
+Mobile Lists
+Bottom Sheets
+Dialogs
+Forms
+Timeline
+Status Indicators
+Notification Cards
+Notice Cards
+Case Cards
+Charts
+Filters
+Search
+QR Scanner
+Offline Indicator
+Sync Status
+Empty States
+Error States
+Loading States
+
+Create separate layout systems:
+
+StudentMobileLayout
+StudentDesktopLayout
+
+AdminMobileLayout
+AdminDesktopLayout
+
+StaffMobileLayout
+StaffDesktopLayout
+
+SecurityMobileLayout
+SecurityDesktopLayout
+
+HelpdeskLayout
+
+KioskPortraitLayout
+KioskLandscapeLayout
+
+============================================================
+53. DESIGN SYSTEM
+============================================================
+
+Create:
+
+design tokens
+
+for:
+
+- colors
+- typography
+- borders
+- shadows
+- spacing
+- radii
+- breakpoints
+- status colors
+
+Neubrutalism must remain consistent throughout:
+
+Student
+Admin
+Staff
+Security
+Kiosk
+Helpdesk
+
+Do not create five unrelated visual styles.
+
+============================================================
+54. PERFORMANCE TARGET
+============================================================
+
+The mobile student experience is the highest priority.
+
+Optimize:
+
+- first meaningful render
+- bundle size
+- image size
+- API payload
+- database queries
+- caching
+
+Do not add heavy libraries without justification.
+
+============================================================
+55. DO NOT OVERENGINEER
+============================================================
+
+Do not introduce:
+
+- Kubernetes without need
+- microservices just for appearance
+- blockchain without a real requirement
+- complex distributed databases
+- unnecessary infrastructure
+
+Prefer:
+
+MODULAR MONOLITH
+
+FastAPI
++
+PostgreSQL
++
+React PWA
++
+IndexedDB
++
+Redis only if needed
+
+============================================================
+56. DO NOT BUILD THESE AS THE MAIN INNOVATION
+============================================================
+
+Do not position the project primarily as:
+
+- attendance app
+- hostel app
+- complaint app
+- mess app
+- notice board
+- generic chatbot
+- AI CRUD
+- flashy dashboard
+- blockchain project
+
+Those can be components.
+
+The product innovation is:
+
+UNIVERSAL CASE
++
+WORKFLOW
++
+POLICY
++
+SLA
++
+EVENT
++
+OFFLINE SYNC
++
+MULTI-CHANNEL ACCESS
++
+CONTROLLED AGENTS
+
+============================================================
+57. PRODUCT POSITIONING
+============================================================
+
+Product:
+
+CAMPUS RELAY
+
+Tagline:
+
+"A resilient operating layer for everyday campus operations."
+
+Core pitch:
+
+"Every campus task becomes a trackable case.
+Every action becomes an auditable event.
+Every channel connects to the same operational system.
+And when connectivity fails, the workflow does not have to."
+
+============================================================
+58. DEVELOPMENT PROCESS
+============================================================
+
+PHASE 1 — DISCOVERY
+
+Inspect:
+
+- repository
+- runtime
+- package manager
+- existing code
+- environment
+
+Read:
+
+- BPUT PS07
+
+Research:
+
+- current Fretbox product
+
+Create:
+
+competitive-gap.md
+requirements.md
+
+------------------------------------------------------------
+
+PHASE 2 — ARCHITECTURE
+
+Create:
+
+architecture.md
+data-model.md
+offline-sync.md
+workflow-engine.md
+agent-system.md
+ui-system.md
+
+------------------------------------------------------------
+
+PHASE 3 — DATABASE
+
+Implement:
+
+PostgreSQL
+SQLAlchemy
+migrations
+constraints
+indexes
+seed data
+
+------------------------------------------------------------
+
+PHASE 4 — AUTH/RBAC
+
+Implement authentication and authorization.
+
+------------------------------------------------------------
+
+PHASE 5 — CASE ENGINE
+
+Implement:
+
+Case
+State machine
+Workflow
+Policy
+SLA
+Assignment
+Audit
+
+------------------------------------------------------------
+
+PHASE 6 — STUDENT PWA
+
+Implement mobile-first student experience.
+
+Then implement desktop student experience.
+
+------------------------------------------------------------
+
+PHASE 7 — ADMIN
+
+Implement desktop command center.
+
+Then implement admin mobile experience.
+
+------------------------------------------------------------
+
+PHASE 8 — STAFF
+
+Implement mobile + desktop staff experience.
+
+------------------------------------------------------------
+
+PHASE 9 — SECURITY
+
+Implement mobile security interface.
+
+Then desktop security interface.
+
+------------------------------------------------------------
+
+PHASE 10 — KIOSK/HELPDESK
+
+Implement dedicated kiosk and assisted-access layouts.
+
+------------------------------------------------------------
+
+PHASE 11 — THREE WORKFLOWS
+
+Complete:
+
+1. Maintenance
+2. Certificate
+3. Leave/Gate Pass
+
+Do not proceed until all three are functional.
+
+------------------------------------------------------------
+
+PHASE 12 — NOTICES/NOTIFICATIONS
+
+Implement:
+
+- notice creation
+- targeting
+- scheduling
+- attachments
+- sharing
+- read tracking
+- acknowledgement
+- action tracking
+- notification center
+- notification preferences
+- push/in-app architecture
+
+------------------------------------------------------------
+
+PHASE 13 — OFFLINE
+
+Implement:
+
+- IndexedDB
+- outbox
+- synchronization
+- retries
+- idempotency
+- conflicts
+
+Run mandatory offline test.
+
+------------------------------------------------------------
+
+PHASE 14 — QR
+
+Implement contextual QR reporting.
+
+------------------------------------------------------------
+
+PHASE 15 — AI
+
+Implement:
+
+- intake agent
+- routing agent
+- operations agent
+- student assistant
+
+Implement deterministic fallbacks.
+
+------------------------------------------------------------
+
+PHASE 16 — ACCESSIBILITY
+
+Verify:
+
+- low-end phone
+- slow network
+- offline
+- kiosk
+- no-smartphone fallback
+- keyboard
+- contrast
+- touch targets
+
+------------------------------------------------------------
+
+PHASE 17 — HARDENING
+
+Test:
+
+- security
+- workflows
+- offline
+- sync
+- notifications
+- notices
+- responsive interfaces
+- mobile performance
+
+------------------------------------------------------------
+
+PHASE 18 — DEMO
+
+Prepare:
+
+- seed/reset
+- demo credentials
+- demo script
+- stable demo environment
+
+------------------------------------------------------------
+
+PHASE 19 — DOCUMENTATION
+
+Complete all documentation.
+
+============================================================
+59. CODING AGENT BEHAVIOR
+============================================================
+
+Do not repeatedly ask for trivial decisions.
+
+Make sensible engineering decisions.
+
+Inspect existing code before changing it.
+
+When encountering errors:
+
+1. diagnose
+2. fix
+3. test
+4. continue
+
+Do not merely report errors.
+
+Do not claim completion without testing.
+
+Do not fake API calls.
+
+Do not fabricate integrations.
+
+Do not fabricate metrics.
+
+Do not fabricate AI accuracy.
+
+Clearly mark:
+
+DEMO DATA
+MOCK SERVICE
+SIMULATED NOTIFICATION
+OPTIONAL INTEGRATION
+
+============================================================
+60. DEFINITION OF DONE
+============================================================
+
+[ ] React application works
+[ ] PWA works
+[ ] PWA installability works
+[ ] Mobile interface works
+[ ] Desktop interface works
+[ ] Student mobile interface works
+[ ] Student desktop interface works
+[ ] Admin mobile interface works
+[ ] Admin desktop interface works
+[ ] Staff mobile interface works
+[ ] Staff desktop interface works
+[ ] Security mobile interface works
+[ ] Security desktop interface works
+[ ] Kiosk portrait works
+[ ] Kiosk landscape works
+[ ] Helpdesk interface works
+
+[ ] PostgreSQL works
+[ ] SQLAlchemy works
+[ ] migrations work
+[ ] seed data works
+
+[ ] authentication works
+[ ] RBAC works
+
+[ ] CampusCase works
+[ ] state machine works
+[ ] workflow engine works
+[ ] policy engine works
+[ ] SLA engine works
+[ ] audit trail works
+
+[ ] maintenance workflow works
+[ ] certificate workflow works
+[ ] leave/gate workflow works
+
+[ ] QR reporting works
+
+[ ] notice creation works
+[ ] notice targeting works
+[ ] notice scheduling works
+[ ] notice sharing works
+[ ] notice read tracking works
+[ ] notice acknowledgement works
+[ ] notice action tracking works
+
+[ ] notification center works
+[ ] notification targeting works
+[ ] notification preferences work
+[ ] notification action tracking works
+
+[ ] offline persistence works
+[ ] offline queue works
+[ ] synchronization works
+[ ] idempotency works
+[ ] conflict handling works
+
+[ ] kiosk/no-smartphone workflow works
+
+[ ] AI intake works
+[ ] AI routing works
+[ ] recurring issue detection works
+[ ] operations agent works
+[ ] student assistant works
+[ ] AI fallback works
+
+[ ] responsive Neubrutalist design works
+[ ] accessibility works
+[ ] low-end device works
+[ ] poor-network scenario works
+
+[ ] documentation exists
+[ ] tests pass
+[ ] demo works reliably
+
+============================================================
+61. PRIORITY IF TIME IS LIMITED
+============================================================
+
+P0 — ABSOLUTELY MUST WORK
+
+1. PostgreSQL
+2. Authentication
+3. RBAC
+4. CampusCase
+5. Workflow engine
+6. Audit
+7. Maintenance workflow
+8. Certificate workflow
+9. Leave/Gate workflow
+10. Admin dashboard
+11. Student PWA
+12. Offline persistence
+13. Sync
+14. Notice system
+15. Notification system
+16. Mobile + desktop responsive interfaces
+17. Kiosk/assisted access
+
+P1
+
+18. QR
+19. SLA intelligence
+20. recurring issue detection
+21. staff workload
+22. notice analytics
+23. action tracking
+
+P2
+
+24. AI intake
+25. AI routing
+26. operations agent
+27. student assistant
+28. advanced analytics
+29. multilingual implementation
+
+NEVER sacrifice P0 reliability for AI.
+
+============================================================
+62. FINAL ENGINEERING PRINCIPLE
+============================================================
+
+The project is NOT:
+
+"many pages connected to a database."
+
+It is:
+
+CASE
++
+WORKFLOW
++
+POLICY
++
+SLA
++
+EVENT
++
+SYNC
++
+CHANNEL
++
+NOTIFICATION
++
+AGENT
+
+The interface is an adaptive client of this operational engine.
+
+A student on a phone,
+an administrator on a laptop,
+a staff member on a phone,
+a security guard at a gate,
+and a student using a campus kiosk
+
+must all interact with the SAME underlying operational system.
+
+Different interface.
+Same case.
+Same workflow.
+Same database.
+Same audit trail.
+
+============================================================
+63. FINAL COMMAND
+============================================================
+
+START NOW.
+
+First inspect the environment.
+
+Then inspect the BPUT Problem Statement 07.
+
+Then research the current official Fretbox product surface.
+
+Then create the competitive-gap analysis.
+
+Then create the architecture and requirements documentation.
+
+Then build the PostgreSQL-backed backend.
+
+Then build the responsive PWA.
+
+Then implement the role-specific mobile/desktop/kiosk interfaces.
+
+Then implement the three complete workflows.
+
+Then implement notices and notifications.
+
+Then implement genuine offline synchronization.
+
+Then implement QR and assisted access.
+
+Then implement controlled AI agents.
+
+Then test every major feature.
+
+Then fix failures.
+
+Then prepare the final demo.
+
+DO NOT STOP AT PLANNING.
+
+DO NOT STOP AT UI MOCKUPS.
+
+DO NOT FAKE FUNCTIONALITY.
+
+ACTUALLY BUILD CAMPUS RELAY.
+
+The final application should demonstrate:
+
+REAL FRICTION REDUCTION
++
+REAL WORKFLOW COMPLETION
++
+REAL ADMIN VISIBILITY
++
+REAL COMMUNICATION
++
+REAL OFFLINE RESILIENCE
++
+REAL ACCESSIBILITY
++
+CONTROLLED AGENTIC INTELLIGENCE
+
+while remaining practical enough for a six-member student team
+to build, understand, maintain, and demonstrate.
+
+============================================================
+END OF MASTER PROMPT
+============================================================
