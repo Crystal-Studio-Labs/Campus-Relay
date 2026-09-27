@@ -26,6 +26,7 @@ import {
   Field,
   LoadingState,
   PageHeader,
+  Pagination,
   SectionTitle,
   Tabs,
   TextInput,
@@ -68,9 +69,15 @@ export function NotificationsPage() {
   const sync = useSyncState()
   const { can } = useSession()
   const [tab, setTab] = useState<'all' | 'unread' | 'preferences'>('all')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(20)
   const [message, setMessage] = useState<string | null>(null)
 
-  const query = tab === 'unread' ? qs({ unread_only: true }) : ''
+  const query = qs({
+    unread_only: tab === 'unread' ? true : undefined,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  })
   const { data, loading, error, refresh } = useRemote<NotificationPage>(
     tab === 'preferences' ? null : `notifications${query}`,
     () => api.get<NotificationPage>(`/notifications${query}`),
@@ -116,7 +123,10 @@ export function NotificationsPage() {
           { id: 'preferences', label: 'Preferences' },
         ]}
         active={tab}
-        onChange={setTab}
+        onChange={(t) => {
+          setTab(t)
+          setPage(1)
+        }}
       />
 
       {message ? <div className="banner banner-info">{message}</div> : null}
@@ -173,6 +183,17 @@ export function NotificationsPage() {
               />
             ))}
           </ul>
+
+          {data && data.total > 0 ? (
+            <Pagination
+              page={page}
+              pageSize={pageSize}
+              total={data.total}
+              onChangePage={setPage}
+              onChangePageSize={setPageSize}
+              pageSizeOptions={[10, 20, 50]}
+            />
+          ) : null}
         </>
       ) : (
         <div className="stack-lg">

@@ -21,6 +21,7 @@ import {
   LoadingState,
   Modal,
   PageHeader,
+  Pagination,
   Select,
   TextArea,
   TextInput,
@@ -52,6 +53,8 @@ export function QueuePage() {
   const [priority, setPriority] = useState('')
   const [unassigned, setUnassigned] = useState(params.get('unassigned') === '1')
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(25)
   const [selected, setSelected] = useState<number[]>([])
   const [dialog, setDialog] = useState<'escalate' | 'assign' | null>(null)
   const [reason, setReason] = useState('')
@@ -68,9 +71,10 @@ export function QueuePage() {
         priority: priority || undefined,
         unassigned: unassigned || undefined,
         q: search.trim() || undefined,
-        limit: 100,
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
       }),
-    [status, departmentId, slaState, priority, unassigned, search],
+    [status, departmentId, slaState, priority, unassigned, search, page, pageSize],
   )
 
   const queue = useRemote<QueuePayload>(`admin-cases${query}`, () =>
@@ -338,6 +342,20 @@ export function QueuePage() {
             </tbody>
           </table>
         </div>
+      ) : null}
+
+      {queue.data && queue.data.total > 0 ? (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={queue.data.total}
+          onChangePage={setPage}
+          onChangePageSize={(newSize) => {
+            setPageSize(newSize)
+            setPage(1)
+          }}
+          pageSizeOptions={[20, 25, 50, 100]}
+        />
       ) : null}
 
       <Modal

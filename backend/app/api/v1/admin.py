@@ -456,7 +456,8 @@ def users(
     user: CurrentUser,
     role: str | None = None,
     q: str | None = None,
-    limit: int = Query(default=100, le=300),
+    limit: int = Query(default=50, le=300),
+    offset: int = Query(default=0, ge=0),
 ):
     assert_permission(user, USER_MANAGE)
     stmt = select(User).where(User.campus_id == user.campus_id)
@@ -465,8 +466,12 @@ def users(
     if q:
         pattern = f"%{q}%"
         stmt = stmt.where(or_(User.full_name.ilike(pattern), User.email.ilike(pattern)))
-    rows = db.scalars(stmt.order_by(User.full_name).limit(limit)).all()
-    return {"users": [user_brief(u) | {"is_active": u.is_active} for u in rows]}
+    total = int(db.scalar(select(func.count()).select_from(stmt.subquery())) or 0)
+    rows = db.scalars(stmt.order_by(User.full_name).offset(offset).limit(limit)).all()
+    return {
+        "total": total,
+        "users": [user_brief(u) | {"is_active": u.is_active} for u in rows],
+    }
 
 
 @router.post("/admin/users", status_code=201)

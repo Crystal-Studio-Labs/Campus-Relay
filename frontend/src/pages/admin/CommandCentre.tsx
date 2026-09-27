@@ -29,9 +29,11 @@ import {
   EmptyState,
   Metric,
   PageHeader,
+  Pagination,
   ProgressBar,
   SectionTitle,
   Tabs,
+  TextInput,
 } from '../../components/ui'
 
 type Payload = DashboardPayload & { agent_briefing?: AgentBriefing }
@@ -40,6 +42,9 @@ export function CommandCentre() {
   const navigate = useNavigate()
   const sync = useSyncState()
   const [tab, setTab] = useState<'overview' | 'teams' | 'recurring'>('overview')
+  const [staffSearch, setStaffSearch] = useState('')
+  const [staffPage, setStaffPage] = useState(1)
+  const [staffPageSize, setStaffPageSize] = useState(10)
   const { data, loading, refresh } = useRemote<Payload>(
     'admin-dashboard',
     () => api.get<Payload>('/admin/dashboard?with_agent=true'),
@@ -293,47 +298,86 @@ export function CommandCentre() {
             </div>
           </Card>
 
-          <Card>
-            <SectionTitle>Staff workload</SectionTitle>
-            <div className="table-wrap become-cards">
-              <table className="data">
-                <thead>
-                  <tr>
-                    <th>Staff</th>
-                    <th>Department</th>
-                    <th>Open</th>
-                    <th>Capacity</th>
-                    <th>Load</th>
-                    <th>Available</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(dashboard?.staff_workload ?? []).map((row) => (
-                    <tr key={row.staff_id}>
-                      <td data-label="Staff">{row.name}</td>
-                      <td data-label="Department">{row.department ?? '—'}</td>
-                      <td data-label="Open">{row.open_cases}</td>
-                      <td data-label="Capacity">{row.capacity}</td>
-                      <td data-label="Load">
-                        <ProgressBar
-                          value={row.open_cases}
-                          max={Math.max(1, row.capacity)}
-                          tone={row.utilisation > 1 ? 'status-urgent' : row.utilisation > 0.8 ? 'status-warn' : 'mint'}
-                        />
-                      </td>
-                      <td data-label="Available">
-                        {row.is_available ? <Badge tone="done">yes</Badge> : <Badge tone="ghost">no</Badge>}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="small muted" style={{ marginTop: 8 }}>
-              Routing uses this same table: a case goes to the least-loaded person who has the skill, and the
-              reasoning is recorded on the case.
-            </p>
-          </Card>
+          {(() => {
+            const allStaff = dashboard?.staff_workload ?? []
+            const filteredStaff = staffSearch.trim()
+              ? allStaff.filter(
+                  (s) =>
+                    s.name.toLowerCase().includes(staffSearch.trim().toLowerCase()) ||
+                    (s.department && s.department.toLowerCase().includes(staffSearch.trim().toLowerCase())),
+                )
+              : allStaff
+            const paginatedStaff = filteredStaff.slice((staffPage - 1) * staffPageSize, staffPage * staffPageSize)
+
+            return (
+              <Card>
+                <div className="row-between wrap" style={{ gap: 12, marginBottom: 12 }}>
+                  <SectionTitle>Staff workload</SectionTitle>
+                  <div style={{ maxWidth: 260, width: '100%' }}>
+                    <TextInput
+                      value={staffSearch}
+                      onChange={(val) => {
+                        setStaffSearch(val)
+                        setStaffPage(1)
+                      }}
+                      placeholder="Filter staff or department…"
+                    />
+                  </div>
+                </div>
+
+                <div className="table-wrap become-cards">
+                  <table className="data">
+                    <thead>
+                      <tr>
+                        <th>Staff</th>
+                        <th>Department</th>
+                        <th>Open</th>
+                        <th>Capacity</th>
+                        <th>Load</th>
+                        <th>Available</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedStaff.map((row) => (
+                        <tr key={row.staff_id}>
+                          <td data-label="Staff">{row.name}</td>
+                          <td data-label="Department">{row.department ?? '—'}</td>
+                          <td data-label="Open">{row.open_cases}</td>
+                          <td data-label="Capacity">{row.capacity}</td>
+                          <td data-label="Load">
+                            <ProgressBar
+                              value={row.open_cases}
+                              max={Math.max(1, row.capacity)}
+                              tone={row.utilisation > 1 ? 'status-urgent' : row.utilisation > 0.8 ? 'status-warn' : 'mint'}
+                            />
+                          </td>
+                          <td data-label="Available">
+                            {row.is_available ? <Badge tone="done">yes</Badge> : <Badge tone="ghost">no</Badge>}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {filteredStaff.length > 0 ? (
+                  <Pagination
+                    page={staffPage}
+                    pageSize={staffPageSize}
+                    total={filteredStaff.length}
+                    onChangePage={setStaffPage}
+                    onChangePageSize={setStaffPageSize}
+                    pageSizeOptions={[5, 10, 20]}
+                  />
+                ) : null}
+
+                <p className="small muted" style={{ marginTop: 8 }}>
+                  Routing uses this same table: a case goes to the least-loaded person who has the skill, and the
+                  reasoning is recorded on the case.
+                </p>
+              </Card>
+            )
+          })()}
         </>
       ) : null}
 
@@ -433,12 +477,18 @@ export function CommandCentre() {
         </Card>
       ) : null}
 
-      <div className="row wrap">
+      <div className="row wrap" style={{ gap: 10 }}>
         <Button variant="primary" onClick={() => navigate('/queue')}>
           Open the case queue
         </Button>
+        <Button variant="info" onClick={() => navigate('/notice-studio')}>
+          Notice Studio
+        </Button>
         <Button variant="info" onClick={() => navigate('/analytics')}>
           Analytics
+        </Button>
+        <Button variant="ghost" onClick={() => navigate('/directory')}>
+          Directory & config
         </Button>
         <Button variant="ghost" onClick={() => navigate('/audit')}>
           Audit trail

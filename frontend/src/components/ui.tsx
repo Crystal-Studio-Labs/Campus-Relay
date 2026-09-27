@@ -657,3 +657,118 @@ export function useDomId(prefix: string): string {
   const id = useId()
   return `${prefix}-${id.replace(/:/g, '')}`
 }
+
+export interface PaginationProps {
+  page: number
+  pageSize: number
+  total: number
+  onChangePage: (page: number) => void
+  onChangePageSize?: (pageSize: number) => void
+  pageSizeOptions?: number[]
+  className?: string
+}
+
+export function Pagination({
+  page,
+  pageSize,
+  total,
+  onChangePage,
+  onChangePageSize,
+  pageSizeOptions = [10, 20, 25, 50],
+  className = '',
+}: PaginationProps) {
+  const totalPages = Math.max(1, Math.ceil(total / pageSize))
+  const start = total === 0 ? 0 : (page - 1) * pageSize + 1
+  const end = Math.min(total, page * pageSize)
+
+  const getPageNumbers = () => {
+    const pages: (number | 'ellipsis')[] = []
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (page > 3) pages.push('ellipsis')
+      const startPage = Math.max(2, page - 1)
+      const endPage = Math.min(totalPages - 1, page + 1)
+      for (let i = startPage; i <= endPage; i++) pages.push(i)
+      if (page < totalPages - 2) pages.push('ellipsis')
+      pages.push(totalPages)
+    }
+    return pages
+  }
+
+  return (
+    <nav className={`pagination-bar ${className}`} aria-label="Pagination Navigation">
+      <div className="pagination-summary">
+        Showing <strong className="pagination-num">{start}–{end}</strong> of{' '}
+        <strong className="pagination-num">{total}</strong> entries
+      </div>
+
+      <div className="pagination-controls">
+        <button
+          type="button"
+          className="pagination-btn pagination-nav-btn"
+          disabled={page <= 1}
+          onClick={() => onChangePage(page - 1)}
+          aria-label="Previous page"
+        >
+          ‹ Prev
+        </button>
+
+        <div className="pagination-pages hide-mobile">
+          {getPageNumbers().map((p, idx) =>
+            p === 'ellipsis' ? (
+              <span key={`ell-${idx}`} className="pagination-ellipsis">
+                …
+              </span>
+            ) : (
+              <button
+                key={p}
+                type="button"
+                className={`pagination-btn pagination-page-btn ${p === page ? 'is-active' : ''}`}
+                onClick={() => onChangePage(p)}
+                aria-current={p === page ? 'page' : undefined}
+              >
+                {p}
+              </button>
+            ),
+          )}
+        </div>
+
+        <span className="pagination-mobile-indicator show-mobile">
+          {page} / {totalPages}
+        </span>
+
+        <button
+          type="button"
+          className="pagination-btn pagination-nav-btn"
+          disabled={page >= totalPages}
+          onClick={() => onChangePage(page + 1)}
+          aria-label="Next page"
+        >
+          Next ›
+        </button>
+
+        {onChangePageSize ? (
+          <div className="pagination-size-wrap">
+            <select
+              className="pagination-size-select"
+              value={pageSize}
+              onChange={(e) => {
+                onChangePageSize(Number(e.target.value))
+                onChangePage(1)
+              }}
+              aria-label="Rows per page"
+            >
+              {pageSizeOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt} / page
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : null}
+      </div>
+    </nav>
+  )
+}

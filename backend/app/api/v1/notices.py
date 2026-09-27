@@ -5,7 +5,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, File, Query, UploadFile
 from fastapi.responses import FileResponse
-from sqlalchemy import func, select
+from sqlalchemy import func, or_, select
 
 from app.api.deps import CurrentUser, DbSession, RequestContext
 from app.api.serializers import notice_brief
@@ -38,29 +38,44 @@ def list_notices(
     unread_only: bool = False,
     pending_acknowledgement: bool = False,
     notice_type: str | None = None,
+    status: str | None = None,
+    q: str | None = None,
     include_archived: bool = False,
     limit: int = Query(default=25, le=100),
     offset: int = Query(default=0, ge=0),
 ):
     assert_permission(user, NOTICE_READ)
-    stmt = (
-        select(Notice)
-        .join(NoticeRecipient, NoticeRecipient.notice_id == Notice.id)
-        .where(
-            NoticeRecipient.user_id == user.id,
-            Notice.campus_id == user.campus_id,
+    is_manager = NOTICE_MANAGE in user.permission_keys() or NOTICE_PUBLISH in user.permission_keys()
+
+    if is_manager and (include_archived or status or not (unread_only or pending_acknowledgement)):
+        stmt = select(Notice).where(Notice.campus_id == user.campus_id)
+        if not include_archived and not status:
+            stmt = stmt.where(Notice.status != NoticeStatus.ARCHIVED.value)
+    else:
+        stmt = (
+            select(Notice)
+            .join(NoticeRecipient, NoticeRecipient.notice_id == Notice.id)
+            .where(
+                NoticeRecipient.user_id == user.id,
+                Notice.campus_id == user.campus_id,
+            )
         )
-    )
-    if not include_archived:
-        stmt = stmt.where(Notice.status != NoticeStatus.ARCHIVED.value)
-    if unread_only:
-        stmt = stmt.where(NoticeRecipient.read_at.is_(None))
-    if pending_acknowledgement:
-        stmt = stmt.where(
-            Notice.acknowledgement_required.is_(True), NoticeRecipient.acknowledged_at.is_(None)
-        )
+        if not include_archived and not status:
+            stmt = stmt.where(Notice.status != NoticeStatus.ARCHIVED.value)
+        if unread_only:
+            stmt = stmt.where(NoticeRecipient.read_at.is_(None))
+        if pending_acknowledgement:
+            stmt = stmt.where(
+                Notice.acknowledgement_required.is_(True), NoticeRecipient.acknowledged_at.is_(None)
+            )
+
+    if status:
+        stmt = stmt.where(Notice.status == status.upper())
     if notice_type:
-        stmt = stmt.where(Notice.notice_type == notice_type)
+        stmt = stmt.where(Notice.notice_type == notice_type.upper())
+    if q and q.strip():
+        term = f"%{q.strip()}%"
+        stmt = stmt.where(or_(Notice.title.ilike(term), Notice.summary.ilike(term)))
 
     total = int(db.scalar(select(func.count()).select_from(stmt.subquery())) or 0)
     rows = db.scalars(

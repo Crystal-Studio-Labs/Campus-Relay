@@ -26,6 +26,7 @@ import {
   ErrorState,
   LoadingState,
   PageHeader,
+  Pagination,
   Select,
   Tabs,
   TextInput,
@@ -62,12 +63,13 @@ export function CasesListPage() {
   const [filter, setFilter] = useState<Filter>(initialFilter)
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<'recent' | 'oldest' | 'priority' | 'due'>('recent')
+  const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(25)
 
   const query = useMemo(() => {
     const base: Record<string, string | number | boolean | undefined> = {
       limit,
-      offset: 0,
+      offset: (page - 1) * limit,
       sort,
       q: search.trim() || undefined,
     }
@@ -78,7 +80,7 @@ export function CasesListPage() {
     if (filter === 'approval') base.status = 'WAITING_FOR_APPROVAL'
     if (filter === 'verify') base.status = 'VERIFICATION_REQUIRED'
     return qs(base)
-  }, [filter, search, sort, limit])
+  }, [filter, search, sort, limit, page])
 
   const { data, error, loading, stale, cachedAt, refresh } = useRemote<CasePage>(
     `cases${query}`,
@@ -110,6 +112,7 @@ export function CasesListPage() {
         active={filter}
         onChange={(next) => {
           setFilter(next)
+          setPage(1)
           setParams(next === 'open' ? {} : { filter: next })
         }}
       />
@@ -118,7 +121,14 @@ export function CasesListPage() {
         actions={
           <>
             {search ? (
-              <Button variant="ghost" size="sm" onClick={() => setSearch('')}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch('')
+                  setPage(1)
+                }}
+              >
                 Clear search
               </Button>
             ) : null}
@@ -129,7 +139,10 @@ export function CasesListPage() {
               <Select
                 id="case-sort"
                 value={sort}
-                onChange={(value) => setSort(value as typeof sort)}
+                onChange={(value) => {
+                  setSort(value as typeof sort)
+                  setPage(1)
+                }}
                 options={[
                   { value: 'recent', label: 'Newest first' },
                   { value: 'oldest', label: 'Oldest first' },
@@ -147,7 +160,10 @@ export function CasesListPage() {
         <TextInput
           id="case-search"
           value={search}
-          onChange={setSearch}
+          onChange={(val) => {
+            setSearch(val)
+            setPage(1)
+          }}
           inputMode="search"
           placeholder="Search case number, title or description"
         />
@@ -194,15 +210,18 @@ export function CasesListPage() {
         />
       ) : null}
 
-      {data && total > shown ? (
-        <div className="row-between">
-          <span className="small muted">
-            Showing {shown} of {total}
-          </span>
-          <Button variant="info" onClick={() => setLimit((value) => Math.min(value + 25, 100))} disabled={limit >= 100}>
-            Load {Math.min(25, total - shown)} more
-          </Button>
-        </div>
+      {data && total > 0 ? (
+        <Pagination
+          page={page}
+          pageSize={limit}
+          total={total}
+          onChangePage={setPage}
+          onChangePageSize={(sz) => {
+            setLimit(sz)
+            setPage(1)
+          }}
+          pageSizeOptions={[15, 25, 50]}
+        />
       ) : null}
     </div>
   )

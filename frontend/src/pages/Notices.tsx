@@ -21,6 +21,7 @@ import {
   ErrorState,
   LoadingState,
   PageHeader,
+  Pagination,
   SectionTitle,
   Tabs,
 } from '../components/ui'
@@ -43,6 +44,8 @@ export function NoticesPage() {
   const sync = useSyncState()
   const { can } = useSession()
   const [tab, setTab] = useState<'needs_action' | 'unread' | 'all'>('all')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(12)
 
   const managerView = can('notice:publish') || can('notice:manage')
   const inbox = useRemote<Inbox>('notices-inbox', () => api.get<Inbox>('/notices/inbox'), {
@@ -50,7 +53,7 @@ export function NoticesPage() {
   })
   const managed = useRemote<NoticeList>(
     managerView ? 'notices-managed' : null,
-    () => api.get<NoticeList>('/notices?limit=50'),
+    () => api.get<NoticeList>('/notices?limit=100'),
     { cacheKey: 'notices' },
   )
 
@@ -137,12 +140,26 @@ export function NoticesPage() {
       ) : null}
 
       <ul className="list-reset card-columns" data-guide="notices-list">
-        {list.map((notice) => (
+        {list.slice((page - 1) * pageSize, page * pageSize).map((notice) => (
           <li key={notice.id}>
             <NoticeCard notice={notice} onOpen={() => void open(notice)} showAnalytics={managerView} />
           </li>
         ))}
       </ul>
+
+      {list.length > pageSize ? (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={list.length}
+          onChangePage={setPage}
+          onChangePageSize={(s) => {
+            setPageSize(s)
+            setPage(1)
+          }}
+          pageSizeOptions={[6, 12, 24, 48]}
+        />
+      ) : null}
 
       {managerView ? (
         <Card className="card-flat">

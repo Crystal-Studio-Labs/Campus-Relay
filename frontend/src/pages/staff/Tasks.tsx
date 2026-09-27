@@ -24,6 +24,7 @@ import {
   LoadingState,
   Modal,
   PageHeader,
+  Pagination,
   SectionTitle,
   Tabs,
   TextArea,
@@ -40,15 +41,17 @@ export function StaffTasks() {
   const sync = useSyncState()
   const { profile } = useSession()
   const [tab, setTab] = useState<'risk' | 'active' | 'done'>('risk')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(15)
   const [busy, setBusy] = useState<number | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [resolveFor, setResolveFor] = useState<CaseBrief | null>(null)
   const [note, setNote] = useState('')
 
-  const query = buildQuery(tab)
+  const query = buildQuery(tab, page, pageSize)
   const { data, loading, error: loadError, refresh } = useRemote<CasePage>(
-    `staff-tasks-${tab}`,
+    `staff-tasks-${tab}-${page}-${pageSize}`,
     () => api.get<CasePage>(`/cases${query}`),
     { cacheKey: 'staff_tasks' },
   )
@@ -117,7 +120,10 @@ export function StaffTasks() {
             { id: 'done', label: 'Recently closed' },
           ]}
           active={tab}
-          onChange={setTab}
+          onChange={(t) => {
+            setTab(t)
+            setPage(1)
+          }}
         />
       </div>
 
@@ -180,6 +186,17 @@ export function StaffTasks() {
         ))}
       </ul>
 
+      {data && data.total > 0 ? (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={data.total}
+          onChangePage={setPage}
+          onChangePageSize={setPageSize}
+          pageSizeOptions={[10, 15, 25, 50]}
+        />
+      ) : null}
+
       <Modal
         open={Boolean(resolveFor)}
         onClose={() => setResolveFor(null)}
@@ -208,8 +225,13 @@ export function StaffTasks() {
 }
 
 /** Small helper so the tab-to-query mapping stays in one place. */
-function buildQuery(tab: 'risk' | 'active' | 'done'): string {
-  if (tab === 'risk') return qs({ assigned_to_me: true, open_only: true, sort: 'due' })
-  if (tab === 'active') return qs({ assigned_to_me: true, status: 'IN_PROGRESS', sort: 'due' })
-  return qs({ assigned_to_me: true, status: 'CLOSED', sort: 'recent' })
+function buildQuery(tab: 'risk' | 'active' | 'done', page: number, pageSize: number): string {
+  const base = {
+    assigned_to_me: true,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  }
+  if (tab === 'risk') return qs({ ...base, open_only: true, sort: 'due' })
+  if (tab === 'active') return qs({ ...base, status: 'IN_PROGRESS', sort: 'due' })
+  return qs({ ...base, status: 'CLOSED', sort: 'recent' })
 }

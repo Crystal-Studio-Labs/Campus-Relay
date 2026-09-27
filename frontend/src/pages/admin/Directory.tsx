@@ -21,6 +21,7 @@ import {
   Metric,
   Modal,
   PageHeader,
+  Pagination,
   SectionTitle,
   Select,
   Tabs,
@@ -40,6 +41,9 @@ export function DirectoryPage() {
 
   const [roleFilter, setRoleFilter] = useState('')
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(25)
+
   const [newUser, setNewUser] = useState({
     full_name: '',
     email: '',
@@ -51,9 +55,16 @@ export function DirectoryPage() {
     hostel_id: '',
   })
 
-  const users = useRemote<{ users: any[] }>(
-    tab === 'people' && can('user:manage') ? `admin-users${qs({ role: roleFilter || undefined, q: search || undefined })}` : null,
-    () => api.get<{ users: any[] }>(`/admin/users${qs({ role: roleFilter || undefined, q: search || undefined })}`),
+  const usersQuery = qs({
+    role: roleFilter || undefined,
+    q: search.trim() || undefined,
+    limit: pageSize,
+    offset: (page - 1) * pageSize,
+  })
+
+  const users = useRemote<{ total: number; users: any[] }>(
+    tab === 'people' && can('user:manage') ? `admin-users${usersQuery}` : null,
+    () => api.get<{ total: number; users: any[] }>(`/admin/users${usersQuery}`),
   )
 
   const config = useRemote<any>(tab === 'config' ? 'config-summary' : null, () => api.get('/admin/config/summary'))
@@ -127,7 +138,15 @@ export function DirectoryPage() {
                   <label className="sr-only" htmlFor="u-search">
                     Search people
                   </label>
-                  <TextInput id="u-search" value={search} onChange={setSearch} placeholder="Search name or email" />
+                  <TextInput
+                    id="u-search"
+                    value={search}
+                    onChange={(val) => {
+                      setSearch(val)
+                      setPage(1)
+                    }}
+                    placeholder="Search name or email"
+                  />
                 </div>
                 <div className="toolbar-field">
                   <label className="sr-only" htmlFor="u-role">
@@ -136,7 +155,10 @@ export function DirectoryPage() {
                   <Select
                     id="u-role"
                     value={roleFilter}
-                    onChange={setRoleFilter}
+                    onChange={(val) => {
+                      setRoleFilter(val)
+                      setPage(1)
+                    }}
                     options={[
                       { value: '', label: 'All roles' },
                       ...(config.data?.reference_data?.roles ?? []).map((role: any) => ({
@@ -153,7 +175,7 @@ export function DirectoryPage() {
               {users.data?.users?.length ? (
                 <div className="results-head">
                   <span>
-                    <span className="results-count">{users.data.users.length}</span> shown
+                    <span className="results-count">{users.data.total ?? users.data.users.length}</span> people found
                     {roleFilter ? ' · filtered by role' : ''}
                     {search.trim() ? ` · matching “${search.trim()}”` : ''}
                   </span>
@@ -211,6 +233,17 @@ export function DirectoryPage() {
                     </tbody>
                   </table>
                 </div>
+              ) : null}
+
+              {users.data && (users.data.total ?? users.data.users.length) > 0 ? (
+                <Pagination
+                  page={page}
+                  pageSize={pageSize}
+                  total={users.data.total ?? users.data.users.length}
+                  onChangePage={setPage}
+                  onChangePageSize={setPageSize}
+                  pageSizeOptions={[10, 25, 50, 100]}
+                />
               ) : null}
             </>
           )}

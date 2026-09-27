@@ -18,6 +18,7 @@ import {
   ErrorState,
   LoadingState,
   PageHeader,
+  Pagination,
   Toolbar,
   SectionTitle,
   Select,
@@ -74,7 +75,8 @@ export function AuditTrailPage() {
   const [eventType, setEventType] = useState('')
   const [entityType, setEntityType] = useState('')
   const [caseId, setCaseId] = useState('')
-  const [limit, setLimit] = useState(50)
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(50)
   const [expanded, setExpanded] = useState<number | null>(null)
 
   const query = useMemo(
@@ -83,9 +85,10 @@ export function AuditTrailPage() {
         event_type: eventType || undefined,
         entity_type: entityType || undefined,
         case_id: caseId.trim() || undefined,
-        limit,
+        limit: pageSize,
+        offset: (page - 1) * pageSize,
       }),
-    [eventType, entityType, caseId, limit],
+    [eventType, entityType, caseId, page, pageSize],
   )
 
   const { data, loading, error, refresh } = useRemote<{
@@ -259,10 +262,18 @@ export function AuditTrailPage() {
         </div>
       ) : null}
 
-      {data && data.total > data.entries.length ? (
-        <Button variant="info" block onClick={() => setLimit((value) => Math.min(value + 50, 500))}>
-          Load more ({data.entries.length} of {data.total})
-        </Button>
+      {data && data.total > 0 ? (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={data.total}
+          onChangePage={setPage}
+          onChangePageSize={(s) => {
+            setPageSize(s)
+            setPage(1)
+          }}
+          pageSizeOptions={[25, 50, 100, 200]}
+        />
       ) : null}
 
       <Card className="card-flat">

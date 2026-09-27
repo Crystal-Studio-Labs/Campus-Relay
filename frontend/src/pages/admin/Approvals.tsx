@@ -25,7 +25,7 @@ import {
   LoadingState,
   Modal,
   PageHeader,
-  SectionTitle,
+  Pagination,
   TextArea,
 } from '../../components/ui'
 import { CaseStatusBadge, PriorityBadge, SlaBadge } from '../../components/StatusChip'
@@ -53,6 +53,8 @@ export function ApprovalsPage() {
     { cacheKey: 'my_approvals' },
   )
 
+  const [page, setPage] = useState(1)
+  const [pageSize, setPageSize] = useState(10)
   const [dialog, setDialog] = useState<{ row: ApprovalRow; approve: boolean } | null>(null)
   const [note, setNote] = useState('')
   const [busy, setBusy] = useState(false)
@@ -123,7 +125,7 @@ export function ApprovalsPage() {
       )}
 
       <ul className="list-reset stack">
-        {rows.map((row) => {
+        {rows.slice((page - 1) * pageSize, page * pageSize).map((row) => {
           const slow = row.waiting_minutes > SLOW_AFTER_MINUTES
           return (
             <li key={row.approval_id}>
@@ -200,22 +202,30 @@ export function ApprovalsPage() {
         })}
       </ul>
 
+      {rows.length > 0 ? (
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          total={rows.length}
+          onChangePage={setPage}
+          onChangePageSize={setPageSize}
+          pageSizeOptions={[10, 20, 50]}
+        />
+      ) : null}
+
       <Modal
         open={Boolean(dialog)}
         onClose={() => setDialog(null)}
         title={dialog?.approve ? 'Approve this request' : 'Reject this request'}
         footer={
-          <>
-            <SectionTitle>Decision</SectionTitle>
-            <div className="row">
-              <Button variant="ghost" onClick={() => setDialog(null)}>
-                Cancel
-              </Button>
-              <Button variant={dialog?.approve ? 'success' : 'danger'} busy={busy} onClick={() => void decide()}>
-                {dialog?.approve ? 'Approve' : 'Reject'}
-              </Button>
-            </div>
-          </>
+          <div className="row wrap" style={{ justifyContent: 'flex-end', gap: 8, width: '100%' }}>
+            <Button variant="ghost" onClick={() => setDialog(null)}>
+              Cancel
+            </Button>
+            <Button variant={dialog?.approve ? 'success' : 'danger'} busy={busy} onClick={() => void decide()}>
+              {dialog?.approve ? 'Approve' : 'Reject'}
+            </Button>
+          </div>
         }
       >
         {dialog ? (
