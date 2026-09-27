@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/app-icon.jpg" alt="Campus Relay App Icon" width="140" style="border-radius: 28px; box-shadow: 0 14px 36px rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.15);" />
+  <img src="docs/assets/app-icon.png" alt="Campus Relay App Icon" width="140" style="border-radius: 0; box-shadow: 0 14px 36px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15);" />
 </p>
 
 <h1 align="center">🏛️ Campus Relay</h1>
