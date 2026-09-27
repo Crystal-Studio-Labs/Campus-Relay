@@ -1,0 +1,322 @@
+====================================================================
+GAMMA AI — PRESENTATION GENERATION PROMPT
+Campus Relay · Crystal Studio Labs · BPUT Hackathon 2026 · PS07 (Fretbox)
+====================================================================
+
+PASTE THIS WHOLE FILE INTO GAMMA. Create EXACTLY 10 slides. Do not add
+extra slides, do not split a slide, do not add an agenda or thank-you
+slide. If content feels long, merge and move the detail into speaker notes.
+
+--------------------------------------------------------------------
+GLOBAL BRIEF (applies to every slide)
+--------------------------------------------------------------------
+
+PROJECT        Campus Relay
+TAGLINE        "A resilient operating layer for everyday campus operations."
+SUBTITLE       Crystal Studio Labs — BPUT Hackathon 2026 · Problem Statement 07 (Fretbox)
+AUDIENCE       Hackathon judges, college decision-makers (registrar / warden /
+               IT head), and a review panel. Some are technical, some are not.
+TONE           Confident, concrete, calm. No hype. No buzzword soup. Short
+               declarative sentences. Zero invented statistics — every number
+               on a slide must be a fact about the build or explicitly labelled
+               "demo data".
+
+VISUAL LANGUAGE — "industrial brutalism" (this is the product's real design
+system, so the deck should match it):
+  • Flat colour blocks, thick 2-3px hard rules, squared corners (small radius).
+  • Hard edges and offset blocks instead of soft blurred shadows.
+  • Safety-yellow diagonal hazard stripes used ONCE per slide at most, only on
+    the brand plate / a callout — never as general decoration.
+  • Uppercase, letter-spaced STENCIL labels for headings and field names;
+    sentence case for body copy.
+  • Identifiers (case numbers, asset codes, room codes) set in a MONOSPACE face:
+    CR-2026-0142 · CR-ROOM-AA-101 · CR-FAN-014.
+  • A faint blueprint grid behind the page background.
+
+COLOUR SYSTEM (use consistently, and keep text high-contrast):
+  • Base / paper      #E4E2DC  (concrete light)   base / ink  #121417 (graphite)
+  • Primary / brand   #F5C518  (safety yellow)  — primary actions, brand plate
+  • Signal / at-risk   #E8862B (safety orange)   — urgency, SLA at-risk
+  • Resolved / OK      #2F9E58 (green)           — closed, verified, done
+  • Open / informational #3B82F6 (sky blue)       — open, neutral info
+  • AI / assistant     #8B7FD4 (lilac)           — agent-initiated anything
+  • Danger / refused   #D64545 (red)             — breached, refused, conflict
+  Never rely on colour alone: every chip also carries its word.
+
+DIAGRAM RULE: any slide describing a flow gets a labelled diagram, not a
+bullet wall. Prefer 3-7 nodes in a chain or a 2x2 comparison. Keep node labels
+to 1-3 words. Put explanation in speaker notes, not on the slide.
+
+RECURRING ON-SLIDE QUOTE (show verbatim on slides 3 and 9):
+  "Give us your college's information, and this is a configurable engine you
+   can have running within an hour of setup."
+
+HONESTY RULES (must survive into the slides — this is a selling point):
+  • NEVER show an adoption number, accuracy %, or performance figure we did
+    not measure. Do not invent "99.9% uptime" or "10x faster".
+  • Push / SMS / email are adapter slots with NO provider configured. The app
+    never claims a message was delivered. Say this out loud on slide 10.
+  • Telegram and WhatsApp are real adapters, but no provider is configured in
+    the demo: nothing is queued and no delivery is claimed until credentials
+    exist. In-app is always real.
+  • All campus data, users and history in the demo are SEEDED and labelled so.
+  • AI agents are advisory only; deterministic rules answer when no model is
+    configured. Core workflows never depend on AI.
+
+====================================================================
+                          THE 10 SLIDES
+====================================================================
+
+--------------------------------------------------------------------
+SLIDE 1 — TITLE
+--------------------------------------------------------------------
+Headline:   CAMPUS RELAY
+Sub-head:   A resilient operating layer for everyday campus operations.
+By-line:    Crystal Studio Labs · BPUT Hackathon 2026 · Fretbox Problem
+            Statement 07
+Footer:     "Offline-first · Channel-independent · Append-only audit"
+
+VISUAL: Full-bleed title plate. A broad safety-yellow brand plate across the
+lower third with a single diagonal hazard-stripe band; the wordmark in heavy
+uppercase. Behind it, a faint blueprint grid. Three monospace identifiers
+floating small in the corner as texture: CR-2026-0142, CR-ROOM-AA-101,
+CR-FAN-014. No stock photos, no people, no globe.
+
+LAYOUT: One enormous headline, one line of sub-head, one rule, three tiny
+meta lines. Lots of negative space.
+
+--------------------------------------------------------------------
+SLIDE 2 — THE PROBLEM
+--------------------------------------------------------------------
+Headline:   CAMPUS OPERATIONS ARE FRAGMENTED
+Sub-head:   The work happens where the network, the process and the person
+            all break down.
+
+Body — five short lines, each with a small icon (paper/register, chat/WhatsApp,
+form, dead-signal, broadcast):
+  • Registers, notice boards, WhatsApp groups, printed forms — and apps that
+    do not talk to each other.
+  • Nobody can prove who was responsible, or when.
+  • The network is treated as always-on. Hostels, basements and gates have
+    no signal.
+  • Students without a working smartphone are left out entirely.
+  • Notices are broadcast, never tracked: sent to 600, read by 40, no idea
+    which 40. (mark this as an illustrative example, not a measured statistic)
+
+VISUAL: A "before" diagram — five disconnected boxes in a loose scatter, each
+labelled (Register, Notice board, WhatsApp, Paper form, Department app), with
+broken/dotted lines between them and a red "?" marker where accountability
+should be. Contrast this scattered heap with the single clean pipeline that
+appears on slide 3.
+
+LAYOUT: Headline top-left, diagram on the right, five bullets stacked left.
+
+--------------------------------------------------------------------
+SLIDE 3 — THE IDEA: EVERY REQUEST BECOMES A CASE
+--------------------------------------------------------------------
+Headline:   ONE OBJECT. ONE ENGINE. EVERY SERVICE.
+Sub-head:   A hostel fan, a bonafide certificate, a leave pass and a mess
+            complaint are all the same thing: a CampusCase.
+
+VISUAL (this is the hero diagram — make it clean and large):
+A single horizontal pipeline of labelled blocks joined by arrows:
+  Request → Case → Policy → Workflow → Approval → Target time (SLA)
+  → Assignment → Notification → Resolution → Verification → Audit
+Colour-code the blocks: intake sky-blue, Policy orange, Workflow/Audit grey,
+Verification green, Audit monospace. Beneath the chain, a thin "audit spine"
+line running under every block, showing each hop writes a record.
+
+CALL-OUT BOX (safety yellow, hazard stripe edge): the recurring one-hour quote
+verbatim.
+
+Bullets (keep to two, tiny):
+  • One engine, not one app per department.
+  • Adding a new campus service is configuration — catalogue, workflow and
+    policy — not a new module.
+
+--------------------------------------------------------------------
+SLIDE 4 — WHY IT IS DIFFERENT (ARCHITECTURE, NOT FEATURES)
+--------------------------------------------------------------------
+Headline:   THIS IS AN ARCHITECTURE, NOT A FEATURE LIST
+Sub-head:   The engines and guarantees a conventional CRUD app cannot reuse.
+
+VISUAL: A 2x2 or 3-column diagram of the four engines as stacked machine
+blocks feeding the case pipeline:
+  [ Case engine — owns the state machine ]
+  [ Workflow engine — decides the next step and who acts ]
+  [ Policy engine — states exactly which rule failed, on which field ]
+  [ SLA engine — ON_TIME / AT_RISK / BREACHED / MET / MISSED ]
+  Beneath them, a thick base slab labelled:
+  [ Append-only event + audit store — enforced by PostgreSQL triggers ]
+
+Supporting strip (four short items with icons):
+  • One system, many channels: phone, desktop, gate terminal, kiosk and
+    helpdesk read and write the SAME case, workflow, database and audit trail.
+  • Immutability is enforced in the database, so it survives future code.
+  • Different interface — same system.
+  • Modular monolith by choice: one service, one database, one PWA.
+
+--------------------------------------------------------------------
+SLIDE 5 — THREE END-TO-END WORKFLOWS
+--------------------------------------------------------------------
+Headline:   THREE WORKFLOWS, START TO FINISH
+Sub-head:   Each one is a real state machine with approvals, SLAs and an
+            audit trail — not a form that emails a PDF.
+
+VISUAL: Three vertical swim-lane columns, each a numbered flow. Use the
+colour system. Keep node text to 1-3 words.
+
+  LANE A — HOSTEL MAINTENANCE (orange/green)
+    Scan room QR → auto-classify → route to department/technician →
+    resolve with evidence → student verifies → CLOSED (or REOPENED)
+
+  LANE B — BONAFIDE CERTIFICATE (sky → green)
+    Request + purpose → policy checks dues → registrar approval →
+    verifiable PDF (serial + QR) → public zero-trust verification link
+
+  LANE C — LEAVE + GATE PASS (orange → green)
+    Leave request → warden approval → digital pass → guard scans →
+    EXIT logged → return → ENTRY logged → case auto-closes
+
+Footnote (small, monospace): "A pass cannot be reused or used out of order
+— anti-passback is enforced."
+
+--------------------------------------------------------------------
+SLIDE 6 — WORKS WITH NO SIGNAL, AND WITHOUT A SMARTPHONE
+--------------------------------------------------------------------
+Headline:   OFFLINE FIRST, AND NO STUDENT LEFT OUT
+Sub-head:   The request is created on the device, not on the server.
+
+VISUAL (left: offline diagram, right: kiosk mock):
+  LEFT — a two-box diagram: [Device: IndexedDB outbox + idempotency key]
+    → (network gap / dotted line) → [Server: /sync/push → dedupe →
+    PostgreSQL]. Label the gap "no signal". Show the same operation key
+    arriving twice and the second collapsing to the SAME record (draw two
+    arrows converging into one row labelled "exactly once").
+
+Bullets (short):
+  • Requests are written to the device first, with a device-generated
+    idempotency key — the same key can never create a second case.
+  • On reconnect the outbox replays; a stale edit returns CONFLICT and never
+    silently overwrites.
+  • Status is always visible: QUEUED / SYNCING / SYNCED / FAILED_RETRYING /
+    CONFLICT.
+  • KIOSK: giant touch targets, roll-number lookup, QR scan, auto-reset after
+    inactivity.
+  • HELPDESK: an operator files on a student's behalf — a normal case with
+    source_channel = KIOSK or ASSISTED_DESK, not a lesser workflow.
+
+--------------------------------------------------------------------
+SLIDE 7 — TRACKED COMMUNICATION + THE COMMAND CENTRE
+--------------------------------------------------------------------
+Headline:   COMMUNICATION YOU CAN PROVE, ON A SHIFT-HANDOVER SCREEN
+Sub-head:   Notices are tracked per person; the command centre is a working
+            tool, not a vanity dashboard.
+
+VISUAL: Two panels side by side.
+  LEFT — Notice Studio funnel: a horizontal 5-stage tracker
+    SENT → DELIVERED → READ → ACKNOWLEDGED → ACTIONED, with a per-person
+    breakdown bar underneath. Target chips above (campus / department /
+    branch / year / batch / hostel / block / role / named users).
+  RIGHT — Command Centre: a "shift handover" panel with six small tiles:
+    open cases · SLA breached · SLA at-risk · unassigned · ageing buckets
+    (<24h / 1-3d / 3-7d / >7d) · recurring problems. Draw the ageing buckets
+    as a 4-bar chart and workload as a small horizontal bar list.
+
+Bullets:
+  • Notice types: NORMAL → IMPORTANT → URGENT → EMERGENCY; required-action
+    notices demand acknowledgement.
+  • Analytics count ONLY real resolved cases. No invented numbers.
+
+--------------------------------------------------------------------
+SLIDE 8 — CONTROLLED AI, VERIFIABLE DOCUMENTS, SECURITY
+--------------------------------------------------------------------
+Headline:   INTELLIGENCE THAT CANNOT GO ROGUE
+Sub-head:   Four advisory agents, documents anyone can verify, and authz on
+            every request.
+
+VISUAL: A guarded pipeline. Four agent chips on the left (all lilac):
+  [Intake] [Routing] [Operations briefing] [Student assistant].
+Then a single thick gate labelled:
+  [ Human confirms → Authorization → Policy → Service → Database → Audit ]
+Draw a small red padlock/lock icon showing agents have NO direct database
+access — they must pass through the same gate as a human. Add a "deterministic
+fallback" arrow that lets the pipeline run without any model.
+
+Also show a small document card: a certificate PDF with a QR + serial, and an
+arrow to a public "verify" endpoint labelled "zero-trust — no academic or
+financial data exposed".
+
+Bullet strip:
+  • Assistant answers with tool evidence and asks for confirmation before any
+    write.
+  • Security: JWT auth, server-side RBAC on every endpoint, org data scoping,
+    multi-tenant campus isolation, rate limiting, safe errors.
+
+--------------------------------------------------------------------
+SLIDE 9 — DEPLOYMENT + ONE-HOUR ONBOARDING
+--------------------------------------------------------------------
+Headline:   ADOPT IT IN AN HOUR, DEPLOY IT TWO WAYS
+Sub-head:   Same code, same config file — only environment variables differ.
+
+VISUAL: Two deployment cards side by side.
+  CARD 1 — "Split cloud (public demo)": Frontend on Vercel + Backend on
+    Render + Database on Supabase. Draw three cloud nodes with arrows.
+  CARD 2 — "Single machine (data on-premises)": one docker-compose command
+    starts Postgres + API + PWA on ONE origin. Draw one server block with a
+    "no CORS · no build-time API URL" label.
+
+Then a horizontal onboarding strip:
+  [Institution setup screen] + [CSV templates] → departments · hostels · rooms
+  · staff · students → running campus.
+
+Bullets:
+  • The college provides its information via the setup screen and CSV
+    templates; the importer reports per-row failures and never reports a
+    partial import as complete.
+  • institution.json configures identity, design language, vocabulary,
+    languages, station behaviour and module switches — no fork, no rebuild.
+
+CALL-OUT BOX: the recurring one-hour quote again, as the closing proof point.
+
+--------------------------------------------------------------------
+SLIDE 10 — WHAT WE DO NOT CLAIM + CLOSING
+--------------------------------------------------------------------
+Headline:   WHAT THIS PROTOTYPE DOES NOT CLAIM
+Sub-head:   A demo that oversells itself is worth less than one that tells
+            you where its edges are.
+
+VISUAL: A "bounds" plate — a thick-bordered box with everything inside it
+clearly labelled as NOT DONE, in muted grey with one red underline per line.
+  • Push, SMS and email are adapter slots with NO provider configured — the
+    app never claims a message was delivered.
+  • Telegram sends for real once a bot token is set; WhatsApp needs Meta
+    credentials and an approved template. With none configured, nothing is sent
+    and nothing is claimed.
+  • Demo data is seeded and labelled as demo data.
+  • AI answers are advisory only (deterministic rules by default).
+
+CLOSING LINE (large, centred, over a hazard stripe):
+  "Different interface. Same case. Same workflow. Same database. Same
+   audit trail."
+
+CALL TO ACTION (small footer):
+  Try the demo campus · file a complaint with the network OFF · watch it
+  sync — exactly once.
+
+====================================================================
+                     GENERATION NOTES / GUARDRAILS
+====================================================================
+1. EXACTLY 10 slides. Merge, never append. No agenda, no thank-you, no
+   "questions?" slide.
+2. No invented statistics, adoption numbers, accuracy claims or benchmarks.
+3. Prefer diagrams and labelled flows over bullet walls — slides 3, 4, 5, 6,
+   7, 8 and 9 each carry a diagram as specified above.
+4. Monospace only for identifiers (CR-2026-0142, CR-ROOM-AA-101, CR-FAN-014).
+5. Colour language is fixed: yellow = primary/brand, orange = urgent/at-risk,
+   green = resolved, sky = open/info, lilac = AI, red = breached/refused.
+6. Every slide: one headline, one sub-head, a handful of short lines. Detail
+   lives in speaker notes, not on the slide.
+7. Keep the tone honest and specific. If a claim cannot be verified in the
+   demo, it does not go on a slide.
+====================================================================

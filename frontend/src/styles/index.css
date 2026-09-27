@@ -1,0 +1,21 @@
+/* ==========================================================================
+   CAMPUS RELAY - STYLESHEET MANIFEST
+
+   Four layers, imported in this order and in no other:
+
+     1. tokens.css      the design language: scale, theme palettes, skin slots
+     2. base.css        reset, typography, accessibility, layout, utilities
+     3. components.css  the shared primitives from components/ui.tsx
+     4. app.css         the shell, page structure, stations and landing page
+
+   The order is the cascade, so a later layer may build on an earlier one but
+   must never re-declare a rule that an earlier layer already owns. Each layer
+   opens with its own contents list. Add a new stylesheet by giving it a layer
+   number, a contents list, and a place in the list above - not by appending
+   another override pass to the bottom of an existing file.
+   ========================================================================== */
+
+@import './tokens.css';
+@import './base.css';
+@import './components.css';
+@import './app.css';

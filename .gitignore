@@ -1,0 +1,39 @@
+# Local task materials (not part of the repository)
+prompt.txt
+Problem_Statement_7.pdf
+
+# --- Secrets and local environment ---
+.env
+.env.local
+*.local
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# --- Node / frontend build ---
+node_modules/
+frontend/dist/
+frontend/dev-dist/
+*.tsbuildinfo
+
+# --- Uploaded media (runtime data, not source) ---
+backend/media/
+media/
+
+# --- Editors and OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+.runtime-*.log
+

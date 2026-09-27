@@ -1,0 +1,92 @@
+{
+  "_readme": [
+    "THE ONLY FILE A COLLEGE EDITS.",
+    "",
+    "Everything below is served to the interface by GET /api/v1/institution, so",
+    "whatever is written here is exactly what appears on screen. Change a value,",
+    "press 'Reload from disk' on the administrator's Setup screen (or call",
+    "POST /api/v1/admin/institution/reload) and the running server picks it up -",
+    "no rebuild, no restart, no code change.",
+    "",
+    "A partial file is valid. Delete any key you do not need and the built-in",
+    "default is used; the defaults live in backend/app/core/institution.py and",
+    "are documented in docs/CONFIGURATION.md.",
+    "",
+    "The values below are the demo deployment (Crystal Institute of Technology).",
+    "Replace them with your own institution before running this in front of your",
+    "own students.",
+    "",
+    "Keys beginning with an underscore are comments and are ignored by the loader."
+  ],
+
+  "schema_version": 1,
+
+  "identity": {
+    "name": "Crystal Institute of Technology",
+    "short_name": "Crystal Institute",
+    "monogram": "CIT",
+    "code": "CIT",
+    "tagline": "A resilient operating layer for everyday campus operations.",
+    "kind": "Institute of Technology",
+    "city": "Bhubaneswar",
+    "region": "Odisha",
+    "support_email": "helpdesk@campusrelay.demo",
+    "support_phone": "+91 00000 00000",
+    "website": ""
+  },
+
+  "academics": {
+    "term_label": "Academic Year 2026-27",
+    "timezone": "Asia/Kolkata",
+    "week_starts_on": "monday"
+  },
+
+  "localisation": {
+    "default_language": "en",
+    "languages": ["en", "or"]
+  },
+
+  "appearance": {
+    "skin": "modern",
+    "default_theme": "light",
+    "allow_user_theme_override": true,
+    "accent": null
+  },
+
+  "vocabulary": {
+    "campus": { "singular": "Campus", "plural": "Campuses" },
+    "department": { "singular": "Department", "plural": "Departments" },
+    "branch": { "singular": "Branch", "plural": "Branches" },
+    "year": { "singular": "Year", "plural": "Years" },
+    "batch": { "singular": "Batch", "plural": "Batches" },
+    "hostel": { "singular": "Hostel", "plural": "Hostels" },
+    "block": { "singular": "Block", "plural": "Blocks" },
+    "student": { "singular": "Student", "plural": "Students" },
+    "staff": { "singular": "Staff member", "plural": "Staff" }
+  },
+
+  "stations": {
+    "kiosk_idle_seconds": 90,
+    "kiosk_default_theme": "light",
+    "helpdesk_channel": "ASSISTED_DESK",
+    "default_channel": "PWA"
+  },
+
+  "features": {
+    "agents": true,
+    "kiosk": true,
+    "gate": true,
+    "notices": true,
+    "offline_sync": true,
+    "guided_tours": true,
+    "device_lab": true
+  },
+
+  "guardrails": {
+    "wcag_level": "AA",
+    "min_body_contrast": 4.5,
+    "min_touch_target_px": 46,
+    "status_always_carries_word": true,
+    "require_audit_reason": true
+  }
+}

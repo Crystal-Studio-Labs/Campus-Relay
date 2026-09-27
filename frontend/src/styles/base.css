@@ -1,0 +1,467 @@
+/* ==========================================================================
+   CAMPUS RELAY - LAYER 2 of 4: BASE
+
+   Reset, typography, accessibility primitives, the layout grid and the small
+   set of utilities every page shares. No component styling lives here; if it
+   has a name that a page imports from components/ui.tsx, it belongs in
+   components.css.
+
+   Contents
+     1. Reset
+     2. Document + typography
+     3. Accessibility primitives
+     4. Layout primitives      (.page .stack .row .grid .split .board)
+     5. Utilities
+     6. Print
+   ========================================================================== */
+
+/* ============================ 1. RESET ================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
+}
+
+body,
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+figure,
+blockquote,
+dl,
+dd,
+ul,
+ol {
+  margin: 0;
+}
+
+ul,
+ol {
+  padding: 0;
+}
+
+img,
+video,
+iframe,
+canvas,
+pre,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+/* ====================== 2. DOCUMENT + TYPOGRAPHY ======================== */
+
+/* The blueprint grid: the layout's skeleton is visible rather than implied.
+   Engineering paper from the industrial skin - a fine hairline every 28px and
+   a heavier rule every fifth cell. Present on a large monitor, invisible on a
+   phone in sunlight, and never competing with content. The other skins set the
+   grid to zero and get a plain surface. */
+body {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  background-color: var(--paper);
+  background-image: var(--blueprint-image, none);
+  background-size: var(--blueprint-size, auto);
+  /* iOS safe areas for the standalone PWA */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+/* Stencilled headings: heavy, tight, squared off. No decorative face loads
+   before first paint, so the shell renders immediately on a slow connection. */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--title-tracking);
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--fs-xl);
+}
+h2 {
+  font-size: var(--fs-lg);
+}
+h3 {
+  font-size: var(--fs-md);
+  letter-spacing: 0;
+}
+h4 {
+  font-size: var(--fs-base);
+  letter-spacing: 0;
+}
+h5 {
+  font-size: var(--fs-sm);
+  letter-spacing: 0;
+}
+
+p {
+  margin-bottom: var(--sp-3);
+  max-width: var(--measure);
+}
+
+a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration-thickness: var(--border-w-thin);
+  text-underline-offset: 3px;
+}
+
+strong,
+b {
+  font-weight: 800;
+}
+
+code,
+kbd,
+samp,
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  letter-spacing: 0;
+}
+
+hr {
+  border: 0;
+  border-top: var(--border-w-thin) solid var(--line-soft);
+  margin: var(--sp-4) 0;
+}
+
+/* A stencilled label: uppercase, tracked, small, used on plates and headers. */
+.stencil {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  text-transform: var(--label-transform);
+  letter-spacing: var(--label-tracking);
+}
+
+/* An identifier: case numbers, asset codes, roll numbers. Monospace so digits
+   line up in a column and a 0 is never mistaken for an O. */
+.ident {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ====================== 3. ACCESSIBILITY PRIMITIVES ==================== */
+
+:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+  border-radius: 0;
+}
+
+/* Visible only to screen readers. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Keyboard users must be able to bypass navigation completely. */
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--sp-3);
+  top: -80px;
+  z-index: 100;
+  background: var(--ink);
+  color: var(--paper);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--border-w) solid var(--line);
+  font-weight: 800;
+  text-transform: var(--label-transform);
+  letter-spacing: var(--label-tracking);
+  font-size: var(--fs-xs);
+  transition: top var(--motion-fast) ease-out;
+}
+.skip-link:focus {
+  top: var(--sp-3);
+}
+
+/* ========================= 4. LAYOUT PRIMITIVES ======================== */
+
+/* The page: one max width, one padding, every screen. */
+.page {
+  width: 100%;
+  max-width: var(--page-max);
+  margin: 0 auto;
+  padding: var(--page-pad);
+}
+
+@media (min-width: 1800px) {
+  .page {
+    max-width: 1640px;
+  }
+}
+
+.page-tight {
+  padding: var(--sp-3);
+}
+
+/* Vertical rhythm. Use .stack inside a plate, .stack-lg between plates. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.stack-lg {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+.stack-xl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+/* Horizontal rhythm. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+.row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-3);
+  flex-wrap: wrap;
+}
+.wrap {
+  flex-wrap: wrap;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+.center {
+  align-items: center;
+  justify-content: center;
+}
+
+/* Grids that fill the width they are given, then reflow rather than squeeze. */
+.grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: stretch;
+}
+.grid-2 {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-items: stretch;
+}
+.grid-metrics {
+  display: grid;
+  gap: var(--sp-3);
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-items: stretch;
+}
+.grid-span-all {
+  grid-column: 1 / -1;
+}
+
+/* Cards as columns: one on a phone, two at 900px, three at 1500px. Fixed
+   breakpoints beat auto-fit here because a card list should look the same on
+   every screen of the same size, not jitter by content length. */
+.card-columns {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: 1fr;
+  align-items: stretch;
+}
+@media (min-width: 900px) {
+  .card-columns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1500px) {
+  .card-columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.cards {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  align-items: stretch;
+}
+.cards-wide {
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+}
+.cards-narrow {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+/* Detail / list split: a rail on the left, the working area on the right. */
+.split {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: minmax(320px, 400px) 1fr;
+  align-items: start;
+}
+@media (max-width: 1024px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* A board: the structural layout used by dashboards and stations. Columns of
+   differing weight instead of one undifferentiated grid. */
+.board {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+}
+.board > * {
+  grid-column: span 12;
+}
+@media (min-width: 1000px) {
+  .board-4 {
+    grid-column: span 4;
+  }
+  .board-5 {
+    grid-column: span 5;
+  }
+  .board-6 {
+    grid-column: span 6;
+  }
+  .board-7 {
+    grid-column: span 7;
+  }
+  .board-8 {
+    grid-column: span 8;
+  }
+}
+
+/* ============================= 5. UTILITIES ============================ */
+
+.muted {
+  color: var(--muted-ink);
+}
+/* Introductory copy: larger than body text, quieter than a heading, and held
+   to a comfortable measure whatever the container width. */
+.lede {
+  font-size: var(--fs-md);
+  line-height: var(--lh-body);
+  color: var(--muted-ink);
+  max-width: var(--measure);
+}
+.tiny {
+  font-size: var(--fs-xs);
+  line-height: 1.45;
+}
+.small {
+  font-size: var(--fs-sm);
+}
+.bold {
+  font-weight: 800;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.text-right {
+  text-align: end;
+}
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+.list-reset {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.scroll-x {
+  overflow-x: auto;
+}
+.offline-only {
+  display: none;
+}
+body.is-offline .offline-only {
+  display: block;
+}
+
+/* Small print and section notes: one size, one colour, no exceptions. */
+.note {
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+
+/* =============================== 6. PRINT ============================== */
+
+.printable {
+  background: #fff;
+  color: #111;
+}
+
+@media print {
+  .no-print,
+  .bottom-nav,
+  .sidebar,
+  .topbar,
+  .guide-root,
+  .offline-bar {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+    background-image: none;
+  }
+  .card,
+  .panel,
+  .metric,
+  .modal,
+  .sheet {
+    box-shadow: none !important;
+    border-color: #000 !important;
+  }
+}

@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en" data-skin="modern">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5"
+    />
+    <meta name="theme-color" content="#f4f6fb" />
+    <meta
+      name="description"
+      content="A resilient operating layer for everyday campus operations: one case engine, an auditable trail, and an interface that keeps working when the network does not."
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Campus Relay" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <title>Campus Relay</title>
+    <script>
+      /* Decide the look before the first paint - the theme, the design skin and
+         the text size. Without this, a dark-theme user sees a white flash and a
+         configured institution sees the default skin for a frame on every load,
+         which is exactly what makes an interface feel broken.
+
+         Order of preference for the skin:
+           1. the skin this device last used,
+           2. the skin in the cached institution configuration (so a college's
+              chosen design language applies on the very first frame),
+           3. the shipped default.
+
+         The values are duplicated from src/styles/tokens.css on purpose: this
+         script has to run before any stylesheet or module has loaded. */
+      (function () {
+        var root = document.documentElement
+        var SHIPPED_SKIN = 'modern'
+        var PAPER = { light: '#f4f6fb', dark: '#0b1220' }
+        try {
+          var storedTheme = localStorage.getItem('campusrelay.theme')
+          var dark = storedTheme
+            ? storedTheme === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+          var theme = dark ? 'dark' : 'light'
+
+          var skin =
+            localStorage.getItem('campusrelay.skin') || null
+          if (!skin) {
+            try {
+              var cached = JSON.parse(localStorage.getItem('campusrelay.institution') || 'null')
+              skin = cached && cached.appearance && cached.appearance.skin
+            } catch (inner) {
+              skin = null
+            }
+          }
+
+          root.setAttribute('data-theme', theme)
+          root.setAttribute('data-skin', skin || SHIPPED_SKIN)
+          root.setAttribute(
+            'data-text',
+            localStorage.getItem('campusrelay.text') === 'large' ? 'large' : 'normal'
+          )
+          root.style.colorScheme = theme
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', PAPER[theme])
+        } catch (error) {
+          root.setAttribute('data-theme', 'light')
+          root.setAttribute('data-skin', SHIPPED_SKIN)
+        }
+      })()
+    </script>
+    <style>
+      /* Paint something meaningful before the bundle arrives. On a hostel
+         connection the first frame matters more than the framework, so this
+         shell mirrors the bright-institutional look: a soft white card on a
+         calm blue-grey page, scrolled by the theme chosen above. */
+      html,
+      body {
+        margin: 0;
+        background: #f4f6fb;
+        color: #0f172a;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+      }
+      html[data-theme='dark'],
+      html[data-theme='dark'] body {
+        background: #0b1220;
+        color: #e6ebf3;
+      }
+      #boot {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 24px;
+      }
+      #boot .mark {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        color: #0f172a;
+        font-weight: 700;
+        font-size: 15px;
+        padding: 14px 20px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.12);
+      }
+      #boot .mark::before {
+        content: '';
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        background: linear-gradient(140deg, #2563eb, #047857);
+      }
+      html[data-theme='dark'] #boot .mark {
+        background: #121a2a;
+        color: #e6ebf3;
+        border-color: #26324a;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      }
+      #boot p {
+        margin: 18px 0 0;
+        font-weight: 500;
+        font-size: 15px;
+        color: #55657f;
+      }
+      html[data-theme='dark'] #boot p {
+        color: #9aa8bf;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="boot">
+        <div>
+          <div class="mark">Campus Relay</div>
+          <p>Starting the campus operating layer…</p>
+        </div>
+      </div>
+    </div>
+    <noscript>
+      <p style="padding: 24px; font-family: system-ui">
+        Campus Relay needs JavaScript enabled. If you are on a kiosk or assisted desk, ask the
+        operator to file the request for you.
+      </p>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

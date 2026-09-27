@@ -1,0 +1,1057 @@
+/* ==========================================================================
+   CAMPUS RELAY - LAYER 3 of 4: COMPONENTS
+
+   Everything that components/ui.tsx renders, plus the shared cards, chips and
+   overlays. Rules appear once here and are not revised later in the file.
+   The previous stylesheet reached 1,700 lines because it was written in passes
+   that overrode each other; this one is written once.
+
+   Contents
+     1. Plates            (.card .panel .metric .state .banner .skeleton)
+     2. Buttons           (.btn)
+     3. Chips and tags    (.badge .tag .chip)
+     4. Forms             (.field .input .select .textarea .checkbox)
+     5. Tables            (.table-wrap table.data)
+     6. Timeline          (.timeline)
+     7. Overlays          (.sheet .modal)
+     8. Tabs              (.tabs .tab)
+     9. Measurements      (.bar .chart .swatch)
+    10. Blocks            (.tint-* .divider .rule-hazard .pill-row .kv)
+   ========================================================================== */
+
+/* ============================= 1. PLATES =============================== */
+
+/* A card is a soft raised surface: a white face, a hairline edge and a gentle
+   lift. The content stays the loudest thing on the page; the frame is quiet so
+   a list of cards reads as one calm column rather than a wall of plates. */
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4);
+  min-width: 0;
+}
+
+.card-flat {
+  box-shadow: none;
+}
+
+.card-sunken {
+  background: var(--surface-alt);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-inset);
+  padding: var(--sp-4);
+}
+
+.card-clickable {
+  cursor: pointer;
+  text-align: start;
+  color: inherit;
+  font: inherit;
+  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out;
+}
+.card-clickable:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+.card-clickable:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+/* A tinted leading edge marks status without shouting. The edge is rounded to
+   match the card so it reads as a soft rail, and `inline-start` puts it on the
+   correct side in a right-to-left layout too. */
+.card-accent-signal {
+  border-inline-start: 4px solid var(--signal);
+}
+.card-accent-urgent {
+  border-inline-start: 4px solid var(--status-urgent);
+}
+.card-accent-sun {
+  border-inline-start: 4px solid var(--sun);
+}
+.card-accent-mint {
+  border-inline-start: 4px solid var(--status-done);
+}
+/* A machine-authored or advisory block carries a lilac edge, so it is
+   identifiable across a desk without reading a word. */
+.card-accent-agent {
+  border-inline-start: 4px solid var(--lilac);
+}
+/* An unread notice keeps a sky edge until it is opened. Declared after the
+   accents so an unread state reads as unread first. */
+.card.is-unread {
+  border-inline-start: 4px solid var(--sky);
+}
+
+/* A card header: title, chips and meta on one line that wraps instead of
+   squeezing. Consistent across every card so a list of them lines up. */
+.card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+.card-title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+/* Actions are pinned to the bottom of the plate so a row of cards with
+   different body lengths still has its buttons on one line. */
+.card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: auto;
+  padding-top: var(--sp-3);
+}
+
+/* --- Case row: the structured list item ---------------------------------
+   A case used to be a pile of badges over four lines of grey text, which is
+   what made the list read as unstructured. Here the hierarchy is explicit:
+   identity + state, then the title, then a labelled meta grid, with the
+   secondary markers held in a quiet side column. */
+.case-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  text-align: start;
+  cursor: pointer;
+  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-base) ease-out,
+    border-color var(--motion-base) ease-out;
+}
+@media (min-width: 720px) {
+  .case-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+}
+.case-row:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+  border-color: color-mix(in srgb, var(--signal) 35%, var(--line));
+}
+.case-row:focus-visible {
+  outline: var(--focus-ring);
+  outline-offset: var(--focus-offset);
+}
+.case-row-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.case-row-title {
+  margin: 6px 0 0;
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: 0;
+}
+.case-row-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--sp-2) var(--sp-4);
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: var(--border-w-thin) solid var(--line-soft);
+}
+.case-meta-item {
+  min-width: 0;
+}
+.case-meta-label {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--muted-ink);
+}
+.case-meta-value {
+  font-size: var(--fs-sm);
+  color: var(--ink);
+}
+.case-row-side {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+@media (max-width: 719px) {
+  .case-row-side {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+}
+.case-row-chevron {
+  color: var(--muted-ink);
+  font-weight: 700;
+}
+
+/* A results strip above a list: how many, and under what filter. */
+.results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+.results-count {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* --- Panel: a raised surface with a quiet header ---------------------- */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 0;
+  overflow: hidden;
+}
+.panel-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--panel-head-bg);
+  color: var(--panel-head-ink);
+  border-bottom: var(--rule-w) solid var(--line-soft);
+  min-height: 0;
+}
+.panel-title {
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: var(--title-tracking);
+  margin: 0;
+}
+.panel-sub {
+  font-size: var(--fs-xs);
+  color: var(--muted-ink);
+  width: 100%;
+}
+.panel-body {
+  padding: var(--sp-4);
+  flex: 1;
+}
+.panel-body-flush {
+  padding: 0;
+}
+.panel-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-top: var(--border-w-thin) solid var(--line-soft);
+  background: var(--surface-alt);
+}
+
+/* The signature industrial marking: a diagonal hazard stripe. Reserved for
+   live, urgent or irreversible states so it keeps its meaning. */
+.hazard-band {
+  height: var(--hazard-band);
+  flex: 0 0 auto;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--hazard) 0 8px,
+    var(--hazard-ink) 8px 16px
+  );
+  border-bottom: var(--border-w-thin) solid var(--line);
+}
+
+/* A section heading: a real heading in the flow of the page, sized to scan. */
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-md);
+  font-weight: 700;
+  letter-spacing: var(--title-tracking);
+  margin-bottom: var(--sp-2);
+}
+
+/* --- Metric ------------------------------------------------------------- */
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--sp-1);
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  padding: var(--sp-3);
+  min-width: 0;
+}
+.metric-label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted-ink);
+}
+.metric-value {
+  font-size: clamp(1.8rem, 4vw, var(--fs-2xl));
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: var(--tracking-tight);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.metric-hint {
+  font-size: var(--fs-xs);
+  color: var(--muted-ink);
+}
+
+/* --- Empty / loading / error states ------------------------------------ */
+
+.state {
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  padding: var(--sp-6);
+  text-align: center;
+  background: var(--surface-alt);
+  color: var(--ink);
+}
+.state-title {
+  font-weight: 800;
+  font-size: var(--fs-md);
+  margin-bottom: var(--sp-1);
+}
+.state p {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Loading is a soft sweep, not a claim: it stays honest about the fact that
+   nothing has arrived yet without pretending to be content. */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--surface-alt) 25%,
+    var(--surface-sunken) 50%,
+    var(--surface-alt) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  min-height: 18px;
+}
+@keyframes skeleton-sweep {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}
+
+/* --- Banner ------------------------------------------------------------- */
+
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-snug);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+.banner-offline {
+  background: var(--sun);
+  color: var(--on-block);
+}
+.banner-error {
+  background: var(--danger);
+  color: var(--on-danger);
+}
+.banner-info {
+  background: var(--sky);
+  color: var(--on-block);
+}
+.banner-agent {
+  background: var(--lilac);
+  color: var(--on-block);
+}
+.banner-demo {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+/* ============================= 2. BUTTONS ============================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--touch-min);
+  padding: var(--sp-2) var(--sp-4);
+  font-family: inherit;
+  font-size: var(--fs-base);
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  white-space: normal;
+  text-decoration: none;
+  /* The default button is a quiet surface button: ink on surface. Filled
+     variants below set their own copy colour and clear the ink. */
+  color: var(--ink);
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out;
+}
+/* Hover raises the plate by a pixel; press drives it flat. The feedback is
+   positional, so it survives a monochrome projector. */
+.btn:hover:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
+}
+.btn:active:not(:disabled):not([aria-disabled='true']) {
+  transform: translateY(2px);
+  box-shadow: none;
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-primary {
+  background: var(--signal);
+  color: var(--on-block);
+  border-color: transparent;
+}
+.btn-attention {
+  background: var(--sun);
+  color: var(--on-block);
+  border-color: transparent;
+}
+.btn-success {
+  background: var(--mint);
+  color: var(--on-block);
+  border-color: transparent;
+}
+.btn-info {
+  background: var(--sky);
+  color: var(--on-block);
+  border-color: transparent;
+}
+.btn-agent {
+  background: var(--lilac);
+  color: var(--on-block);
+  border-color: transparent;
+}
+.btn-danger {
+  background: var(--danger);
+  color: var(--on-danger);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: transparent;
+  box-shadow: none;
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-alt);
+  box-shadow: var(--shadow-sm);
+}
+.btn-block {
+  width: 100%;
+}
+.btn-lg {
+  min-height: var(--touch-large);
+  font-size: var(--fs-md);
+  padding: var(--sp-3) var(--sp-5);
+}
+.btn-xl {
+  min-height: var(--touch-huge);
+  font-size: var(--fs-lg);
+  padding: var(--sp-4) var(--sp-6);
+  border-width: var(--border-w-fat);
+  box-shadow: var(--shadow);
+}
+.btn-sm {
+  min-height: 38px;
+  padding: var(--sp-1) var(--sp-3);
+  font-size: var(--fs-sm);
+  box-shadow: var(--shadow-sm);
+}
+.btn-icon {
+  min-width: var(--touch-min);
+  padding: var(--sp-2);
+}
+
+/* ========================== 3. CHIPS AND TAGS ========================== */
+
+/* A chip is a soft pill that always carries its word, because colour alone
+   never communicates state here. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  border: var(--border-w-thin) solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-alt);
+  color: var(--ink);
+  white-space: nowrap;
+}
+.badge-block,
+.badge-square {
+  border-radius: var(--radius-sm);
+}
+.badge-ghost {
+  background: transparent;
+}
+.badge-open {
+  background: var(--status-open);
+  color: var(--on-block);
+}
+.badge-progress {
+  background: var(--status-progress);
+  color: var(--on-block);
+}
+.badge-blocked {
+  background: var(--status-blocked);
+  color: var(--on-block);
+}
+.badge-done {
+  background: var(--status-done);
+  color: var(--on-block);
+}
+.badge-dead {
+  background: var(--status-dead);
+  color: var(--on-danger);
+}
+.badge-urgent {
+  background: var(--status-urgent);
+  color: var(--on-danger);
+}
+.badge-warn {
+  background: var(--status-warn);
+  color: var(--on-block);
+}
+.badge-agent {
+  background: var(--lilac);
+  color: var(--on-block);
+}
+
+/* A tag is a chip you can act on (a filter, a selected target). */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-1) var(--sp-3);
+  min-height: 38px;
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  border: var(--border-w-thin) solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.tag[aria-pressed='true'],
+.tag.is-selected {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* ============================== 4. FORMS ============================== */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: var(--sp-3);
+}
+.label {
+  font-size: var(--fs-xs);
+  font-weight: 800;
+  text-transform: var(--label-transform);
+  letter-spacing: var(--label-tracking);
+  color: var(--ink);
+}
+.hint {
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-height: var(--touch-min);
+  padding: var(--sp-2) var(--sp-3);
+  font-family: inherit;
+  font-size: var(--fs-md);
+  color: var(--ink);
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-inset);
+  transition: border-color var(--motion-fast) ease-out;
+}
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--muted-ink);
+  opacity: 1;
+}
+.input:focus,
+.select:focus,
+.textarea:focus {
+  border-color: var(--signal);
+}
+.textarea {
+  min-height: 96px;
+  resize: vertical;
+  line-height: var(--lh-snug);
+}
+.input:disabled,
+.select:disabled,
+.textarea:disabled {
+  background: var(--surface-sunken);
+  color: var(--muted-ink);
+}
+.field-error {
+  color: var(--danger);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+}
+.checkbox {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+  accent-color: var(--signal);
+  border: var(--border-w-thin) solid var(--line);
+}
+fieldset {
+  border: var(--border-w-thin) solid var(--line-soft);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
+  margin: 0 0 var(--sp-3);
+}
+legend {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--muted-ink);
+  padding: 0 6px;
+}
+
+/* ============================== 5. TABLES ============================== */
+
+.table-wrap {
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  overflow: auto;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+table.data {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+table.data th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-alt);
+  color: var(--muted-ink);
+  text-align: start;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  padding: var(--sp-3);
+  border-bottom: var(--rule-w) solid var(--line);
+  white-space: nowrap;
+}
+table.data td {
+  padding: var(--sp-3);
+  line-height: var(--lh-snug);
+  border-bottom: var(--border-w-thin) solid var(--line-soft);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+table.data tr:last-child td {
+  border-bottom: none;
+}
+table.data tbody tr:hover {
+  background: color-mix(in srgb, var(--signal) 7%, transparent);
+}
+
+/* A dense table becomes a stack of labelled records on a phone, because
+   sideways scrolling on a wall-mounted tablet is not a plan. */
+@media (max-width: 720px) {
+  .table-wrap.become-cards thead {
+    display: none;
+  }
+  .table-wrap.become-cards table,
+  .table-wrap.become-cards tbody,
+  .table-wrap.become-cards tr,
+  .table-wrap.become-cards td {
+    display: block;
+    width: 100%;
+  }
+  .table-wrap.become-cards tr {
+    border-bottom: var(--border-w) solid var(--line);
+    padding: var(--sp-3);
+  }
+  .table-wrap.become-cards td {
+    border: none;
+    padding: 3px 0;
+  }
+  .table-wrap.become-cards td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: var(--fs-xs);
+    font-weight: 800;
+    text-transform: var(--label-transform);
+    letter-spacing: var(--label-tracking);
+    color: var(--muted-ink);
+  }
+}
+
+/* ============================= 6. TIMELINE ============================= */
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding-block: 0;
+  padding-inline: var(--sp-5) 0;
+  border-inline-start: var(--border-w-thin) solid var(--line);
+}
+.timeline li {
+  position: relative;
+  padding-block: 0 var(--sp-4);
+  padding-inline: var(--sp-3) 0;
+}
+.timeline li::before {
+  content: '';
+  position: absolute;
+  inset-inline-start: calc(-1 * var(--sp-5) - 5px);
+  top: 5px;
+  width: 9px;
+  height: 9px;
+  background: var(--surface);
+  border: var(--border-w-thin) solid var(--line);
+}
+.timeline li.is-terminal::before {
+  background: var(--mint);
+}
+.timeline li.is-urgent::before {
+  background: var(--status-urgent);
+}
+.timeline .when {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--muted-ink);
+}
+
+/* ============================= 7. OVERLAYS ============================= */
+
+.sheet-backdrop,
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 60;
+  display: flex;
+}
+.sheet-backdrop {
+  align-items: flex-end;
+  justify-content: center;
+}
+.modal-backdrop {
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+}
+.sheet {
+  width: 100%;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--surface);
+  border-top: var(--border-w-fat) solid var(--line);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  padding: var(--sp-4) var(--sp-4) calc(var(--sp-6) + env(safe-area-inset-bottom));
+}
+.modal {
+  width: 100%;
+  max-width: 640px;
+  max-height: 88vh;
+  overflow: auto;
+  background: var(--surface);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: var(--sp-5);
+}
+.sheet-handle {
+  width: 56px;
+  height: 4px;
+  background: var(--ink);
+  margin: 0 auto var(--sp-3);
+  opacity: 0.4;
+}
+@media (min-width: 721px) {
+  .sheet-backdrop {
+    align-items: center;
+  }
+  .sheet {
+    max-width: 720px;
+    border: var(--border-w) solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* =============================== 8. TABS ============================== */
+
+/* Tabs are a soft segmented control: an inset tray with the active tab lifted
+   out of it, so the current section is obvious at a glance. */
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  max-width: 100%;
+  overflow-x: auto;
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-alt);
+  margin-bottom: var(--sp-4);
+}
+.tab {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-pill);
+  color: var(--muted-ink);
+  cursor: pointer;
+  transition: background var(--motion-fast) ease-out, color var(--motion-fast) ease-out;
+}
+.tab:hover {
+  color: var(--ink);
+}
+.tab[aria-selected='true'] {
+  color: var(--signal);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ========================== 9. MEASUREMENTS =========================== */
+
+.bar {
+  height: 10px;
+  border: var(--border-w-thin) solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-alt);
+  overflow: hidden;
+}
+.bar > span {
+  display: block;
+  height: 100%;
+  background: var(--signal);
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 140px;
+  border-inline-start: var(--border-w-thin) solid var(--line);
+  border-bottom: var(--border-w-thin) solid var(--line);
+  padding: 0 var(--sp-1);
+}
+.chart .col {
+  flex: 1;
+  min-width: 8px;
+  background: var(--sky);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+.chart .col.is-signal {
+  background: var(--signal);
+}
+.chart-legend {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+.swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: var(--border-w-thin) solid var(--line);
+  margin-inline-end: 5px;
+  vertical-align: -1px;
+}
+
+/* ============================ 10. BLOCKS ============================== */
+
+/* A tinted block pins its own copy colour. Without this a colour that stays
+   light in both themes inherits the dark theme's pale text and the card reads
+   as an empty box - the exact blank-card bug that was fixed by hand before. */
+.tint-sun,
+.tint-sun .muted,
+.tint-sun .hint {
+  background: var(--sun);
+  color: var(--on-block);
+}
+.tint-mint,
+.tint-mint .muted,
+.tint-mint .hint {
+  background: var(--mint);
+  color: var(--on-block);
+}
+.tint-sky,
+.tint-sky .muted,
+.tint-sky .hint {
+  background: var(--sky);
+  color: var(--on-block);
+}
+.tint-lilac,
+.tint-lilac .muted,
+.tint-lilac .hint {
+  background: var(--lilac);
+  color: var(--on-block);
+}
+.tint-signal,
+.tint-signal .muted,
+.tint-signal .hint {
+  background: var(--signal);
+  color: var(--on-block);
+}
+.tint-sun .badge,
+.tint-mint .badge,
+.tint-sky .badge,
+.tint-lilac .badge,
+.tint-signal .badge {
+  background: #fff;
+  color: #14161a;
+  border-color: #14161a;
+}
+.tint-sun .btn,
+.tint-mint .btn,
+.tint-sky .btn,
+.tint-lilac .btn,
+.tint-signal .btn {
+  background: #fff;
+  color: #14161a;
+}
+
+.pill-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* A structural rule. Heavy, square-ended, and it terminates the block above. */
+.divider {
+  height: var(--border-w-thin);
+  background: var(--line-soft);
+  margin: var(--sp-3) 0;
+  border: 0;
+}
+.rule-hazard {
+  height: var(--hazard-band);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--hazard) 0 8px,
+    var(--hazard-ink) 8px 16px
+  );
+  border-top: var(--border-w-thin) solid var(--line);
+  border-bottom: var(--border-w-thin) solid var(--line);
+}
+
+/* Definition lists: label column sized in a range so long labels wrap rather
+   than push the value into a sliver, and a single column on a narrow phone. */
+.kv {
+  display: grid;
+  grid-template-columns: minmax(120px, 190px) 1fr;
+  gap: 6px var(--sp-3);
+  align-items: baseline;
+  font-size: var(--fs-sm);
+  margin: 0;
+}
+.kv dt {
+  font-weight: 600;
+  font-size: var(--fs-sm);
+  color: var(--muted-ink);
+}
+.kv dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 440px) {
+  .kv {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+  .kv dt {
+    margin-top: var(--sp-2);
+  }
+}
+
+/* Long unbroken strings - case numbers, roll numbers, URLs - must wrap rather
+   than punch out of their plate. */
+.card,
+.metric,
+.panel,
+td,
+th,
+.kv dd,
+.badge,
+.banner,
+.state {
+  overflow-wrap: anywhere;
+}

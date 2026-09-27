@@ -1,0 +1,80 @@
+# Campus Relay - SINGLE-MACHINE install.
+#
+# One command on one college server gets the whole product:
+#
+#   cp .env.example .env        # then edit the secrets
+#   docker compose -f docker-compose.selfhost.yml up -d --build
+#   open http://<server-ip>:8080
+#
+# Everything is on ONE origin: the browser talks only to the `web` container,
+# which serves the PWA and proxies /api to the `backend` container. That means
+# no CORS configuration and no VITE_API_BASE_URL to set.
+#
+# The institution template is mounted from ./config, so a college edits
+# config/institution.json and presses "Reload from disk" on the Setup screen -
+# no rebuild needed.
+#
+# Data lives in the `campus_relay_selfhost_pgdata` volume. `docker compose
+# ... down -v` destroys it.
+
+name: campus-relay
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: campus_relay_selfhost_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-campus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-campus}
+      POSTGRES_DB: ${POSTGRES_DB:-campus_relay}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - campus_relay_selfhost_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-campus} -d ${POSTGRES_DB:-campus_relay}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: campus_relay_selfhost_api
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      # Pointed at the compose database, overriding any hosted DATABASE_URL.
+      DATABASE_URL: ""
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    volumes:
+      # Live-editable institution template.
+      - ./config:/app/config:ro
+      # Uploaded evidence/documents.
+      - campus_relay_selfhost_media:/app/backend/media
+    depends_on:
+      db:
+        condition: service_healthy
+    # Migrate, then seed only if the database is empty, then serve.
+    command: >
+      sh -c "alembic upgrade head
+      && python -m scripts.bootstrap
+      && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    expose:
+      - "8000"
+
+  web:
+    build:
+      context: ./frontend
+    container_name: campus_relay_selfhost_web
+    restart: unless-stopped
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - backend
+
+volumes:
+  campus_relay_selfhost_pgdata:
+  campus_relay_selfhost_media:

@@ -1,0 +1,468 @@
+/* ==========================================================================
+   CAMPUS RELAY - LAYER 1 of 4: TOKENS
+
+   Read this file first. Everything visual in the product resolves to a value
+   declared here; no component invents a colour, a radius or a border width.
+
+   TWO AXES, DELIBERATELY SEPARATE
+   -------------------------------
+   1. THEME  (data-theme="light" | "dark")
+      How much light comes off the screen. A personal comfort choice, remembered
+      per device.
+
+   2. SKIN   (data-skin="modern" | "industrial" | "govt-portal" | "university-portal")
+      The design language of the deployment. A skin restyles *structure* -
+      radius, rule weight, elevation, density, label casing, type face - and
+      never forges its own palette. Palettes live in the theme layer below, so
+      every skin inherits the same accessibility guarantees.
+
+   THE SHIPPED LOOK: BRIGHT INSTITUTIONAL
+   ---------------------------------------
+   A calm, modern institutional interface: white surfaces on a soft blue-grey
+   page, one confident blue for action, green for done, soft elevation instead
+   of hard edges, generous whitespace and sentence-case labels. It is designed
+   to read as trustworthy to a registrar and familiar to a student.
+
+   CONTRAST STANDARD (both themes, all skins)
+   ------------------------------------------
+   Body copy clears 7:1 on its own surface. Muted copy and chip labels clear
+   4.5:1. Filled blocks (buttons, chips, banners) use --on-block / --on-danger,
+   chosen per theme so a saturated fill always carries legible copy.
+   ========================================================================== */
+
+:root {
+  /* --- Type ------------------------------------------------------------- */
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+  --font-display: var(--font);
+
+  --fs-xs: 0.8125rem; /* 13px */
+  --fs-sm: 0.875rem; /* 14px */
+  --fs-base: 0.9375rem; /* 15px */
+  --fs-md: 1.0625rem; /* 17px */
+  --fs-lg: 1.3125rem; /* 21px */
+  --fs-xl: 1.75rem; /* 28px */
+  --fs-2xl: 2.25rem; /* 36px */
+  --fs-3xl: 3rem; /* 48px */
+
+  --lh-tight: 1.2;
+  --lh-snug: 1.45;
+  --lh-body: 1.65;
+
+  --tracking-label: 0.01em;
+  --tracking-wide: 0;
+  --tracking-tight: -0.02em;
+  --measure: 72ch;
+
+  /* --- Spacing: a 4px grid, named by step -------------------------------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 24px;
+  --sp-6: 32px;
+  --sp-8: 48px;
+  --sp-10: 64px;
+  --sp-12: 88px;
+
+  /* --- Touch targets ------------------------------------------------------ */
+  --touch-min: 44px;
+  --touch-large: 52px;
+  --touch-huge: 84px;
+
+  /* --- Layout skeleton ---------------------------------------------------- */
+  --sidebar-w: 264px;
+  --topbar-h: 64px;
+  --bottom-nav-h: 64px;
+  --page-max: 1240px;
+  --page-pad: var(--sp-5);
+
+  /* --- Structural slots (a skin may restyle any of these) ----------------- */
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 22px;
+  --radius-pill: 999px;
+
+  --border-w: 1px;
+  --border-w-thin: 1px;
+  --border-w-fat: 2px;
+
+  --rule-w: 1px;
+  --hazard-band: 0px;
+
+  --plate-lift: 0px;
+  --plate-lift-sm: 0px;
+  --plate-lift-lg: 0px;
+
+  --panel-head-bg: var(--surface);
+  --panel-head-ink: var(--ink);
+
+  --grid-size: 0px;
+  --grid-major: 0px;
+  --grid-line: transparent;
+  --grid-major-line: transparent;
+  --blueprint-image: none;
+  --blueprint-size: auto;
+
+  --label-transform: none;
+  --label-tracking: var(--tracking-label);
+  --title-tracking: var(--tracking-tight);
+
+  --focus-ring: 3px solid var(--signal);
+  --focus-offset: 2px;
+
+  --motion-fast: 0.12s;
+  --motion-base: 0.2s;
+}
+
+/* --------------------------------------------------------------------------
+   SKIN: MODERN INSTITUTIONAL (shipped default)
+   Declared explicitly even though it is also the :root default, so it doubles
+   as the copy-paste template for a new skin.
+   -------------------------------------------------------------------------- */
+:root,
+[data-skin='modern'] {
+  --skin-name: 'modern-institutional';
+}
+
+/* --------------------------------------------------------------------------
+   SKIN: ENGINEERING BLUEPRINT
+   Sharp, technical, drawing-sheet feel: 2px rules, squared plates, stencilled
+   labels and a faint engineering-paper grid. Keeps its own hazard marking.
+   -------------------------------------------------------------------------- */
+[data-skin='industrial'] {
+  --skin-name: 'engineering-blueprint';
+
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-lg: 3px;
+
+  --border-w: 2px;
+  --border-w-thin: 1px;
+  --border-w-fat: 3px;
+  --rule-w: 2px;
+
+  --plate-lift: 3px;
+  --plate-lift-sm: 2px;
+  --plate-lift-lg: 5px;
+
+  --panel-head-bg: var(--surface-alt);
+
+  --hazard-band: 8px;
+  --hazard: #f5c518;
+  --hazard-ink: #15171a;
+
+  --grid-size: 28px;
+  --grid-major: 140px;
+  --grid-major-line: var(--grid-major-colour);
+  --blueprint-image: linear-gradient(var(--grid-line) var(--border-w-thin), transparent var(--border-w-thin)),
+    linear-gradient(90deg, var(--grid-line) var(--border-w-thin), transparent var(--border-w-thin)),
+    linear-gradient(var(--grid-major-line) var(--border-w-thin), transparent var(--border-w-thin)),
+    linear-gradient(90deg, var(--grid-major-line) var(--border-w-thin), transparent var(--border-w-thin));
+  --blueprint-size: var(--grid-size) var(--grid-size), var(--grid-size) var(--grid-size),
+    var(--grid-major) var(--grid-major), var(--grid-major) var(--grid-major);
+
+  --label-transform: uppercase;
+  --label-tracking: 0.1em;
+  --title-tracking: -0.01em;
+
+  --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+  --font-display: var(--font);
+}
+
+/* --------------------------------------------------------------------------
+   SKIN: GOVERNMENT PORTAL - flat, dense, print-first, no elevation.
+   -------------------------------------------------------------------------- */
+[data-skin='govt-portal'] {
+  --skin-name: 'govt-portal';
+
+  --radius: 6px;
+  --radius-sm: 4px;
+  --radius-lg: 8px;
+
+  --border-w: 1px;
+  --border-w-thin: 1px;
+  --border-w-fat: 2px;
+  --rule-w: 1px;
+
+  --plate-lift: 0px;
+  --plate-lift-sm: 0px;
+  --plate-lift-lg: 0px;
+
+  --panel-head-bg: var(--surface-sunken);
+  --grid-line: transparent;
+  --grid-size: 0px;
+  --blueprint-image: none;
+
+  --label-transform: none;
+  --label-tracking: 0;
+
+  --font: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: var(--font);
+}
+
+/* --------------------------------------------------------------------------
+   SKIN: UNIVERSITY PORTAL - institutional serif headings, generous measure.
+   -------------------------------------------------------------------------- */
+[data-skin='university-portal'] {
+  --skin-name: 'university-portal';
+
+  --radius: 12px;
+  --radius-sm: 8px;
+  --radius-lg: 18px;
+
+  --border-w: 1px;
+  --border-w-thin: 1px;
+  --border-w-fat: 2px;
+  --rule-w: 1px;
+
+  --plate-lift: 0px;
+  --plate-lift-sm: 0px;
+  --plate-lift-lg: 0px;
+
+  --panel-head-bg: var(--surface);
+  --grid-line: transparent;
+  --grid-size: 0px;
+  --blueprint-image: none;
+
+  --label-transform: none;
+  --label-tracking: 0;
+  --title-tracking: 0;
+
+  --font-display: Georgia, 'Times New Roman', 'Noto Serif', serif;
+  --measure: 80ch;
+}
+
+/* --------------------------------------------------------------------------
+   ADDING A SKIN
+   A skin is a token set, never a fork. Copy a block above, change the values,
+   register it in src/theme/registry.ts, and point the institution config at
+   it. Palettes stay in the theme layer below. See docs/THEMES.md.
+   -------------------------------------------------------------------------- */
+
+/* ==========================================================================
+   THEME: LIGHT - white surfaces on a soft blue-grey page
+   ========================================================================== */
+
+:root,
+[data-theme='light'] {
+  --ink: #0f172a;
+  --paper: #f4f6fb;
+  --surface: #ffffff;
+  --surface-alt: #f1f5f9;
+  --surface-sunken: #e7edf6;
+  --muted-ink: #55657f;
+  --grid-line-colour: rgba(15, 23, 42, 0.045);
+  --grid-major-colour: rgba(15, 23, 42, 0.09);
+
+  /* Filled blocks. Dark enough to carry white copy in the light theme. */
+  --signal: #2563eb; /* primary action */
+  --signal-dark: #1d4ed8;
+  --sun: #b45309; /* attention */
+  --mint: #047857; /* resolved, allowed */
+  --sky: #0369a1; /* informational */
+  --lilac: #6d28d9; /* machine / agent */
+  --blush: #be185d;
+  --danger: #b91c1c;
+  --hazard: #f5c518;
+  --hazard-ink: #15171a;
+
+  --status-open: #0369a1;
+  --status-progress: #b45309;
+  --status-blocked: #6d28d9;
+  --status-done: #047857;
+  --status-dead: #475569;
+  --status-urgent: #b91c1c;
+  --status-warn: #c2410c;
+
+  /* Structure is separate from text. */
+  --line: #e2e8f0;
+  --line-soft: #eef2f8;
+  --edge: rgba(15, 23, 42, 0.08);
+  --shadow-color: rgba(15, 23, 42, 0.16);
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 34px rgba(15, 23, 42, 0.12);
+  --shadow-inset: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+  --scrim: rgba(15, 23, 42, 0.45);
+
+  /* Copy on a saturated block. */
+  --on-block: #ffffff;
+  --on-block-invert: #0f172a;
+  --on-danger: #ffffff;
+}
+
+/* ==========================================================================
+   THEME: DARK - deep slate, lamp-lit copy
+   Filled blocks lighten and switch to dark copy, so a saturated fill stays
+   legible against a dark room and a dark page.
+   ========================================================================== */
+
+[data-theme='dark'] {
+  --ink: #e6ebf3;
+  --paper: #0b1220;
+  --surface: #121a2a;
+  --surface-alt: #1a2334;
+  --surface-sunken: #0a111e;
+  --muted-ink: #9aa8bf;
+  --grid-line-colour: rgba(230, 235, 243, 0.05);
+  --grid-major-colour: rgba(230, 235, 243, 0.09);
+
+  --signal: #60a5fa;
+  --signal-dark: #3b82f6;
+  --sun: #fbbf24;
+  --mint: #34d399;
+  --sky: #38bdf8;
+  --lilac: #a78bfa;
+  --blush: #f472b6;
+  --danger: #f87171;
+  --hazard: #fbbf24;
+  --hazard-ink: #0b1220;
+
+  --status-open: #38bdf8;
+  --status-progress: #fbbf24;
+  --status-blocked: #a78bfa;
+  --status-done: #34d399;
+  --status-dead: #94a3b8;
+  --status-urgent: #f87171;
+  --status-warn: #fb923c;
+
+  --line: #26324a;
+  --line-soft: #1c2740;
+  --edge: rgba(0, 0, 0, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+  --scrim: rgba(0, 0, 0, 0.6);
+
+  --on-block: #0b1220;
+  --on-block-invert: #ffffff;
+  --on-danger: #0b1220;
+}
+
+/* Before the app has read the saved preference, follow the device. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --ink: #e6ebf3;
+    --paper: #0b1220;
+    --surface: #121a2a;
+    --surface-alt: #1a2334;
+    --surface-sunken: #0a111e;
+    --muted-ink: #9aa8bf;
+    --signal: #60a5fa;
+    --signal-dark: #3b82f6;
+    --sun: #fbbf24;
+    --mint: #34d399;
+    --sky: #38bdf8;
+    --lilac: #a78bfa;
+    --blush: #f472b6;
+    --danger: #f87171;
+    --status-open: #38bdf8;
+    --status-progress: #fbbf24;
+    --status-blocked: #a78bfa;
+    --status-done: #34d399;
+    --status-dead: #94a3b8;
+    --status-urgent: #f87171;
+    --status-warn: #fb923c;
+    --line: #26324a;
+    --line-soft: #1c2740;
+    --edge: rgba(0, 0, 0, 0.4);
+    --on-block: #0b1220;
+    --on-danger: #0b1220;
+  }
+}
+
+/* ==========================================================================
+   TEXT SIZE - a switch the user asked for, not a hidden browser setting
+   ========================================================================== */
+
+[data-text='large'] {
+  --fs-xs: 0.9375rem;
+  --fs-sm: 1rem;
+  --fs-base: 1.0625rem;
+  --fs-md: 1.1875rem;
+  --fs-lg: 1.4375rem;
+  --fs-xl: 1.9375rem;
+  --fs-2xl: 2.375rem;
+  --lh-body: 1.7;
+  --touch-min: 48px;
+}
+
+/* ==========================================================================
+   DENSITY - a compact mode for queue, audit and table screens.
+   ========================================================================== */
+
+[data-density='compact'] {
+  --sp-3: 8px;
+  --sp-4: 10px;
+  --sp-5: 14px;
+  --sp-6: 18px;
+  --sp-8: 28px;
+  --page-pad: var(--sp-3);
+  --lh-body: 1.5;
+}
+
+/* ==========================================================================
+   HIGH CONTRAST - widen structure and lift muted copy to full ink.
+   ========================================================================== */
+
+[data-contrast='high'] {
+  --border-w: 2px;
+  --border-w-thin: 2px;
+  --line: currentColor;
+  --line-soft: currentColor;
+  --muted-ink: var(--ink);
+  --shadow-inset: none;
+}
+
+/* ==========================================================================
+   MOTION - respect the setting; the product never needs animation to work
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0s;
+    --motion-base: 0s;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ==========================================================================
+   HIGH CONTRAST - widen the structure instead of changing the hues
+   ========================================================================== */
+
+@media (prefers-contrast: more) {
+  :root {
+    --border-w: 2px;
+    --border-w-thin: 2px;
+    --line: currentColor;
+    --line-soft: currentColor;
+  }
+}
+
+/* ==========================================================================
+   FORCED COLOURS (Windows high contrast) - stop fighting the OS
+   ========================================================================== */
+
+@media (forced-colors: active) {
+  .card,
+  .panel,
+  .metric,
+  .btn,
+  .input,
+  .select,
+  .textarea,
+  .badge {
+    border: 1px solid CanvasText;
+  }
+}

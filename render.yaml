@@ -1,0 +1,52 @@
+# Render Blueprint - Campus Relay API.
+#
+# The frontend is deployed separately on Vercel; this file describes only the
+# backend web service. The database is hosted on Supabase, so DATABASE_URL is
+# marked `sync: false` and is pasted into the Render dashboard rather than
+# committed here.
+#
+# Deploy: push this repository, then in Render choose "New > Blueprint" and
+# point it at the repo. Render reads this file and prompts for the secrets.
+#
+# See docs/DEPLOYMENT.md for the full walkthrough, including the exact
+# Supabase connection string shape (?sslmode=require).
+
+services:
+  - type: web
+    name: campus-relay-api
+    runtime: python
+    rootDir: backend
+    plan: free
+    region: singapore
+    buildCommand: pip install -r requirements.txt
+    # Migrations run on every deploy; they are additive and idempotent.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      # --- Runtime ---
+      - key: PYTHON_VERSION
+        value: "3.12.6"
+      - key: APP_ENV
+        value: demo
+      - key: APP_SECRET_KEY
+        generateValue: true
+      # --- Database (Supabase) ---
+      # Paste the pooled connection string, e.g.
+      #   postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
+      # The backend rewrites the scheme to postgresql+psycopg:// automatically.
+      - key: DATABASE_URL
+        sync: false
+      # --- CORS ---
+      # The deployed frontend origin, e.g. https://campus-relay.vercel.app
+      - key: CORS_ORIGINS
+        sync: false
+      # --- Intelligence (optional) ---
+      - key: AGENT_PROVIDER
+        value: rules
+      - key: AGENT_LLM_BASE_URL
+        value: ""
+      - key: AGENT_LLM_API_KEY
+        value: ""
+      - key: AGENT_LLM_MODEL
+        value: ""
