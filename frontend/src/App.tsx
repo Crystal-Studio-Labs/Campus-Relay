@@ -12,6 +12,7 @@ import { useSession } from './state/session'
 import { AppShell, COMMAND_CENTRE_ROLES } from './layouts/AppShell'
 import { LoginPage } from './pages/Login'
 import { LandingPage } from './pages/Landing'
+import { NotFound } from './pages/NotFound'
 import { StudentHome } from './pages/student/Home'
 import { ReportPage } from './pages/student/Report'
 import { CasesListPage } from './pages/CasesList'
@@ -35,7 +36,7 @@ import { StaffTasks } from './pages/staff/Tasks'
 import { GateDesk } from './pages/security/GateDesk'
 import { KioskPage } from './pages/kiosk/Kiosk'
 import { HelpDesk } from './pages/helpdesk/HelpDesk'
-import { Button, EmptyState, LoadingState } from './components/ui'
+import { EmptyState, LoadingState } from './components/ui'
 
 export function App() {
   const { status } = useSession()
@@ -67,7 +68,7 @@ export function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginVariant />} />
-          <Route path="*" element={<LandingPage />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
     )
@@ -189,16 +190,3 @@ function GuardedRole({
   )
 }
 
-function NotFound() {
-  return (
-    <EmptyState
-      title="That page does not exist"
-      detail="The link may be old, or the case may have been removed from your scope."
-      action={
-        <Button variant="primary" onClick={() => window.location.assign('/')}>
-          Back to the start
-        </Button>
-      }
-    />
-  )
-}

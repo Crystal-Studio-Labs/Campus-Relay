@@ -11,6 +11,7 @@ import { useRemote } from '../state/hooks'
 import { useTheme, THEME_OPTIONS } from '../state/theme'
 import { useInstitution } from '../state/institution'
 import { Badge, Button } from '../components/ui'
+import { MasterFooter } from '../components/Footer'
 
 // --- High-fidelity SVG Icons for Industrial Brutalism ---
 function IconAlert() {
@@ -548,24 +549,8 @@ export function LandingPage() {
         </section>
       </div>
 
-      {/* ------------------------------------------------------------ FOOTER */}
-      <footer className="landing-foot no-print">
-        <div className="landing-foot-inner">
-          <span>
-            <strong>Campus Relay</strong> · Crystal Studio Labs · BPUT Hackathon 2026 (PS07 Fretbox).
-            <br />
-            Configured through <span className="mono tiny">config/institution.json</span>. MIT License.
-          </span>
-          <span className="row wrap" style={{ gap: 14 }}>
-            <Link to="/login">Sign In</Link>
-            <Link to="/kiosk">Corridor Kiosk</Link>
-            <Link to="/login?mode=desk">Helpdesk</Link>
-            <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay" target="_blank" rel="noreferrer">
-              GitHub
-            </a>
-          </span>
-        </div>
-      </footer>
+      {/* ------------------------------------------------------------ MASTER FOOTER */}
+      <MasterFooter />
     </div>
   )
 }
