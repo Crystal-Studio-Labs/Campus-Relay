@@ -116,26 +116,17 @@
 }
 
 /* --------------------------------------------------------------------------
-   SKIN: MODERN INSTITUTIONAL (shipped default)
-   Declared explicitly even though it is also the :root default, so it doubles
-   as the copy-paste template for a new skin.
+   SKIN: ENGINEERING BLUEPRINT / INDUSTRIAL BRUTALISM (Shipped Default)
+   Sharp, technical, drawing-sheet feel: 2px/3px rules, squared plates, stencilled
+   labels, tactile mechanical feedback, and a faint engineering blueprint grid.
    -------------------------------------------------------------------------- */
 :root,
-[data-skin='modern'] {
-  --skin-name: 'modern-institutional';
-}
-
-/* --------------------------------------------------------------------------
-   SKIN: ENGINEERING BLUEPRINT
-   Sharp, technical, drawing-sheet feel: 2px rules, squared plates, stencilled
-   labels and a faint engineering-paper grid. Keeps its own hazard marking.
-   -------------------------------------------------------------------------- */
 [data-skin='industrial'] {
   --skin-name: 'engineering-blueprint';
 
-  --radius: 2px;
+  --radius: 3px;
   --radius-sm: 2px;
-  --radius-lg: 3px;
+  --radius-lg: 4px;
 
   --border-w: 2px;
   --border-w-thin: 1px;
@@ -149,11 +140,10 @@
   --panel-head-bg: var(--surface-alt);
 
   --hazard-band: 8px;
-  --hazard: #f5c518;
-  --hazard-ink: #15171a;
 
   --grid-size: 28px;
   --grid-major: 140px;
+  --grid-line: var(--grid-line-colour);
   --grid-major-line: var(--grid-major-colour);
   --blueprint-image: linear-gradient(var(--grid-line) var(--border-w-thin), transparent var(--border-w-thin)),
     linear-gradient(90deg, var(--grid-line) var(--border-w-thin), transparent var(--border-w-thin)),
@@ -163,12 +153,28 @@
     var(--grid-major) var(--grid-major), var(--grid-major) var(--grid-major);
 
   --label-transform: uppercase;
-  --label-tracking: 0.1em;
+  --label-tracking: 0.08em;
   --title-tracking: -0.01em;
 
   --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   --font-mono: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
   --font-display: var(--font);
+}
+
+/* --------------------------------------------------------------------------
+   SKIN: MODERN INSTITUTIONAL (optional softer variant)
+   -------------------------------------------------------------------------- */
+[data-skin='modern'] {
+  --skin-name: 'modern-institutional';
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --border-w: 1px;
+  --plate-lift: 0px;
+  --grid-size: 0px;
+  --blueprint-image: none;
+  --label-transform: none;
+  --label-tracking: 0.01em;
 }
 
 /* --------------------------------------------------------------------------
@@ -242,136 +248,133 @@
    -------------------------------------------------------------------------- */
 
 /* ==========================================================================
-   THEME: LIGHT - white surfaces on a soft blue-grey page
+   THEME: LIGHT - Academic & Operational Authority (NO YELLOW)
+   Crisp, high-contrast, clean blueprint paper, royal blue signal, emerald done,
+   and precise brutalist offset plate edges.
    ========================================================================== */
 
 :root,
 [data-theme='light'] {
   --ink: #0f172a;
-  --paper: #f4f6fb;
+  --paper: #f8fafc;
   --surface: #ffffff;
   --surface-alt: #f1f5f9;
-  --surface-sunken: #e7edf6;
-  --muted-ink: #55657f;
+  --surface-sunken: #e2e8f0;
+  --muted-ink: #475569;
   --grid-line-colour: rgba(15, 23, 42, 0.045);
-  --grid-major-colour: rgba(15, 23, 42, 0.09);
+  --grid-major-colour: rgba(15, 23, 42, 0.08);
 
-  /* Filled blocks. Dark enough to carry white copy in the light theme. */
-  --signal: #2563eb; /* primary action */
-  --signal-dark: #1d4ed8;
-  --sun: #b45309; /* attention */
-  --mint: #047857; /* resolved, allowed */
-  --sky: #0369a1; /* informational */
-  --lilac: #6d28d9; /* machine / agent */
+  /* Operational actions: Authoritative royal blue (no yellow) */
+  --signal: #1d4ed8;
+  --signal-dark: #1e40af;
+  --sun: #b45309; /* attention / review */
+  --mint: #059669; /* resolved / approved */
+  --sky: #0284c7; /* informational */
+  --lilac: #6d28d9; /* agent / automation */
   --blush: #be185d;
-  --danger: #b91c1c;
-  --hazard: #f5c518;
-  --hazard-ink: #15171a;
+  --danger: #dc2626;
+  --hazard: #0f172a;
+  --hazard-ink: #f8fafc;
 
-  --status-open: #0369a1;
+  --status-open: #0284c7;
   --status-progress: #b45309;
   --status-blocked: #6d28d9;
-  --status-done: #047857;
+  --status-done: #059669;
   --status-dead: #475569;
-  --status-urgent: #b91c1c;
+  --status-urgent: #dc2626;
   --status-warn: #c2410c;
 
-  /* Structure is separate from text. */
-  --line: #e2e8f0;
-  --line-soft: #eef2f8;
-  --edge: rgba(15, 23, 42, 0.08);
-  --shadow-color: rgba(15, 23, 42, 0.16);
-  --shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 8px 24px rgba(15, 23, 42, 0.06);
-  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
-  --shadow-lg: 0 12px 34px rgba(15, 23, 42, 0.12);
-  --shadow-inset: inset 0 1px 2px rgba(15, 23, 42, 0.05);
-  --scrim: rgba(15, 23, 42, 0.45);
+  /* Brutalist physical plate structure */
+  --line: #cbd5e1;
+  --line-soft: #e2e8f0;
+  --edge: rgba(15, 23, 42, 0.15);
+  --shadow-ink: #0f172a;
+  --shadow: 2.5px 2.5px 0px rgba(15, 23, 42, 0.85);
+  --shadow-sm: 1.5px 1.5px 0px rgba(15, 23, 42, 0.85);
+  --shadow-lg: 4px 4px 0px rgba(15, 23, 42, 0.9);
+  --shadow-inset: inset 0 1px 2px rgba(15, 23, 42, 0.08);
+  --scrim: rgba(15, 23, 42, 0.5);
 
-  /* Copy on a saturated block. */
+  /* Copy on filled blocks */
   --on-block: #ffffff;
   --on-block-invert: #0f172a;
   --on-danger: #ffffff;
 }
 
 /* ==========================================================================
-   THEME: DARK - deep slate, lamp-lit copy
-   Filled blocks lighten and switch to dark copy, so a saturated fill stays
-   legible against a dark room and a dark page.
+   THEME: DARK - Cyber-Industrial Workstation (Vibrant Safety Yellow & Slate)
+   Deep carbon background, architectural blueprint grids, and luminous yellow
+   and emerald indicators.
    ========================================================================== */
 
 [data-theme='dark'] {
-  --ink: #e6ebf3;
-  --paper: #0b1220;
-  --surface: #121a2a;
-  --surface-alt: #1a2334;
-  --surface-sunken: #0a111e;
-  --muted-ink: #9aa8bf;
-  --grid-line-colour: rgba(230, 235, 243, 0.05);
-  --grid-major-colour: rgba(230, 235, 243, 0.09);
+  --ink: #f1f5f9;
+  --paper: #090d14;
+  --surface: #111723;
+  --surface-alt: #1a2233;
+  --surface-sunken: #06090f;
+  --muted-ink: #94a3b8;
+  --grid-line-colour: rgba(241, 245, 249, 0.035);
+  --grid-major-colour: rgba(241, 245, 249, 0.07);
 
-  --signal: #60a5fa;
-  --signal-dark: #3b82f6;
+  /* Industrial safety-yellow actions & neon indicators */
+  --signal: #f5c518;
+  --signal-dark: #d9aa0e;
   --sun: #fbbf24;
-  --mint: #34d399;
+  --mint: #10b981;
   --sky: #38bdf8;
   --lilac: #a78bfa;
   --blush: #f472b6;
-  --danger: #f87171;
-  --hazard: #fbbf24;
-  --hazard-ink: #0b1220;
+  --danger: #ef4444;
+  --hazard: #f5c518;
+  --hazard-ink: #090d14;
 
   --status-open: #38bdf8;
   --status-progress: #fbbf24;
   --status-blocked: #a78bfa;
-  --status-done: #34d399;
+  --status-done: #10b981;
   --status-dead: #94a3b8;
-  --status-urgent: #f87171;
+  --status-urgent: #ef4444;
   --status-warn: #fb923c;
 
-  --line: #26324a;
-  --line-soft: #1c2740;
-  --edge: rgba(0, 0, 0, 0.4);
-  --shadow-color: rgba(0, 0, 0, 0.5);
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px rgba(0, 0, 0, 0.35);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.5);
-  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.4);
-  --scrim: rgba(0, 0, 0, 0.6);
+  /* Industrial dark brutalist shadows */
+  --line: #2e3b52;
+  --line-soft: #1a2233;
+  --edge: rgba(0, 0, 0, 0.6);
+  --shadow-ink: #000000;
+  --shadow: 3px 3px 0px #000000;
+  --shadow-sm: 2px 2px 0px #000000;
+  --shadow-lg: 5px 5px 0px #000000;
+  --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  --scrim: rgba(0, 0, 0, 0.75);
 
-  --on-block: #0b1220;
-  --on-block-invert: #ffffff;
-  --on-danger: #0b1220;
+  --on-block: #090d14; /* dark ink on radiant safety yellow */
+  --on-block-invert: #f1f5f9;
+  --on-danger: #ffffff;
 }
 
 /* Before the app has read the saved preference, follow the device. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --ink: #e6ebf3;
-    --paper: #0b1220;
-    --surface: #121a2a;
-    --surface-alt: #1a2334;
-    --surface-sunken: #0a111e;
-    --muted-ink: #9aa8bf;
-    --signal: #60a5fa;
-    --signal-dark: #3b82f6;
-    --sun: #fbbf24;
-    --mint: #34d399;
-    --sky: #38bdf8;
-    --lilac: #a78bfa;
-    --blush: #f472b6;
-    --danger: #f87171;
-    --status-open: #38bdf8;
-    --status-progress: #fbbf24;
-    --status-blocked: #a78bfa;
-    --status-done: #34d399;
-    --status-dead: #94a3b8;
-    --status-urgent: #f87171;
-    --status-warn: #fb923c;
-    --line: #26324a;
-    --line-soft: #1c2740;
-    --edge: rgba(0, 0, 0, 0.4);
-    --on-block: #0b1220;
-    --on-danger: #0b1220;
+    --ink: #f1f5f9;
+    --paper: #090d14;
+    --surface: #111723;
+    --surface-alt: #1a2233;
+    --surface-sunken: #06090f;
+    --muted-ink: #94a3b8;
+    --grid-line-colour: rgba(241, 245, 249, 0.035);
+    --grid-major-colour: rgba(241, 245, 249, 0.07);
+    --signal: #f5c518;
+    --signal-dark: #d9aa0e;
+    --hazard: #f5c518;
+    --hazard-ink: #090d14;
+    --line: #2e3b52;
+    --shadow-ink: #000000;
+    --shadow: 3px 3px 0px #000000;
+    --shadow-sm: 2px 2px 0px #000000;
+    --shadow-lg: 5px 5px 0px #000000;
+    --on-block: #090d14;
+    --on-danger: #ffffff;
   }
 }
 

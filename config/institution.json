@@ -47,8 +47,8 @@
   },
 
   "appearance": {
-    "skin": "modern",
-    "default_theme": "light",
+    "skin": "industrial",
+    "default_theme": "device",
     "allow_user_theme_override": true,
     "accent": null
   },

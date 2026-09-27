@@ -140,7 +140,7 @@ export const SKINS: SkinDefinition[] = [
   },
 ]
 
-export const DEFAULT_SKIN = 'modern'
+export const DEFAULT_SKIN = 'industrial'
 
 export function isKnownSkin(id: unknown): boolean {
   return SKINS.some((skin) => skin.id === id)

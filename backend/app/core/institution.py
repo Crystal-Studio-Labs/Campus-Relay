@@ -62,7 +62,7 @@ DEFAULT_INSTITUTION: dict[str, Any] = {
     "appearance": {
         # Which design language the deployment ships with. See
         # frontend/src/theme/registry.ts - a skin is a token set, never a fork.
-        "skin": "modern",
+        "skin": "industrial",
         # "device" follows the visitor's operating system on a first visit.
         "default_theme": "device",
         "allow_user_theme_override": True,

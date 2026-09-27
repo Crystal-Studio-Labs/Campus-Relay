@@ -52,15 +52,15 @@
   text-align: start;
   color: inherit;
   font: inherit;
-  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .card-clickable:hover {
-  transform: translateY(-1px);
+  transform: translate(-1.5px, -1.5px);
   box-shadow: var(--shadow-lg);
 }
 .card-clickable:active {
-  transform: translateY(1px);
-  box-shadow: none;
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 1px 1px 0px var(--shadow-ink, #000000);
 }
 
 /* A tinted leading edge marks status without shouting. The edge is rounded to
@@ -438,17 +438,16 @@
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.12s ease-out;
 }
-/* Hover raises the plate by a pixel; press drives it flat. The feedback is
-   positional, so it survives a monochrome projector. */
+/* Hover raises the plate; press drives it flat into the page. */
 .btn:hover:not(:disabled):not([aria-disabled='true']) {
-  transform: translateY(-1px);
+  transform: translate(-1px, -1px);
   box-shadow: var(--shadow);
 }
 .btn:active:not(:disabled):not([aria-disabled='true']) {
-  transform: translateY(2px);
-  box-shadow: none;
+  transform: translate(1.5px, 1.5px);
+  box-shadow: 0px 0px 0px var(--shadow-ink, #000000);
 }
 .btn:disabled,
 .btn[aria-disabled='true'] {
@@ -1055,3 +1054,75 @@ th,
 .state {
   overflow-wrap: anywhere;
 }
+
+/* ==========================================================================
+   REACT MICRO-ANIMATIONS & ENTRANCE TRANSITIONS
+   ========================================================================== */
+@keyframes brutalistEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modalScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes sheetSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes beaconPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.modal {
+  animation: modalScaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.sheet {
+  animation: sheetSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-entrance {
+  animation: brutalistEntrance 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.pulse-beacon {
+  animation: beaconPulse 2s infinite cubic-bezier(0.4, 0, 0.6, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .sheet,
+  .animate-entrance,
+  .pulse-beacon {
+    animation: none !important;
+  }
+}
+
