@@ -4,7 +4,7 @@
  *  Problem Statement 07 (Fretbox): Resilient Campus Operations & Management
  */
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../lib/api'
 import { useRemote } from '../state/hooks'
@@ -436,6 +436,227 @@ const TECH_STACK = [
   { name: 'Docker & Docker Compose', role: 'Dual deployment shapes: split cloud (Render+Vercel) & self-hosted on-prem' },
 ]
 
+// --- Hero Campus Mesh Radar & Telemetry Components ---
+function HeroCampusMeshVisualizer({ activeNode }: { activeNode: string }) {
+  const nodes = [
+    { id: 'GATE_01', label: 'GATE_01', tag: 'SECURITY', x: 85, y: 75 },
+    { id: 'HOSTEL_03', label: 'HOSTEL_03', tag: 'OUTBOX', x: 115, y: 205 },
+    { id: 'CENTRAL_LAB', label: 'CENTRAL_LAB', tag: 'TECH_WORKSHOP', x: 425, y: 75 },
+    { id: 'CORRIDOR_KIOSK', label: 'KIOSK_B', tag: 'PUBLIC_TERM', x: 435, y: 205 },
+  ]
+
+  return (
+    <svg className="hero-mesh-svg" viewBox="0 0 540 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="radarSweepWedge" cx="270" cy="140" r="140" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stopColor="var(--signal)" stopOpacity="0.32" />
+          <stop offset="65%" stopColor="var(--signal)" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="var(--signal)" stopOpacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* Frame & Technical Backdrop */}
+      <rect x="2" y="2" width="536" height="276" rx="2" fill="var(--surface-sunken)" stroke="var(--line)" strokeWidth="1.5" />
+
+      {/* Blueprint Grid Lines */}
+      <line x1="270" y1="4" x2="270" y2="276" stroke="var(--line-soft)" strokeWidth="1" strokeDasharray="3 3" />
+      <line x1="4" y1="140" x2="536" y2="140" stroke="var(--line-soft)" strokeWidth="1" strokeDasharray="3 3" />
+      <line x1="140" y1="4" x2="140" y2="276" stroke="var(--line-soft)" strokeWidth="0.7" strokeDasharray="1 5" />
+      <line x1="400" y1="4" x2="400" y2="276" stroke="var(--line-soft)" strokeWidth="0.7" strokeDasharray="1 5" />
+
+      {/* Radar Concentric Circles */}
+      <circle cx="270" cy="140" r="45" stroke="var(--line)" strokeWidth="1" strokeDasharray="2 3" />
+      <circle cx="270" cy="140" r="90" stroke="var(--line)" strokeWidth="1" strokeDasharray="3 4" />
+      <circle cx="270" cy="140" r="130" stroke="var(--line)" strokeWidth="1.2" strokeDasharray="4 4" />
+
+      {/* Range Ring Labels */}
+      <text x="274" y="98" fill="var(--muted-ink)" fontSize="6" fontFamily="var(--font-mono)">50m</text>
+      <text x="274" y="53" fill="var(--muted-ink)" fontSize="6" fontFamily="var(--font-mono)">100m</text>
+      <text x="274" y="14" fill="var(--muted-ink)" fontSize="6" fontFamily="var(--font-mono)">150m</text>
+
+      {/* Rotating Radar Scanner Sweep Beam */}
+      <g className="hero-radar-sweep-beam">
+        <line x1="270" y1="140" x2="270" y2="10" stroke="var(--signal)" strokeWidth="1.8" strokeOpacity="0.85" />
+        <path d="M 270 140 L 270 10 A 130 130 0 0 1 362 48 Z" fill="url(#radarSweepWedge)" />
+      </g>
+
+      {/* Data Conduits (Mesh Links) to Core */}
+      {nodes.map((n) => (
+        <g key={`conduit-${n.id}`}>
+          <line x1="270" y1="140" x2={n.x} y2={n.y} stroke="var(--line)" strokeWidth="1.5" />
+          <line
+            x1="270"
+            y1="140"
+            x2={n.x}
+            y2={n.y}
+            stroke={activeNode === n.id ? 'var(--signal)' : 'var(--mint)'}
+            strokeWidth={activeNode === n.id ? '2.2' : '1.5'}
+            className="hero-conduit-stream"
+          />
+        </g>
+      ))}
+
+      {/* Core Node: ADMIN_HQ (Postgres Ledger & Universal State Machine) */}
+      <g>
+        <circle cx="270" cy="140" r="32" stroke="var(--signal)" strokeWidth="1" strokeDasharray="3 3" fill="none" />
+        {activeNode === 'ADMIN_HQ' && (
+          <circle cx="270" cy="140" r="32" className="hero-node-ripple" stroke="var(--signal)" fill="none" />
+        )}
+        <rect
+          x="226"
+          y="118"
+          width="88"
+          height="44"
+          rx="2"
+          fill="var(--surface)"
+          stroke={activeNode === 'ADMIN_HQ' ? 'var(--signal)' : 'var(--line)'}
+          strokeWidth={activeNode === 'ADMIN_HQ' ? '2' : '1.5'}
+        />
+        <rect x="230" y="122" width="80" height="12" rx="1" fill="color-mix(in srgb, var(--signal) 14%, transparent)" />
+        <text x="270" y="131" fill="var(--signal)" fontSize="7" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">
+          CORE STATE MESH
+        </text>
+        <text x="270" y="147" fill="var(--ink)" fontSize="8" fontWeight="800" textAnchor="middle" fontFamily="var(--font-mono)">
+          ADMIN_HQ
+        </text>
+        <text x="270" y="157" fill="var(--mint)" fontSize="6" fontWeight="700" textAnchor="middle" fontFamily="var(--font-mono)">
+          IMMUTABLE LEDGER · 4 AI
+        </text>
+      </g>
+
+      {/* Distributed Campus Nodes */}
+      {nodes.map((n) => {
+        const isSelected = activeNode === n.id
+        return (
+          <g key={n.id}>
+            {isSelected && (
+              <circle cx={n.x} cy={n.y} r="18" className="hero-node-ripple" stroke="var(--signal)" fill="none" />
+            )}
+            <rect
+              x={n.x - 38}
+              y={n.y - 18}
+              width="76"
+              height="36"
+              rx="2"
+              fill="var(--surface)"
+              stroke={isSelected ? 'var(--signal)' : 'var(--line)'}
+              strokeWidth={isSelected ? '2' : '1.2'}
+            />
+            <circle cx={n.x - 28} cy={n.y - 4} r="3" fill={isSelected ? 'var(--signal)' : 'var(--mint)'} />
+            <text
+              x={n.x - 20}
+              y={n.y - 1}
+              fill="var(--ink)"
+              fontSize="7.5"
+              fontWeight="800"
+              fontFamily="var(--font-mono)"
+            >
+              {n.label}
+            </text>
+            <text
+              x={n.x}
+              y={n.y + 11}
+              fill={isSelected ? 'var(--signal)' : 'var(--muted-ink)'}
+              fontSize="6"
+              fontWeight="700"
+              textAnchor="middle"
+              fontFamily="var(--font-mono)"
+            >
+              [{n.tag}]
+            </text>
+          </g>
+        )
+      })}
+
+      {/* Technical HUD Overlay Coordinates */}
+      <text x="12" y="18" fill="var(--muted-ink)" fontSize="6.5" fontFamily="var(--font-mono)">LAT: 20.2961° N · LON: 85.8245° E</text>
+      <text x="12" y="270" fill="var(--muted-ink)" fontSize="6.5" fontFamily="var(--font-mono)">CHANNEL 07 · CARRIER LOCK: VERIFIED</text>
+      <text x="528" y="18" fill="var(--mint)" fontSize="6.5" fontWeight="800" textAnchor="end" fontFamily="var(--font-mono)">MESH: 100% ONLINE</text>
+      <text x="528" y="270" fill="var(--muted-ink)" fontSize="6.5" textAnchor="end" fontFamily="var(--font-mono)">PROTOCOL: HYBRID IP / MESH</text>
+    </svg>
+  )
+}
+
+const HERO_TICKER_EVENTS = [
+  { time: '23:28:02', loc: 'GATE-01', tag: 'PASS.VERIFIED', msg: 'Cryptographic QR pass approved for Student #CR-8821 (114ms)', tone: 'done' as const },
+  { time: '23:28:09', loc: 'HOSTEL-04', tag: 'OUTBOX.QUEUED', msg: 'Water valve fault captured offline in B2 basement · UUIDv4 synced', tone: 'warn' as const },
+  { time: '23:28:15', loc: 'ADMIN-HQ', tag: 'AI.TRIAGE', msg: 'Autonomous triage agent classified HVAC ticket to Priority 1', tone: 'open' as const },
+  { time: '23:28:22', loc: 'LAB-BLOCK', tag: 'STAFF.ACK', msg: 'Technician accepted Switch Port replacement · SLA timer armed (2h)', tone: 'open' as const },
+  { time: '23:28:31', loc: 'KIOSK-02', tag: 'SESSION.PURGE', msg: 'Shared corridor kiosk idle timeout · Zero residual tokens retained', tone: 'done' as const },
+  { time: '23:28:44', loc: 'GATE-02', tag: 'HEADCOUNT', msg: 'Curfew scan sweep active · 42 students outside campus · Logs sealed', tone: 'urgent' as const },
+]
+
+const HERO_STATIONS = {
+  student: {
+    id: 'student',
+    label: 'Student PWA',
+    badge: 'OFFLINE OUTBOX',
+    tone: 'warn' as const,
+    headline: 'Zero-Connectivity Fault Reporting & Live Status',
+    desc: 'Students can scan room QR codes or report campus faults even in deep basement dead zones. Transactions write to the device IndexedDB outbox first, guaranteeing zero data loss, and auto-sync immediately upon reconnect.',
+    specs: [
+      { label: 'Outbox Protocol', value: 'IndexedDB Store & Forward' },
+      { label: 'Idempotency', value: 'UUIDv4 Local Hash Keys' },
+      { label: 'Offline Fallback', value: '100% Native Storage' },
+      { label: 'Scan Access', value: 'Room QR Asset Linking' },
+    ],
+    actionLabel: 'Simulate Offline Ticket Filing',
+    actionFeedback: 'TICKET #CR-9402 STORED IN LOCAL OUTBOX (OFFLINE ⚡)',
+    nodeHighlight: 'HOSTEL_03',
+  },
+  gate: {
+    id: 'gate',
+    label: 'Perimeter Gate Desk',
+    badge: 'HMAC VALIDATOR',
+    tone: 'done' as const,
+    headline: 'Sub-150ms Cryptographic QR Pass Validation',
+    desc: 'Security guards scan digital gate passes and bonafide credentials. Every pass is verified with tamper-proof HMAC-SHA256 signatures, recording exit and return timestamps without paper logbooks or phone calls.',
+    specs: [
+      { label: 'Scan Latency', value: '< 150ms Verification' },
+      { label: 'Signature', value: 'HMAC-SHA256 Signed' },
+      { label: 'Headcount', value: 'Live Real-Time Sync' },
+      { label: 'Audit Mode', value: 'Tamper-Proof Timestamps' },
+    ],
+    actionLabel: 'Simulate QR Gate Pass Scan',
+    actionFeedback: 'PASS #GP-7719 VERIFIED · HEADCOUNT UPDATED [114ms] ✓',
+    nodeHighlight: 'GATE_01',
+  },
+  staff: {
+    id: 'staff',
+    label: 'Staff Field Queue',
+    badge: 'SLA DISPATCH',
+    tone: 'open' as const,
+    headline: 'SLA-Prioritized Technician Task Routing',
+    desc: 'Electricians, plumbers, and network technicians receive tasks sorted by impending SLA breach deadlines. Technicians can log task resolution steps and upload proof photos offline in workshops.',
+    specs: [
+      { label: 'Queue Sorting', value: 'Ascending SLA Deadline' },
+      { label: 'Assignment', value: 'Auto Smart Dispatch' },
+      { label: 'Offline Steps', value: 'Cached Work Orders' },
+      { label: 'Proof Capture', value: 'One-Tap Verification' },
+    ],
+    actionLabel: 'Simulate Rapid Task Dispatch',
+    actionFeedback: 'CR-8821 ASSIGNED TO ELECTRICIAN 1 · SLA CLOCK ARMED ⏱',
+    nodeHighlight: 'CENTRAL_LAB',
+  },
+  admin: {
+    id: 'admin',
+    label: 'Admin Command HQ',
+    badge: 'AI FLEET & LEDGER',
+    tone: 'urgent' as const,
+    headline: 'Unified Campus Governance & 4 Autonomous AI Operators',
+    desc: 'Live cross-hostel visibility, SLA ageing breakdown, and 4 background AI agents that continuously sweep the database for stalled tickets, triage incoming requests, and brief leadership every morning at 06:00.',
+    specs: [
+      { label: 'Persistence', value: 'PostgreSQL 16 Append-Only' },
+      { label: 'AI Fleet', value: '4 Autonomous Operators' },
+      { label: 'Escalations', value: 'Real-Time Webhook Engine' },
+      { label: 'Daily Briefing', value: '06:00 Automated Digest' },
+    ],
+    actionLabel: 'Simulate 60s Anomaly Sweep',
+    actionFeedback: 'SLA SWEEP COMPLETED · 0 UNRESOLVED BREACHES FOUND ✓',
+    nodeHighlight: 'ADMIN_HQ',
+  },
+}
+
 export function LandingPage() {
   const { theme, setTheme } = useTheme()
   const institution = useInstitution()
@@ -443,6 +664,24 @@ export function LandingPage() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [archTier, setArchTier] = useState<'tier1' | 'tier2' | 'tier3'>('tier1')
   const [showOverviewDiagram, setShowOverviewDiagram] = useState(false)
+  const [heroStation, setHeroStation] = useState<keyof typeof HERO_STATIONS>('student')
+  const [simFeedback, setSimFeedback] = useState<string | null>(null)
+  const [tickerIndex, setTickerIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTickerIndex((prev) => (prev + 1) % HERO_TICKER_EVENTS.length)
+    }, 3800)
+    return () => clearInterval(timer)
+  }, [])
+
+  const handleSimulate = (msg: string) => {
+    setSimFeedback(msg)
+    setTimeout(() => {
+      setSimFeedback((curr) => (curr === msg ? null : curr))
+    }, 4500)
+  }
+
   const accounts = useRemote<{ accounts: { role: string; email: string; label: string }[] }>(
     showAccounts ? 'landing-demo-accounts' : null,
     () => api.get('/auth/demo-accounts'),
@@ -562,36 +801,37 @@ export function LandingPage() {
         {/* ------------------------------------------------------------ HERO */}
         <section className="landing-hero animate-entrance">
           <div className="landing-kicker">
-            <Badge tone="warn" className="pulse-beacon">
-              BPUT Hackathon 2026
-            </Badge>
+            <span className="hero-kicker-beacon" aria-hidden="true" />
+            <Badge tone="warn">BPUT Hackathon 2026</Badge>
             <Badge tone="open">PS07 · Fretbox</Badge>
-            <span className="small muted">Crystal Studio Labs</span>
+            <span className="mono tiny bold" style={{ letterSpacing: '0.04em' }}>[SYS.OPERATIONAL // 0% DATA LOSS]</span>
           </div>
 
           <h1 className="landing-title">
-            A resilient operating layer for everyday campus operations.
+            Campus Operations.
+            <span className="title-accent">Engineered for Resilience.</span>
           </h1>
 
           <p className="landing-lede">
-            Maintenance tickets, bonafide certificates, leave gate passes, and emergency notices united into{' '}
+            Maintenance tickets, cryptographically signed gate passes, and emergency notices united into{' '}
             <strong>one universal, auditable case engine</strong>. Built to operate flawlessly in hostel basements
-            with zero cellular signal, high-speed security gates, and central administrative command centres.
+            with zero cellular signal, sub-150ms perimeter security gates, and central administrative command centres.
           </p>
 
           <div className="landing-cta">
-            <Link className="btn btn-primary btn-lg" to="/login">
-              Launch Live Demo
+            <Link className="btn btn-primary btn-lg hero-cta-btn" to="/login">
+              Launch Live Workspaces →
             </Link>
-            <Link className="btn btn-ghost btn-lg" to="/kiosk">
-              Open Kiosk Station
+            <Link className="btn btn-ghost btn-lg hero-cta-btn" to="/kiosk">
+              Open Kiosk Terminal
             </Link>
             <Button
               variant="default"
               size="lg"
+              className="hero-cta-btn"
               onClick={() => setShowAccounts((prev) => !prev)}
             >
-              {showAccounts ? 'Hide Demo Accounts' : 'Inspect Demo Accounts'}
+              {showAccounts ? 'Hide Seeded Accounts' : 'Inspect Seeded Accounts'}
             </Button>
           </div>
 
@@ -628,6 +868,111 @@ export function LandingPage() {
             </div>
           ) : null}
 
+          {/* Real-Time Live Telemetry Stream Ticker */}
+          <div className="hero-ticker-wrap">
+            <div className="hero-ticker-label">
+              <span className="ticker-live-dot" />
+              <span className="mono tiny bold">LIVE MESH TELEMETRY</span>
+            </div>
+            <div className="hero-ticker-content" key={tickerIndex}>
+              <span className="mono tiny muted">[{HERO_TICKER_EVENTS[tickerIndex].time}]</span>
+              <Badge tone={HERO_TICKER_EVENTS[tickerIndex].tone} className="tiny mono">
+                {HERO_TICKER_EVENTS[tickerIndex].loc}
+              </Badge>
+              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>
+                {HERO_TICKER_EVENTS[tickerIndex].tag}
+              </span>
+              <span className="ticker-msg small">{HERO_TICKER_EVENTS[tickerIndex].msg}</span>
+            </div>
+            <div className="hero-ticker-freq mono tiny hide-mobile">
+              FREQ: 433MHz · AES-256
+            </div>
+          </div>
+
+          {/* Large Interactive Hero Operations Console */}
+          <div className="hero-console-frame">
+            {/* Console Header Bar */}
+            <div className="hero-console-header">
+              <div className="console-leds">
+                <span className="console-led red" />
+                <span className="console-led yellow" />
+                <span className="console-led green" />
+              </div>
+              <div className="console-title mono tiny bold">
+                {institution.shortName.toUpperCase()} // DISTRIBUTED OPERATIONS MESH SIMULATOR
+              </div>
+              <div className="console-meta mono tiny hide-mobile">
+                ACTIVE_STATION: {HERO_STATIONS[heroStation].label.toUpperCase()} · LATENCY: 12ms
+              </div>
+            </div>
+
+            {/* Station Selector Bar */}
+            <div className="hero-station-tabs">
+              {Object.values(HERO_STATIONS).map((st) => (
+                <button
+                  key={st.id}
+                  type="button"
+                  className={`hero-station-tab ${heroStation === st.id ? 'is-active' : ''}`}
+                  onClick={() => {
+                    setHeroStation(st.id as keyof typeof HERO_STATIONS)
+                    setSimFeedback(null)
+                  }}
+                >
+                  <span className="hero-station-tab-indicator" />
+                  <span className="hero-station-tab-name">{st.label}</span>
+                  <span className="hero-station-tab-badge mono tiny">{st.badge}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Console Body: Visual + Readout */}
+            <div className="hero-console-body">
+              {/* Left: Animated Radar & Mesh Topology */}
+              <div className="hero-console-visual">
+                <HeroCampusMeshVisualizer activeNode={HERO_STATIONS[heroStation].nodeHighlight} />
+              </div>
+
+              {/* Right: Station Telemetry Readout & Interactive Action */}
+              <div className="hero-console-readout">
+                <div className="console-station-header">
+                  <Badge tone={HERO_STATIONS[heroStation].tone} className="mono small bold">
+                    {HERO_STATIONS[heroStation].badge}
+                  </Badge>
+                  <span className="mono tiny muted">STATION ID: {HERO_STATIONS[heroStation].id.toUpperCase()}_01</span>
+                </div>
+
+                <h3 className="console-station-title">{HERO_STATIONS[heroStation].headline}</h3>
+                <p className="console-station-desc">{HERO_STATIONS[heroStation].desc}</p>
+
+                {/* 4-Specification Matrix */}
+                <div className="console-specs-grid">
+                  {HERO_STATIONS[heroStation].specs.map((spec) => (
+                    <div key={spec.label} className="console-spec-item">
+                      <span className="mono tiny muted">{spec.label}</span>
+                      <span className="mono small bold value">{spec.value}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Simulation Action Trigger */}
+                <div className="console-action-box">
+                  <button
+                    type="button"
+                    className="btn btn-primary btn-sm console-action-btn"
+                    onClick={() => handleSimulate(HERO_STATIONS[heroStation].actionFeedback)}
+                  >
+                    ⚡ {HERO_STATIONS[heroStation].actionLabel}
+                  </button>
+                  {simFeedback && (
+                    <div className="console-action-feedback animate-entrance mono tiny bold">
+                      {simFeedback}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Hero Proof Metrics Strip */}
           <div className="hero-proof-strip">
             <div className="proof-item">
@@ -636,76 +981,19 @@ export function LandingPage() {
               <span className="proof-desc">Store-and-forward IndexedDB</span>
             </div>
             <div className="proof-item">
-              <span className="proof-value">&lt;150ms</span>
+              <span className="proof-value">&lt; 150ms</span>
               <span className="proof-label">QR GATE VERIFY</span>
               <span className="proof-desc">HMAC cryptographic passes</span>
             </div>
             <div className="proof-item">
-              <span className="proof-value">100%</span>
-              <span className="proof-label">AUDITABLE</span>
-              <span className="proof-desc">Append-only event ledger</span>
+              <span className="proof-value">7-STAGE</span>
+              <span className="proof-label">CORE MACHINE</span>
+              <span className="proof-desc">Atomic SLA transition guards</span>
             </div>
             <div className="proof-item">
-              <span className="proof-value">8 STATIONS</span>
-              <span className="proof-label">TAILORED WORKSPACES</span>
-              <span className="proof-desc">Student, Staff, Warden, Gate</span>
-            </div>
-          </div>
-
-          {/* Live Preview Plate */}
-          <div className="hero-visual" aria-hidden="true" style={{ marginTop: 32 }}>
-            <div className="hero-visual-bar">
-              <span className="hero-dot" />
-              <span className="hero-dot" />
-              <span className="hero-dot" />
-              <span className="hero-visual-title">
-                {institution.shortName} · Operations Command Centre
-              </span>
-            </div>
-            <div className="hero-visual-body">
-              <div className="hero-rail">
-                <div className="hero-rail-item is-active">Overview</div>
-                <div className="hero-rail-item">Queue (24)</div>
-                <div className="hero-rail-item">Approvals (6)</div>
-                <div className="hero-rail-item">Gate Logs (18)</div>
-                <div className="hero-rail-item">Notice Studio</div>
-                <div className="hero-rail-item">Audit Trail</div>
-              </div>
-              <div className="hero-panel">
-                <div className="hero-metrics">
-                  <div className="hero-metric">
-                    <div className="hero-metric-value">24</div>
-                    <div className="hero-metric-label">Active Cases</div>
-                  </div>
-                  <div className="hero-metric">
-                    <div className="hero-metric-value" style={{ color: 'var(--status-warn)' }}>3</div>
-                    <div className="hero-metric-label">SLA At Risk</div>
-                  </div>
-                  <div className="hero-metric">
-                    <div className="hero-metric-value" style={{ color: 'var(--status-done)' }}>96.4%</div>
-                    <div className="hero-metric-label">Resolution Rate</div>
-                  </div>
-                  <div className="hero-metric">
-                    <div className="hero-metric-value" style={{ color: 'var(--signal)' }}>100%</div>
-                    <div className="hero-metric-label">Audit Verifiable</div>
-                  </div>
-                </div>
-                <div className="hero-row">
-                  <span className="mono tiny bold">CR-2026-0142</span>
-                  <span className="truncate small grow">Hostel 3 · Water Cooler Compressor Tripped</span>
-                  <Badge tone="warn">SLA &lt; 2h</Badge>
-                </div>
-                <div className="hero-row">
-                  <span className="mono tiny bold">CR-2026-0143</span>
-                  <span className="truncate small grow">Lab B-12 · Network Switch Port 14 Down</span>
-                  <Badge tone="open">Assigned</Badge>
-                </div>
-                <div className="hero-row">
-                  <span className="mono tiny bold">CR-2026-0144</span>
-                  <span className="truncate small grow">Leave Gate Pass · Overnight Medical Verification</span>
-                  <Badge tone="done">Warden Approved</Badge>
-                </div>
-              </div>
+              <span className="proof-value">100%</span>
+              <span className="proof-label">AUDITABLE</span>
+              <span className="proof-desc">PostgreSQL 16 immutable ledger</span>
             </div>
           </div>
         </section>
