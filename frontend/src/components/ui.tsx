@@ -7,6 +7,7 @@
 
 import type { CSSProperties, ReactNode } from 'react'
 import { useEffect, useId, useRef } from 'react'
+import { usePageMeta } from '../lib/seo'
 
 export type Tone =
   | 'open'
@@ -93,6 +94,11 @@ export function PageHeader({
   kicker?: ReactNode
   guide?: string
 }) {
+  usePageMeta({
+    title: typeof title === 'string' ? title : undefined,
+    subtitle: typeof subtitle === 'string' ? subtitle : undefined,
+  })
+
   return (
     <header className="page-head" data-guide={guide}>
       <div className="grow">

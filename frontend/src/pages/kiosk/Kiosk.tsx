@@ -20,6 +20,7 @@ import { KioskShell } from '../../layouts/KioskShell'
 import { CaseStatusBadge, PriorityBadge } from '../../components/StatusChip'
 import { useLanguage } from '../../lib/i18n'
 import { useKioskSection } from '../../lib/kioskSection'
+import { usePageMeta } from '../../lib/seo'
 import type { CaseBrief } from '../../lib/types'
 
 interface KioskService {
@@ -56,6 +57,10 @@ const QUICK_TEST_ROLLS = [
 ]
 
 export function KioskPage() {
+  usePageMeta({
+    title: 'Self-Service Corridor Kiosk',
+    description: 'Touchscreen self-service station for campus grievances, hostel repairs, and leave pass status.',
+  })
   const navigate = useNavigate()
   const { t, language } = useLanguage()
   const { section } = useKioskSection()

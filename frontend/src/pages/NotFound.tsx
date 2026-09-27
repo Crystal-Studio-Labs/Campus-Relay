@@ -10,8 +10,13 @@ import { useSession } from '../state/session'
 import { useInstitution } from '../state/institution'
 import { useTheme, THEME_OPTIONS } from '../state/theme'
 import { Badge, Button } from '../components/ui'
+import { usePageMeta } from '../lib/seo'
 
 export function NotFound() {
+  usePageMeta({
+    title: '404 Route Unmapped',
+    description: 'Target station unreachable or decommissioned. Return to operational station or open self-service kiosk.',
+  })
   const location = useLocation()
   const navigate = useNavigate()
   const { status, profile } = useSession()

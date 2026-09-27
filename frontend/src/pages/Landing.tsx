@@ -12,6 +12,7 @@ import { useTheme, THEME_OPTIONS } from '../state/theme'
 import { useInstitution } from '../state/institution'
 import { Badge, Button } from '../components/ui'
 import { MasterFooter } from '../components/Footer'
+import { usePageMeta } from '../lib/seo'
 
 // --- High-fidelity SVG Icons for Industrial Brutalism ---
 function IconAlert() {
@@ -658,6 +659,10 @@ const HERO_STATIONS = {
 }
 
 export function LandingPage() {
+  usePageMeta({
+    title: 'Resilient Campus Operations Platform',
+    description: 'A resilient operating layer for everyday campus operations: universal case engine, cryptographic gate passes, offline-first sync, and auditable trails.',
+  })
   const { theme, setTheme } = useTheme()
   const institution = useInstitution()
   const [showAccounts, setShowAccounts] = useState(false)

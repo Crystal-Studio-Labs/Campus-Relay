@@ -22,6 +22,7 @@ import { useTheme } from '../state/theme'
 import { Badge, Button, Field, TextInput } from '../components/ui'
 import { THEME_OPTIONS } from '../state/theme'
 import { useKioskSection } from '../lib/kioskSection'
+import { usePageMeta } from '../lib/seo'
 import type { Profile, RoleKey } from '../lib/types'
 
 interface DemoAccount {
@@ -185,6 +186,10 @@ export function landingFor(profile: Profile, mode: DeviceMode): string {
 }
 
 export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'kiosk' | 'desk' }) {
+  usePageMeta({
+    title: variant === 'kiosk' ? 'Kiosk Operator Sign In' : variant === 'desk' ? 'Helpdesk Staff Sign In' : 'Sign In',
+    description: 'Secure sign-in station for students, wardens, security guards, technicians, and campus administrators.',
+  })
   const { login, logout, status } = useSession()
   const institution = useInstitution()
   const navigate = useNavigate()
