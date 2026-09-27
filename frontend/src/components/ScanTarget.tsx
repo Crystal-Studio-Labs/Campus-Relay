@@ -110,7 +110,7 @@ export function ScanTarget({
           ref={videoRef}
           playsInline
           muted
-          style={{ width: '100%', marginTop: 12, border: '3px solid var(--ink)', borderRadius: 6 }}
+          style={{ width: '100%', marginTop: 12, border: '3px solid var(--ink)', borderRadius: 'var(--radius-sm)' }}
         />
       ) : null}
     </Card>

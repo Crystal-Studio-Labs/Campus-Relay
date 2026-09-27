@@ -70,21 +70,18 @@
       })()
     </script>
     <style>
-      /* Paint something meaningful before the bundle arrives. On a hostel
-         connection the first frame matters more than the framework, so this
-         shell mirrors the bright-institutional look: a soft white card on a
-         calm blue-grey page, scrolled by the theme chosen above. */
+      /* Decisive Brutalist Boot Screen */
       html,
       body {
         margin: 0;
-        background: #f4f6fb;
+        background: #f8fafc;
         color: #0f172a;
-        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+        font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
       }
       html[data-theme='dark'],
       html[data-theme='dark'] body {
-        background: #0b1220;
-        color: #e6ebf3;
+        background: #090d14;
+        color: #f1f5f9;
       }
       #boot {
         min-height: 100vh;
@@ -96,37 +93,42 @@
       #boot .mark {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         background: #ffffff;
         color: #0f172a;
-        font-weight: 700;
+        font-weight: 800;
         font-size: 15px;
-        padding: 14px 20px;
-        border-radius: 16px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 12px 34px rgba(15, 23, 42, 0.12);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        padding: 12px 20px;
+        border-radius: 2px;
+        border: 2px solid #334155;
+        box-shadow: 3px 3px 0px #0f172a;
       }
       #boot .mark::before {
         content: '';
-        width: 30px;
-        height: 30px;
-        border-radius: 9px;
-        background: linear-gradient(140deg, #2563eb, #047857);
+        width: 14px;
+        height: 14px;
+        border-radius: 2px;
+        background: #1d4ed8;
+        border: 1.5px solid #0f172a;
       }
       html[data-theme='dark'] #boot .mark {
-        background: #121a2a;
-        color: #e6ebf3;
-        border-color: #26324a;
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+        background: #111723;
+        color: #f1f5f9;
+        border-color: #2e3b52;
+        box-shadow: 3px 3px 0px #000000;
       }
       #boot p {
         margin: 18px 0 0;
-        font-weight: 500;
-        font-size: 15px;
-        color: #55657f;
+        font-weight: 700;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #475569;
       }
       html[data-theme='dark'] #boot p {
-        color: #9aa8bf;
+        color: #94a3b8;
       }
     </style>
   </head>

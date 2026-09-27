@@ -68,7 +68,7 @@ export function NotificationRow({
   onMarkRead?: () => void
 }) {
   return (
-    <Card as="li" className={item.is_read ? undefined : 'tint-sky'}>
+    <Card as="li" accent={item.is_read ? undefined : 'signal'}>
       <div className="row-between" style={{ alignItems: 'flex-start' }}>
         <div className="grow" style={{ minWidth: 0 }}>
           <div className="row wrap" style={{ gap: 6 }}>

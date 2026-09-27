@@ -83,32 +83,33 @@ export interface SkinDefinition {
 
 export const SKINS: SkinDefinition[] = [
   {
+    id: 'industrial',
+    name: 'Industrial Brutalism (Blueprint)',
+    status: 'shipped',
+    summary: 'Squared plates, engineering-paper grid, hazard markings, tactile offset, stencilled labels.',
+    characteristics: [
+      'Squared corners (2px) and 2-3px hard rules with zero soft pill curves',
+      'Tactile drop shadows and physical plate offset lift',
+      'A faint engineering-paper grid behind the page and a rule under every panel head',
+      'Hazard marking reserved for brand plate, live and urgent states',
+      'Uppercase stencilled labels for fields, tables and section titles',
+      'Identifiers (case numbers, asset codes) set in a tabular monospace face',
+    ],
+    requestedBy: 'Campus Relay primary design language — authentic industrial brutalism for high-reliability campus operations.',
+  },
+  {
     id: 'modern',
     name: 'Modern institutional',
     status: 'shipped',
-    summary: 'Soft elevation, generous whitespace, one confident blue, sentence-case labels.',
+    summary: 'High-contrast institutional interface with sentence-case labels.',
     characteristics: [
-      'Rounded surfaces with soft elevation instead of hard plate edges',
-      'A calm blue for action, green for done, amber for attention — colour never alone',
+      'Squared surfaces with clean institutional structure',
+      'A calm blue for action, green for done, amber for attention',
       'Sentence-case labels and larger headings for easy scanning',
       'Generous spacing and a comfortable reading measure',
       'Reads as trustworthy to a registrar and familiar to a student',
     ],
-    requestedBy: 'Campus Relay default — built to be shown to decision-makers and used by students daily.',
-  },
-  {
-    id: 'industrial',
-    name: 'Engineering blueprint',
-    status: 'shipped',
-    summary: 'Squared plates, engineering-paper grid, hazard markings, stencilled labels.',
-    characteristics: [
-      'Squared corners and 1-3px hard rules instead of soft elevation',
-      'A faint engineering-paper grid behind the page and a rule under every panel head',
-      'Hazard-yellow marking reserved for the brand plate and live/urgent states',
-      'Uppercase stencilled labels for fields, tables and section titles',
-      'Identifiers (case numbers, asset codes) set in a tabular monospace face',
-    ],
-    requestedBy: 'Deployments that want a technical, drawing-sheet feel on shared desks and projectors.',
+    requestedBy: 'Institutional administrative desks and standard reporting views.',
   },
   {
     id: 'govt-portal',

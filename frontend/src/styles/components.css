@@ -100,9 +100,10 @@
 }
 .card-title {
   margin: 0;
+  font-family: var(--font-mono);
   font-size: var(--fs-md);
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 .card-meta {
   display: flex;
@@ -137,8 +138,8 @@
   box-shadow: var(--shadow-sm);
   text-align: start;
   cursor: pointer;
-  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-base) ease-out,
-    border-color var(--motion-base) ease-out;
+  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out,
+    border-color var(--motion-fast) ease-out;
 }
 @media (min-width: 720px) {
   .case-row {
@@ -147,9 +148,9 @@
   }
 }
 .case-row:hover {
-  transform: translateY(-1px);
+  transform: translate(-1.5px, -1.5px);
   box-shadow: var(--shadow-lg);
-  border-color: color-mix(in srgb, var(--signal) 35%, var(--line));
+  border-color: var(--ink);
 }
 .case-row:focus-visible {
   outline: var(--focus-ring);
@@ -163,9 +164,10 @@
 }
 .case-row-title {
   margin: 6px 0 0;
+  font-family: var(--font-mono);
   font-size: var(--fs-md);
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
 .case-row-meta {
   display: grid;
@@ -179,12 +181,17 @@
   min-width: 0;
 }
 .case-meta-label {
-  font-size: var(--fs-xs);
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--muted-ink);
 }
 .case-meta-value {
+  font-family: var(--font-mono);
   font-size: var(--fs-sm);
+  font-weight: 700;
   color: var(--ink);
 }
 .case-row-side {
@@ -213,11 +220,14 @@
   justify-content: space-between;
   gap: var(--sp-2);
   padding: 0 var(--sp-1);
-  font-size: var(--fs-sm);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--muted-ink);
 }
 .results-count {
-  font-weight: 600;
+  font-weight: 800;
   color: var(--ink);
 }
 
@@ -239,16 +249,18 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-2) var(--sp-3);
-  padding: var(--sp-4);
+  padding: var(--sp-3) var(--sp-4);
   background: var(--panel-head-bg);
   color: var(--panel-head-ink);
-  border-bottom: var(--rule-w) solid var(--line-soft);
+  border-bottom: var(--rule-w) solid var(--line);
   min-height: 0;
 }
 .panel-title {
-  font-size: var(--fs-md);
-  font-weight: 700;
-  letter-spacing: var(--title-tracking);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin: 0;
 }
 .panel-sub {
@@ -292,9 +304,11 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  font-size: var(--fs-md);
-  font-weight: 700;
-  letter-spacing: var(--title-tracking);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   margin-bottom: var(--sp-2);
 }
 
@@ -313,13 +327,17 @@
   min-width: 0;
 }
 .metric-label {
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   color: var(--muted-ink);
 }
 .metric-value {
+  font-family: var(--font-mono);
   font-size: clamp(1.8rem, 4vw, var(--fs-2xl));
-  font-weight: 800;
+  font-weight: 900;
   line-height: 1.05;
   letter-spacing: var(--tracking-tight);
   font-variant-numeric: tabular-nums;
@@ -393,25 +411,29 @@
   box-shadow: var(--shadow-sm);
 }
 .banner-offline {
-  background: var(--sun);
-  color: var(--on-block);
+  background: var(--surface);
+  color: var(--ink);
+  border-inline-start: 5px solid var(--sun);
 }
 .banner-error {
-  background: var(--danger);
-  color: var(--on-danger);
+  background: var(--surface);
+  color: var(--ink);
+  border-inline-start: 5px solid var(--danger);
 }
 .banner-info {
-  background: var(--sky);
-  color: var(--on-block);
+  background: var(--surface);
+  color: var(--ink);
+  border-inline-start: 5px solid var(--signal);
 }
 .banner-agent {
-  background: var(--lilac);
-  color: var(--on-block);
+  background: var(--surface);
+  color: var(--ink);
+  border-inline-start: 5px solid var(--lilac);
 }
 .banner-demo {
-  background: var(--ink);
-  color: var(--paper);
-  box-shadow: none;
+  background: var(--surface-alt);
+  color: var(--ink);
+  border-inline-start: 5px solid var(--line);
 }
 
 /* ============================= 2. BUTTONS ============================== */
@@ -423,15 +445,15 @@
   gap: var(--sp-2);
   min-height: var(--touch-min);
   padding: var(--sp-2) var(--sp-4);
-  font-family: inherit;
-  font-size: var(--fs-base);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
   font-weight: 800;
   line-height: 1.25;
   text-align: center;
   white-space: normal;
   text-decoration: none;
-  /* The default button is a quiet surface button: ink on surface. Filled
-     variants below set their own copy colour and clear the ink. */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   color: var(--ink);
   background: var(--surface);
   border: var(--border-w) solid var(--line);
@@ -442,57 +464,67 @@
 }
 /* Hover raises the plate; press drives it flat into the page. */
 .btn:hover:not(:disabled):not([aria-disabled='true']) {
-  transform: translate(-1px, -1px);
+  transform: translate(-1.5px, -1.5px);
   box-shadow: var(--shadow);
+  border-color: var(--ink);
 }
 .btn:active:not(:disabled):not([aria-disabled='true']) {
-  transform: translate(1.5px, 1.5px);
-  box-shadow: 0px 0px 0px var(--shadow-ink, #000000);
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px;
 }
 .btn:disabled,
 .btn[aria-disabled='true'] {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
   box-shadow: none;
+  transform: none;
 }
 
 .btn-primary {
   background: var(--signal);
   color: var(--on-block);
-  border-color: transparent;
+  border: var(--border-w) solid var(--shadow-ink);
+  box-shadow: var(--shadow);
 }
 .btn-attention {
   background: var(--sun);
   color: var(--on-block);
-  border-color: transparent;
+  border: var(--border-w) solid var(--shadow-ink);
+  box-shadow: var(--shadow-sm);
 }
 .btn-success {
   background: var(--mint);
   color: var(--on-block);
-  border-color: transparent;
+  border: var(--border-w) solid var(--shadow-ink);
+  box-shadow: var(--shadow-sm);
 }
 .btn-info {
   background: var(--sky);
   color: var(--on-block);
-  border-color: transparent;
+  border: var(--border-w) solid var(--shadow-ink);
+  box-shadow: var(--shadow-sm);
 }
 .btn-agent {
   background: var(--lilac);
   color: var(--on-block);
-  border-color: transparent;
+  border: var(--border-w) solid var(--shadow-ink);
+  box-shadow: var(--shadow-sm);
 }
 .btn-danger {
   background: var(--danger);
   color: var(--on-danger);
+  border: var(--border-w) solid var(--shadow-ink);
+  box-shadow: var(--shadow-sm);
 }
 .btn-ghost {
   background: transparent;
   color: var(--ink);
-  border-color: transparent;
+  border: var(--border-w) solid transparent;
   box-shadow: none;
 }
 .btn-ghost:hover:not(:disabled) {
   background: var(--surface-alt);
+  border-color: var(--line);
   box-shadow: var(--shadow-sm);
 }
 .btn-block {
@@ -500,20 +532,20 @@
 }
 .btn-lg {
   min-height: var(--touch-large);
-  font-size: var(--fs-md);
+  font-size: var(--fs-sm);
   padding: var(--sp-3) var(--sp-5);
 }
 .btn-xl {
   min-height: var(--touch-huge);
-  font-size: var(--fs-lg);
+  font-size: var(--fs-base);
   padding: var(--sp-4) var(--sp-6);
   border-width: var(--border-w-fat);
   box-shadow: var(--shadow);
 }
 .btn-sm {
-  min-height: 38px;
+  min-height: 34px;
   padding: var(--sp-1) var(--sp-3);
-  font-size: var(--fs-sm);
+  font-size: 11px;
   box-shadow: var(--shadow-sm);
 }
 .btn-icon {
@@ -523,21 +555,24 @@
 
 /* ========================== 3. CHIPS AND TAGS ========================== */
 
-/* A chip is a soft pill that always carries its word, because colour alone
-   never communicates state here. */
+/* Industrial Brutalism Badges: Sharp, technical, uppercase monospace tags */
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px var(--sp-2);
-  font-size: var(--fs-xs);
-  font-weight: 600;
-  line-height: 1.4;
+  gap: 5px;
+  padding: 2px 7px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
   border: var(--border-w-thin) solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--surface-alt);
   color: var(--ink);
   white-space: nowrap;
+  box-shadow: 1px 1px 0px var(--shadow-ink);
 }
 .badge-block,
 .badge-square {
@@ -545,38 +580,47 @@
 }
 .badge-ghost {
   background: transparent;
+  box-shadow: none;
 }
 .badge-open {
   background: var(--status-open);
-  color: var(--on-block);
+  color: #ffffff;
+  border-color: var(--status-open);
 }
 .badge-progress {
   background: var(--status-progress);
   color: var(--on-block);
+  border-color: var(--status-progress);
 }
 .badge-blocked {
   background: var(--status-blocked);
-  color: var(--on-block);
+  color: #ffffff;
+  border-color: var(--status-blocked);
 }
 .badge-done {
   background: var(--status-done);
   color: var(--on-block);
+  border-color: var(--status-done);
 }
 .badge-dead {
   background: var(--status-dead);
-  color: var(--on-danger);
+  color: #ffffff;
+  border-color: var(--status-dead);
 }
 .badge-urgent {
   background: var(--status-urgent);
   color: var(--on-danger);
+  border-color: var(--status-urgent);
 }
 .badge-warn {
   background: var(--status-warn);
   color: var(--on-block);
+  border-color: var(--status-warn);
 }
 .badge-agent {
   background: var(--lilac);
-  color: var(--on-block);
+  color: #ffffff;
+  border-color: var(--lilac);
 }
 
 /* A tag is a chip you can act on (a filter, a selected target). */
@@ -718,7 +762,7 @@ table.data tr:last-child td {
   border-bottom: none;
 }
 table.data tbody tr:hover {
-  background: color-mix(in srgb, var(--signal) 7%, transparent);
+  background: var(--surface-alt);
 }
 
 /* A dense table becomes a stack of labelled records on a phone, because
@@ -849,39 +893,44 @@ table.data tbody tr:hover {
 
 /* =============================== 8. TABS ============================== */
 
-/* Tabs are a soft segmented control: an inset tray with the active tab lifted
-   out of it, so the current section is obvious at a glance. */
+/* Tabs: Precision mechanical segmented control with zero pills */
 .tabs {
   display: inline-flex;
-  gap: 2px;
+  gap: 3px;
   padding: 3px;
   max-width: 100%;
   overflow-x: auto;
   border: var(--border-w) solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--surface-alt);
+  box-shadow: var(--shadow-sm);
   margin-bottom: var(--sp-4);
 }
 .tab {
   flex: 0 0 auto;
-  min-height: 40px;
+  min-height: 36px;
   padding: var(--sp-2) var(--sp-4);
-  font-size: var(--fs-sm);
-  font-weight: 600;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
   white-space: nowrap;
   background: transparent;
-  border: none;
-  border-radius: var(--radius-pill);
+  border: var(--border-w-thin) solid transparent;
+  border-radius: var(--radius-sm);
   color: var(--muted-ink);
   cursor: pointer;
   transition: background var(--motion-fast) ease-out, color var(--motion-fast) ease-out;
 }
 .tab:hover {
   color: var(--ink);
+  background: var(--surface);
 }
 .tab[aria-selected='true'] {
-  color: var(--signal);
+  color: var(--ink);
   background: var(--surface);
+  border-color: var(--line);
   box-shadow: var(--shadow-sm);
 }
 
@@ -890,9 +939,10 @@ table.data tbody tr:hover {
 .bar {
   height: 10px;
   border: var(--border-w-thin) solid var(--line);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: var(--surface-alt);
   overflow: hidden;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 .bar > span {
   display: block;
@@ -954,8 +1004,9 @@ table.data tbody tr:hover {
 .tint-sky,
 .tint-sky .muted,
 .tint-sky .hint {
-  background: var(--sky);
-  color: var(--on-block);
+  background: var(--surface);
+  color: var(--ink);
+  border-inline-start: 4px solid var(--sky);
 }
 .tint-lilac,
 .tint-lilac .muted,

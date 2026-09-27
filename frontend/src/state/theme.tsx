@@ -25,6 +25,7 @@ import {
   THEME_OPTIONS,
   isThemeId,
   resolveSkin,
+  shippedSkins,
   themeMeta,
   type TextId,
   type ThemeId,
@@ -130,9 +131,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [text, setTextState] = useState<TextChoice>(
     () => readStored<TextChoice>(TEXT_KEY, ['normal', 'large']) ?? 'normal',
   )
-  const [skin, setSkinState] = useState<string>(() =>
-    resolveSkin(readStored<string>(SKIN_KEY, [appearance.skin, DEFAULT_SKIN]) ?? appearance.skin),
-  )
+  const [skin, setSkinState] = useState<string>(() => {
+    const raw = readStored<string>(SKIN_KEY, shippedSkins().map((s) => s.id))
+    if (!raw || raw === 'modern') return DEFAULT_SKIN
+    return resolveSkin(raw)
+  })
   const [density, setDensityState] = useState<DensityChoice>(
     () => readStored<DensityChoice>(DENSITY_KEY, ['comfortable', 'compact']) ?? 'comfortable',
   )

@@ -135,7 +135,7 @@ export const DEFAULT_INSTITUTION: InstitutionConfig = {
   academics: { term_label: 'Current term', timezone: 'Asia/Kolkata', week_starts_on: 'monday' },
   localisation: { default_language: 'en', languages: ['en'] },
   appearance: {
-    skin: 'modern',
+    skin: 'industrial',
     default_theme: 'device',
     allow_user_theme_override: true,
     accent: null,

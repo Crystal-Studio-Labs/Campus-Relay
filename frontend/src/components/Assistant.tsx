@@ -98,8 +98,8 @@ export function AssistantPanel({ compact }: { compact?: boolean }) {
 
       {thread.map((entry, index) =>
         entry.role === 'you' ? (
-          <Card key={index} className="tint-sky">
-            <div className="tiny bold">You</div>
+          <Card key={index} accent="signal" className="card-flat">
+            <div className="stencil" style={{ color: 'var(--signal)', marginBottom: 4 }}>You</div>
             <div>{entry.text}</div>
           </Card>
         ) : (
