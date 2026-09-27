@@ -1,16 +1,45 @@
-# 🏛️ Campus Relay
+<p align="center">
+  <img src="docs/assets/app-icon.jpg" alt="Campus Relay Logo" width="130" style="border-radius: 26px; box-shadow: 0 12px 32px rgba(0,0,0,0.18);" />
+</p>
 
-> **A resilient operating layer for everyday campus operations.**  
-> *Developed by **Crystal Studio Labs** for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
+<h1 align="center">🏛️ Campus Relay</h1>
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.115+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_16-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![React](https://img.shields.io/badge/Frontend-React_18_PWA-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript_5-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Bundler-Vite_5-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
-[![Design](https://img.shields.io/badge/Design-Bright_Institutional-2563EB.svg?style=for-the-badge&logoColor=white)](#frontend-design-system--bright-institutional)
-[![Offline](https://img.shields.io/badge/Storage-Local--First_IndexedDB-success.svg?style=for-the-badge)](#offline-first-architecture--synchronization)
-[![License](https://img.shields.io/badge/License-Proprietary_Evaluation-amber.svg?style=for-the-badge)](#contact--support)
+<p align="center">
+  <strong>A resilient operating layer for everyday campus operations.</strong><br>
+  <em>Engineered by <strong>Crystal Studio Labs</strong> for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)</em>
+</p>
+
+<p align="center">
+  <!-- Core Stack Badges -->
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python" /></a>
+  <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" /></a>
+  <a href="https://www.sqlalchemy.org"><img src="https://img.shields.io/badge/SQLAlchemy-2.0-D71F00.svg?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" /></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18_PWA-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.0-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://vitejs.dev"><img src="https://img.shields.io/badge/Vite-5.0-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
+  <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
+</p>
+
+<p align="center">
+  <!-- Architecture & Operational Badges -->
+  <a href="#offline-first-architecture--synchronization"><img src="https://img.shields.io/badge/Storage-Local--First_IndexedDB-10B981.svg?style=for-the-badge&logo=pwa&logoColor=white" alt="Offline First" /></a>
+  <a href="#offline-first-architecture--synchronization"><img src="https://img.shields.io/badge/Sync-Idempotent_Outbox-2563EB.svg?style=for-the-badge&logo=git&logoColor=white" alt="Sync" /></a>
+  <a href="#role-based-access-control-rbac--pre-configured-demo-accounts"><img src="https://img.shields.io/badge/Security-Zero--Trust_RBAC-F59E0B.svg?style=for-the-badge&logo=auth0&logoColor=white" alt="Security" /></a>
+  <a href="#architectural-philosophy"><img src="https://img.shields.io/badge/Audit-Trigger--Enforced_Ledger-DC2626.svg?style=for-the-badge&logo=securityscorecard&logoColor=white" alt="Audit" /></a>
+  <a href="#workflow-c-leave-approval-digital-gate-pass--anti-passback"><img src="https://img.shields.io/badge/Gate-Anti--Passback-7C3AED.svg?style=for-the-badge&logo=shield&logoColor=white" alt="Anti-Passback" /></a>
+  <a href="#controlled-ai-agents--operations-layer"><img src="https://img.shields.io/badge/AI_Agents-Tool--Sandboxed-4338CA.svg?style=for-the-badge&logo=openai&logoColor=white" alt="AI Agents" /></a>
+</p>
+
+<p align="center">
+  <!-- UX, Standards & Governance Badges -->
+  <a href="#frontend-design-system--bright-institutional"><img src="https://img.shields.io/badge/Design-Bright_Institutional-0EA5E9.svg?style=for-the-badge&logo=figma&logoColor=white" alt="Design" /></a>
+  <a href="#frontend-design-system--bright-institutional"><img src="https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-059669.svg?style=for-the-badge&logo=w3c&logoColor=white" alt="Accessibility" /></a>
+  <a href="#configuration-reference"><img src="https://img.shields.io/badge/i18n-EN_%7C_OR_%7C_HI-D97706.svg?style=for-the-badge&logo=googletranslate&logoColor=white" alt="i18n" /></a>
+  <a href="https://bput.ac.in"><img src="https://img.shields.io/badge/BPUT_Hackathon-2026_PS07-1E3A8A.svg?style=for-the-badge&logo=target&logoColor=white" alt="Hackathon" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/badge/Studio-Crystal_Studio_Labs-111827.svg?style=for-the-badge&logo=github&logoColor=white" alt="Crystal Studio Labs" /></a>
+  <a href="mailto:connect.crystalstudio@gmail.com"><img src="https://img.shields.io/badge/Email-connect.crystalstudio%40gmail.com-EA4335.svg?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
+</p>
 
 ---
 
@@ -32,7 +61,8 @@
 12. [Configuration Reference](#configuration-reference)
 13. [End-to-End Automated Verification Suite](#end-to-end-automated-verification-suite)
 14. [API Surface & Interactive Documentation](#api-surface--interactive-documentation)
-15. [Contact & Support](#contact--support)
+15. [Star History](#-star-history)
+16. [Contact & Support](#contact--support)
 
 ---
 
@@ -55,7 +85,7 @@ Campus Relay is built on foundational architectural principles designed to survi
 
 ```mermaid
 flowchart LR
-    REQ[REQUEST] --> CASE[CASE]
+    REQ([REQUEST]) --> CASE([CASE])
     CASE --> POL[POLICY]
     POL --> WF[WORKFLOW]
     WF --> APP[APPROVAL]
@@ -185,7 +215,7 @@ sequenceDiagram
     IDB->>API: Background sync worker replays mutation batch
     API->>DB: Check idempotency key in sync_operations
     alt New Operation
-        API->>DB: Execute transaction & save audit trail
+        API->>DB: Execute transaction & save audit record
         DB-->>API: Commit successful
         API-->>IDB: Return status 200 (SYNCED)
         IDB->>PWA: Mark complete & update cache
@@ -365,6 +395,7 @@ Campus-Relay/
 │   └── institution.json       # Config template a college edits (identity, skin, vocabulary, features)
 ├── docs/
 │   ├── README.md              # Central documentation hub
+│   ├── assets/                # App icon, social previews, architecture diagrams
 │   ├── architecture/          # Modular monolith architecture, data models, workflows, offline sync
 │   ├── guides/                # Adoption plan, setup guide, demo script, competitive gaps
 │   ├── specifications/        # Configuration schema, theme specifications, UI design tokens, API docs
@@ -597,6 +628,16 @@ Once the backend is started, explore the full OpenAPI specification and test end
   [`http://127.0.0.1:8000/openapi.json`](http://127.0.0.1:8000/openapi.json)
 - **System Health Endpoint**:  
   [`http://127.0.0.1:8000/api/v1/health`](http://127.0.0.1:8000/api/v1/health)
+
+---
+
+## 🌟 Star History
+
+<p align="center">
+  <a href="https://star-history.com/#Crystal-Studio-Labs/Campus-Relay&Date">
+    <img src="https://api.star-history.com/svg?repos=Crystal-Studio-Labs/Campus-Relay&type=Date" alt="Campus Relay Star History Chart" width="100%" style="max-width: 820px;" />
+  </a>
+</p>
 
 ---
 
