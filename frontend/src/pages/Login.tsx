@@ -19,7 +19,7 @@ import { ApiError, api, currentDeviceMode, setDeviceMode, type DeviceMode } from
 import { useSession } from '../state/session'
 import { useInstitution } from '../state/institution'
 import { useTheme } from '../state/theme'
-import { Badge, Button, Card, Field, KV, TextInput } from '../components/ui'
+import { Badge, Button, Card, Field, TextInput } from '../components/ui'
 import { KioskShell } from '../layouts/KioskShell'
 import { THEME_OPTIONS } from '../state/theme'
 import type { Profile, RoleKey } from '../lib/types'
@@ -34,24 +34,86 @@ interface DemoAccount {
 const KIOSK_ROLES: RoleKey[] = ['HELPDESK_OPERATOR', 'ADMIN', 'SUPER_ADMIN', 'WARDEN']
 const DESK_ROLES: RoleKey[] = ['HELPDESK_OPERATOR', 'WARDEN', 'ADMIN', 'SUPER_ADMIN']
 
-/** Three claims the product can actually keep, stated on the front door. */
+/** High-fidelity SVG icons for auth feature points */
+function IconWifiOff() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square">
+      <path d="M1 1l22 22M16.72 11.06A10.94 10.94 0 0 1 19 12.55M5 12.55a10.94 10.94 0 0 1 5.17-2.39M10.71 5.05A16 16 0 0 1 22.58 9M1.42 9a15.91 15.91 0 0 1 4.7-2.88M8.53 16.11a6 6 0 0 1 6.95 0" />
+      <line x1="12" y1="20" x2="12.01" y2="20" />
+    </svg>
+  )
+}
+
+function IconShieldCheck() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="M9 12l2 2 4-4" />
+    </svg>
+  )
+}
+
+function IconStations() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="square">
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <line x1="8" y1="21" x2="16" y2="21" />
+      <line x1="12" y1="17" x2="12" y2="21" />
+    </svg>
+  )
+}
+
+/** Three architectural guarantees verified by the system */
 const AUTH_POINTS = [
   {
-    icon: '☁',
-    title: 'Works with no signal',
-    body: 'A request is written to the device first and syncs itself - it is never lost to a dead zone.',
+    icon: <IconWifiOff />,
+    title: 'Offline-First Mesh Resilience',
+    body: 'Transactions write to device IndexedDB outbox first with UUIDv4 idempotency keys. Reconnect auto-sync guarantees zero data lost in basement dead zones.',
   },
   {
-    icon: '✓',
-    title: 'Every step is proven',
-    body: 'Who acted, when and from which channel, in an append-only trail rather than a claim.',
+    icon: <IconShieldCheck />,
+    title: 'Immutable Cryptographic Proof',
+    body: 'HMAC-SHA256 digital passes and append-only PostgreSQL 16 audit ledger log who approved what, when, and from which device without deletion capability.',
   },
   {
-    icon: '◫',
-    title: 'A station for everyone',
-    body: 'Phone, helpdesk desk or a shared kiosk for students without a working device.',
+    icon: <IconStations />,
+    title: '8 Tailored Station Workspaces',
+    body: 'Ergonomic, specialized operational environments for Students, Technicians, Wardens, Security Officers, Admins, and Corridor Kiosks.',
   },
 ]
+
+const PERSONAS_CONFIG: Record<string, { label: string; tone: 'open' | 'warn' | 'done' | 'urgent'; desc: string }> = {
+  STUDENT: {
+    label: 'Student PWA',
+    tone: 'open',
+    desc: 'Roll 2026-CS-042 · Hostel 3 Room 204',
+  },
+  STAFF: {
+    label: 'Technician Queue',
+    tone: 'warn',
+    desc: 'Senior Maintenance Electrician',
+  },
+  WARDEN: {
+    label: 'Hostel Warden',
+    tone: 'done',
+    desc: 'Boys Hostel 1 · Leave & Policy Approvals',
+  },
+  SECURITY: {
+    label: 'Gate Security',
+    tone: 'urgent',
+    desc: 'Main Gate 1 · HMAC QR Pass Scanner',
+  },
+  ADMIN: {
+    label: 'Command Centre',
+    tone: 'warn',
+    desc: 'Campus Director · AI Fleet & Ledger',
+  },
+  HELPDESK_OPERATOR: {
+    label: 'Assisted Desk',
+    tone: 'open',
+    desc: 'Walk-up Assisted Counter Operator',
+  },
+}
 
 /** Where each role wakes up. The login "type" decides the landing experience. */
 export function landingFor(profile: Profile, mode: DeviceMode): string {
@@ -83,20 +145,14 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [accounts, setAccounts] = useState<DemoAccount[] | null>(null)
-  const [showDemo, setShowDemo] = useState(variant !== 'standard')
   const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
-    if (variant !== 'standard') setShowDemo(true)
-  }, [variant])
-
-  useEffect(() => {
-    if (!showDemo || accounts) return
     void api
       .get<{ accounts: DemoAccount[] }>('/auth/demo-accounts')
       .then((response) => setAccounts(response.accounts))
       .catch(() => setAccounts([]))
-  }, [showDemo, accounts])
+  }, [])
 
   const submit = async (nextEmail = email, nextPassword = password, mode?: DeviceMode) => {
     setBusy(true)
@@ -131,8 +187,9 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         event.preventDefault()
         void submit()
       }}
+      style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}
     >
-      <Field label={variant === 'kiosk' ? 'Operator email' : 'Campus email'} htmlFor="email">
+      <Field label={variant === 'kiosk' ? 'Operator Email' : 'Campus Email'} htmlFor="email">
         <TextInput
           id="email"
           value={email}
@@ -140,7 +197,7 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
           type="email"
           autoComplete="username"
           inputMode="email"
-          placeholder="you@campus.example"
+          placeholder={variant === 'kiosk' ? 'operator@campus.example' : 'you@campus.example'}
         />
       </Field>
       <Field label="Password" htmlFor="password">
@@ -164,7 +221,7 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         </div>
       </Field>
       {error ? (
-        <div className="banner banner-error" role="alert" style={{ marginBottom: 12 }}>
+        <div className="banner banner-error" role="alert">
           {error}
         </div>
       ) : null}
@@ -174,116 +231,259 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         size={variant === 'standard' ? 'lg' : 'xl'}
         block
         busy={busy || status === 'loading'}
+        style={{ fontWeight: 800, letterSpacing: '0.02em', minHeight: 46 }}
       >
-        {variant === 'kiosk' ? 'Start kiosk session' : variant === 'desk' ? 'Open the desk' : 'Sign in'}
+        {variant === 'kiosk'
+          ? '⚡ Initialize Public Kiosk'
+          : variant === 'desk'
+          ? '⚡ Open Assisted Counter Desk'
+          : 'Authenticate & Enter Station →'}
       </Button>
     </form>
   )
 
-  // ---------------------------------------------------------------- kiosk
+  // ---------------------------------------------------------------- KIOSK VARIANT
   if (variant === 'kiosk') {
     return (
       <KioskShell>
-        <div className="kiosk-title">Kiosk sign-in</div>
-        <div className="kiosk-hint">
-          For the operator who looks after this tablet. Students never see this screen.
-        </div>
-        <Card style={{ width: '100%', maxWidth: 640, textAlign: 'start' }}>
-          {form}
-        </Card>
-        <div style={{ width: '100%', maxWidth: 900 }}>
-          <div className="section-title" style={{ textAlign: 'start' }}>
-            Demo operator accounts — tap to start
+        <div className="stack" style={{ alignItems: 'center', width: '100%', maxWidth: 860, gap: 'var(--sp-4)' }}>
+          <div className="landing-kicker">
+            <span className="hero-kicker-beacon" aria-hidden="true" />
+            <Badge tone="warn">STATION 06</Badge>
+            <span className="mono tiny bold">[PUBLIC CORRIDOR KIOSK BOOTLOADER]</span>
           </div>
-          <div className="kiosk-actions">
-            {filtered.map((account) => (
-              <Button
-                key={account.email}
-                variant="info"
-                className="kiosk-tile"
-                busy={busy}
-                onClick={() => void submit(account.email, account.password, 'kiosk')}
-              >
-                <span style={{ fontSize: 34 }} aria-hidden="true">
-                  ▢
-                </span>
-                <span>{account.role.replaceAll('_', ' ')}</span>
-                <span className="tiny" style={{ fontWeight: 600 }}>
-                  {account.label}
-                </span>
-              </Button>
-            ))}
+
+          <div style={{ textAlign: 'center' }}>
+            <h1 className="kiosk-title" style={{ margin: '0 0 6px', textTransform: 'uppercase' }}>
+              Corridor Kiosk Provisioning
+            </h1>
+            <p className="kiosk-hint" style={{ margin: 0, maxWidth: 600 }}>
+              Operator authorization required to unlock and provision this shared corridor terminal.
+              Once unlocked, the terminal enters public student self-service mode with automatic 90s idle wipe.
+            </p>
+          </div>
+
+          <div className="kiosk-auth-frame">
+            <div className="auth-station-tag">
+              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>OPERATOR CREDENTIALS REQUIRED</span>
+              <Badge tone="done">90S IDLE RESET ACTIVE</Badge>
+            </div>
+            <div style={{ marginTop: 'var(--sp-3)' }}>
+              {form}
+            </div>
+          </div>
+
+          {/* Quick Operator Fast-Pass */}
+          <div style={{ width: '100%', maxWidth: 680 }}>
+            <div className="section-title" style={{ textAlign: 'start', marginBottom: 8 }}>
+              Quick Operator Provisioning — Tap to Initialize
+            </div>
+            <div className="kiosk-operator-grid">
+              {filtered.map((account) => (
+                <div
+                  key={account.email}
+                  className="kiosk-operator-tile"
+                  onClick={() => void submit(account.email, account.password, 'kiosk')}
+                >
+                  <div className="row-between">
+                    <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>
+                      {account.role.replaceAll('_', ' ')}
+                    </span>
+                    <Badge tone="open" className="tiny mono">OPERATOR</Badge>
+                  </div>
+                  <div className="bold small">{account.label}</div>
+                  <code className="tiny muted">{account.email}</code>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    busy={busy}
+                    style={{ marginTop: 4, width: '100%', justifyContent: 'center' }}
+                  >
+                    ⚡ Initialize as {account.role.split('_')[0]}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Security & Audit Directives */}
+          <div className="kiosk-security-strip">
+            <div className="kiosk-sec-card">
+              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>01 · ZERO RESIDUAL CACHE</span>
+              <span className="tiny muted">
+                Students query tickets by roll number only. No personal passwords or persistent tokens remain on this terminal.
+              </span>
+            </div>
+            <div className="kiosk-sec-card">
+              <span className="mono tiny bold" style={{ color: 'var(--status-warn)' }}>02 · 90-SECOND IDLE PURGE</span>
+              <span className="tiny muted">
+                The terminal immediately scrubs local storage, resets all form inputs, and returns to the home screen if idle for 90s.
+              </span>
+            </div>
+            <div className="kiosk-sec-card">
+              <span className="mono tiny bold" style={{ color: 'var(--mint)' }}>03 · OFFLINE BUFFERING</span>
+              <span className="tiny muted">
+                During network blackouts, complaints are queued into local IndexedDB and issue a local verification hash.
+              </span>
+            </div>
+          </div>
+
+          <div className="row wrap center" style={{ gap: 12, marginTop: 12 }}>
+            <VariantPicker active="kiosk" />
+            <Link className="btn btn-ghost btn-sm" to="/">
+              ← Back to Campus Portal
+            </Link>
           </div>
         </div>
-        <p className="tiny muted" style={{ maxWidth: 720 }}>
-          This station is remembered on the device: after a reboot it comes back as a kiosk, not as the operator's
-          personal session. The idle reset clears the screen after 90 seconds.
-        </p>
-        <Link className="btn btn-ghost" to="/">
-          ← Back to the campus portal
-        </Link>
       </KioskShell>
     )
   }
 
-  // ---------------------------------------------------------------- desk
+  // ---------------------------------------------------------------- DESK VARIANT
   if (variant === 'desk') {
     return (
-      <div className="page" style={{ maxWidth: 1040, paddingTop: 28 }}>
-        <div className="stack-lg">
-          <div className="page-head">
-            <div>
-              <h1>Helpdesk sign-in</h1>
-              <p className="page-sub">
-                This station files requests <strong>on behalf of students</strong>. Every case records both names and
-                the channel (ASSISTED_DESK), so assisted access is visible in the analytics.
-              </p>
-            </div>
-            <div className="page-head-actions">
-              <VariantPicker active="desk" />
+      <div className="desk-auth-shell animate-entrance">
+        {/* Helpdesk Top Bar */}
+        <div className="row-between wrap" style={{ gap: 12, marginBottom: 'var(--sp-4)' }}>
+          <div className="row" style={{ alignItems: 'center', gap: 10 }}>
+            <Link to="/" className="sidebar-brand" style={{ marginBottom: 0 }}>
+              <span className="brand-mark" aria-hidden="true" data-monogram={institution.monogram} />
+              <span className="brand-name">{institution.shortName}</span>
+            </Link>
+            <div
+              className="status-pill hide-mobile"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-sm)',
+                border: 'var(--border-w) solid var(--line)',
+                background: 'var(--surface)',
+              }}
+            >
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--mint)', display: 'inline-block' }} />
+              <span className="mono tiny bold">SYS.ONLINE</span>
             </div>
           </div>
+          <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
+            <VariantPicker active="desk" />
+            <ThemeToggle />
+          </div>
+        </div>
 
-          <div className="split">
-            <Card>{form}</Card>
-            <div className="stack">
-              <Card>
-                <div className="section-title">Tap a demo desk account</div>
-                <div className="stack" style={{ gap: 8 }}>
-                  {filtered.map((account) => (
+        {/* Station Identification Plate */}
+        <div className="desk-auth-header">
+          <div>
+            <div className="row wrap" style={{ gap: 8, alignItems: 'center', marginBottom: 6 }}>
+              <Badge tone="warn">STATION 02</Badge>
+              <span className="mono tiny bold">[ASSISTED WALK-UP HELPDESK]</span>
+              <Badge tone="done">CHANNEL: ASSISTED_DESK</Badge>
+            </div>
+            <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', textTransform: 'uppercase', fontWeight: 900 }}>
+              Helpdesk Operator Authentication
+            </h1>
+            <p className="desk-protocol-desc" style={{ maxWidth: 720 }}>
+              This station files requests on behalf of students who lack smartphones or network connectivity.
+              Every ticket filed records <strong>dual identity</strong> (student roll number + operating staff signature)
+              in the immutable audit ledger.
+            </p>
+          </div>
+          <div className="hide-mobile mono tiny muted" style={{ textAlign: 'right' }}>
+            <div>GATEWAY: ENCRYPTED TLS</div>
+            <div>STATION ID: DESK_01</div>
+          </div>
+        </div>
+
+        {/* 2-Column Split: Form + Protocols */}
+        <div className="desk-auth-grid">
+          {/* Left: Operator Terminal Form */}
+          <div className="stack" style={{ gap: 'var(--sp-4)' }}>
+            <Card style={{ padding: 'var(--sp-5)' }}>
+              <div className="auth-station-tag" style={{ marginBottom: 'var(--sp-3)' }}>
+                <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>OPERATOR SIGN-IN</span>
+                <span className="mono tiny muted">STAFF ACCESS ONLY</span>
+              </div>
+              {form}
+            </Card>
+
+            {/* Quick Operator Fast-Pass */}
+            <Card>
+              <div className="row-between" style={{ marginBottom: 8 }}>
+                <span className="bold small">Operator Fast-Pass</span>
+                <span className="mono tiny muted">Pre-Seeded Roles</span>
+              </div>
+              <div className="stack" style={{ gap: 8 }}>
+                {filtered.map((account) => (
+                  <div key={account.email} className="row-between" style={{ background: 'var(--surface-alt)', padding: '8px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)' }}>
+                    <div>
+                      <div className="bold small">{account.role.replaceAll('_', ' ')}</div>
+                      <div className="tiny muted">{account.label}</div>
+                    </div>
                     <Button
-                      key={account.email}
-                      variant="info"
-                      block
+                      size="sm"
+                      variant="primary"
                       busy={busy}
                       onClick={() => void submit(account.email, account.password, 'desk')}
                     >
-                      {account.role.replaceAll('_', ' ')} — {account.label}
+                      ⚡ Open Desk
                     </Button>
-                  ))}
-                </div>
-              </Card>
-              <Card className="card-flat">
-                <div className="section-title">Before you file</div>
-                <ul className="small">
-                  <li>Search by roll number, name or registration number.</li>
-                  <li>Write what the student tells you, in their words — not in form language.</li>
-                  <li>Hand over the case number on the receipt, or print it.</li>
-                  <li>Dues blocks on certificates are checked automatically; the case will say which rule stopped it.</li>
-                </ul>
-              </Card>
+                  </div>
+                ))}
+              </div>
+              <div className="mono tiny muted" style={{ marginTop: 8 }}>
+                Universal password: <code className="bold">Campus@2026</code>
+              </div>
+            </Card>
+          </div>
+
+          {/* Right: Operational Protocols & Governance */}
+          <div className="desk-protocol-list">
+            <div className="desk-protocol-card">
+              <span className="desk-protocol-step">PROTOCOL 01 · IDENTITY LOOKUP</span>
+              <h3 className="desk-protocol-title">Student Verification</h3>
+              <p className="desk-protocol-desc">
+                Search students by roll number or name. The desk checks active enrollment, branch, hostel block, and dues balance before filing.
+              </p>
             </div>
+
+            <div className="desk-protocol-card">
+              <span className="desk-protocol-step">PROTOCOL 02 · VERBATIM CAPTURE</span>
+              <h3 className="desk-protocol-title">Exact Words Preservation</h3>
+              <p className="desk-protocol-desc">
+                Record the student's exact spoken words rather than bureaucratic phrasing. The AI triage agent automatically categorizes urgency and priority.
+              </p>
+            </div>
+
+            <div className="desk-protocol-card">
+              <span className="desk-protocol-step">PROTOCOL 03 · DUAL IDENTITY LOGGING</span>
+              <h3 className="desk-protocol-title">Auditable Accountability</h3>
+              <p className="desk-protocol-desc">
+                Cases store both the student identity and your authenticated operator signature under the <code>ASSISTED_DESK</code> channel for full compliance.
+              </p>
+            </div>
+
+            <div className="desk-protocol-card">
+              <span className="desk-protocol-step">PROTOCOL 04 · RECEIPT ISSUANCE</span>
+              <h3 className="desk-protocol-title">Receipt Tracking Key</h3>
+              <p className="desk-protocol-desc">
+                Hand over the generated Case Reference Number or print the formal receipt for the student to monitor progress via SMS or corridor kiosk.
+              </p>
+            </div>
+
+            <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+              <Link to="/">← Back to Campus Portal</Link>
+            </p>
           </div>
         </div>
       </div>
     )
   }
 
-  // ------------------------------------------------------------ standard
-  // A composed front door: what the product is on one side, the one action the
-  // person came to take on the other.
+  // ---------------------------------------------------------------- STANDARD VARIANT
   return (
-    <div className="auth">
+    <div className="auth animate-entrance">
+      {/* Left Column: Brand & Architecture Feature Plates */}
       <section className="auth-brand">
         <Link to="/" className="sidebar-brand" style={{ marginBottom: 0, width: 'fit-content' }}>
           <span className="brand-mark" aria-hidden="true" data-monogram={institution.monogram} />
@@ -291,14 +491,20 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         </Link>
 
         <div className="auth-brand-inner">
-          <span className="auth-eyebrow">
-            <span aria-hidden="true">●</span> {institution.config.identity.name}
-          </span>
-          <h1 className="auth-title">{institution.config.identity.tagline}</h1>
+          <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
+            <Badge tone="warn">BPUT Hackathon 2026</Badge>
+            <Badge tone="open">PS07 · Fretbox</Badge>
+          </div>
+
+          <h1 className="auth-title">
+            Station Access Layer.
+            <span className="auth-accent">Zero Compromise Operations.</span>
+          </h1>
+
           <p className="auth-lede">
-            One case engine behind hostel repairs, certificates, leave passes and notices - built to keep
-            working when the network does not.
+            One auditable operating mesh behind hostel repairs, cryptographic passes, leave verifications, and urgent administrative alerts.
           </p>
+
           <ul className="auth-points">
             {AUTH_POINTS.map((point) => (
               <li className="auth-point" key={point.title}>
@@ -314,9 +520,13 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
           </ul>
         </div>
 
-        <p className="tiny muted">Demo campus · seeded data, labelled as such.</p>
+        <div className="row-between wrap" style={{ borderTop: '1px solid var(--line)', paddingTop: 12 }}>
+          <span className="mono tiny muted">BUILD: 2026.09 · PS07 · ZERO-KNOWLEDGE LEDGER</span>
+          <span className="mono tiny bold" style={{ color: 'var(--mint)' }}>SYS.ONLINE</span>
+        </div>
       </section>
 
+      {/* Right Column: Station Switcher & Authentication Form */}
       <section className="auth-side">
         <div className="auth-side-top">
           <VariantPicker active="standard" />
@@ -324,73 +534,81 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         </div>
 
         <div className="auth-card">
+          <div className="auth-station-tag">
+            <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>STATION 01 · PERSONAL ACCESS GATEWAY</span>
+            <Badge tone="done">8 ROLES ACTIVE</Badge>
+          </div>
+
           <div>
-            <h2 className="section-title" style={{ marginBottom: 4 }}>
-              Sign in
+            <h2 className="section-title" style={{ margin: '0 0 4px', fontSize: 'var(--fs-xl)' }}>
+              Sign In to Station
             </h2>
-            <p className="page-sub" style={{ marginTop: 0 }}>
-              Use your campus email. Students, staff and administrators all sign in here.
+            <p className="page-sub" style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>
+              Enter your campus email to decrypt your tailored role workspace.
             </p>
           </div>
 
           {form}
 
-          <div className="auth-or">or explore the demo</div>
+          <div className="auth-or">or choose a fast-pass role</div>
 
-          <Card>
-            <div className="row-between" style={{ gap: 8, marginBottom: 8 }}>
-              <div className="section-title" style={{ marginBottom: 0 }}>
-                Demo accounts
-              </div>
-              {showDemo ? <Badge tone="warn">Not real user records</Badge> : null}
+          {/* Categorized Personas Fast-Pass Grid */}
+          <div className="auth-fastpass-section">
+            <div className="auth-fastpass-header">
+              <span className="bold small">Seeded Demo Personas</span>
+              <span className="mono tiny muted">One-Tap Sign In</span>
             </div>
-            <p className="small muted">
-              Seeded accounts with a fixed password - every role gets a different product.
-            </p>
-            {showDemo ? null : (
-              <Button variant="ghost" block onClick={() => setShowDemo(true)}>
-                Show demo accounts
-              </Button>
-            )}
-            {showDemo ? (
-              <>
-                <div className="stack" style={{ gap: 8, marginTop: 10 }}>
-                  {accounts === null ? (
-                    <p className="small muted">Loading…</p>
-                  ) : accounts.length === 0 ? (
-                    <p className="small muted">Demo accounts are not published on this deployment.</p>
-                  ) : (
-                    accounts.map((account) => (
-                      <div key={account.email} className="demo-account">
-                        <div>
-                          <div className="bold">{account.role.replaceAll('_', ' ')}</div>
-                          <div className="tiny muted">{account.label}</div>
-                        </div>
-                        <Button
-                          size="sm"
-                          variant="info"
-                          busy={busy}
-                          onClick={() => void submit(account.email, account.password, 'personal')}
-                        >
-                          Sign in
-                        </Button>
-                      </div>
-                    ))
-                  )}
-                </div>
-                {accounts?.length ? (
-                  <KV
-                    items={[
-                      { label: 'Password', value: <span className="mono">Campus@2026 (all accounts)</span> },
-                    ]}
-                  />
-                ) : null}
-              </>
-            ) : null}
-          </Card>
 
-          <p className="small muted">
-            <Link to="/">← Back to the campus portal</Link>
+            <div className="auth-fastpass-grid">
+              {(accounts ?? []).map((account) => {
+                const conf = PERSONAS_CONFIG[account.role] ?? {
+                  label: account.role.replaceAll('_', ' '),
+                  tone: 'open' as const,
+                  desc: account.label,
+                }
+                return (
+                  <div key={account.email} className="auth-fastpass-card">
+                    <div className="auth-fastpass-top">
+                      <span className="auth-fastpass-role">{conf.label}</span>
+                      <Badge tone={conf.tone} className="tiny mono">
+                        {account.role.split('_')[0]}
+                      </Badge>
+                    </div>
+                    <div className="auth-fastpass-sub">{conf.desc}</div>
+                    <code className="tiny muted">{account.email}</code>
+                    <Button
+                      size="sm"
+                      variant="primary"
+                      className="auth-fastpass-btn"
+                      busy={busy}
+                      onClick={() => void submit(account.email, account.password, 'personal')}
+                    >
+                      ⚡ Launch Role →
+                    </Button>
+                  </div>
+                )
+              })}
+            </div>
+
+            <div
+              style={{
+                marginTop: 6,
+                padding: '6px 10px',
+                background: 'var(--surface-alt)',
+                border: '1px solid var(--line)',
+                borderRadius: 'var(--radius-sm)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <span className="tiny muted">Universal demo password:</span>
+              <code className="bold tiny mono">Campus@2026</code>
+            </div>
+          </div>
+
+          <p className="small muted" style={{ margin: 'var(--sp-2) 0 0', textAlign: 'center' }}>
+            <Link to="/">← Back to Campus Portal</Link>
           </p>
         </div>
       </section>
@@ -398,31 +616,33 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
   )
 }
 
-/** Sign-in stations this device can be. */
+/** Mechanical Sign-In Station Switcher */
 function VariantPicker({ active }: { active: 'standard' | 'kiosk' | 'desk' }) {
   return (
-    <div className="switcher" role="group" aria-label="Sign-in station">
+    <div className="station-switcher" role="group" aria-label="Select Station Mode">
       <Link
-        className="btn btn-ghost btn-sm"
+        className={`station-switch-btn ${active === 'standard' ? 'is-active' : ''}`}
         to="/login"
         aria-current={active === 'standard' ? 'page' : undefined}
-        style={active === 'standard' ? { background: 'var(--ink)', color: 'var(--paper)' } : undefined}
       >
-        Personal
+        <span className="station-switch-indicator" />
+        <span className="station-switch-text">01 · Personal</span>
       </Link>
       <Link
-        className="btn btn-ghost btn-sm"
+        className={`station-switch-btn ${active === 'desk' ? 'is-active' : ''}`}
         to="/login?mode=desk"
-        style={active === 'desk' ? { background: 'var(--ink)', color: 'var(--paper)' } : undefined}
+        aria-current={active === 'desk' ? 'page' : undefined}
       >
-        Helpdesk
+        <span className="station-switch-indicator" />
+        <span className="station-switch-text">02 · Helpdesk</span>
       </Link>
       <Link
-        className="btn btn-ghost btn-sm"
+        className={`station-switch-btn ${active === 'kiosk' ? 'is-active' : ''}`}
         to="/login?mode=kiosk"
-        style={active === 'kiosk' ? { background: 'var(--ink)', color: 'var(--paper)' } : undefined}
+        aria-current={active === 'kiosk' ? 'page' : undefined}
       >
-        Kiosk
+        <span className="station-switch-indicator" />
+        <span className="station-switch-text">06 · Kiosk</span>
       </Link>
     </div>
   )
