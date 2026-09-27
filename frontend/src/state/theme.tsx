@@ -113,11 +113,7 @@ function initialTheme(institutionDefault: string | undefined): ThemeChoice {
   const stored = readStored<ThemeChoice>(THEME_KEY, ['light', 'dark'])
   if (stored) return stored
   if (isThemeId(institutionDefault)) return institutionDefault
-  try {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-  } catch {
-    return DEFAULT_THEME
-  }
+  return DEFAULT_THEME
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -143,18 +139,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     () => readStored<ContrastChoice>(CONTRAST_KEY, ['normal', 'high']) ?? 'normal',
   )
 
-  // Dynamically follow OS preference if the user hasn't explicitly locked a theme choice
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const onChange = (e: MediaQueryListEvent) => {
-      const manual = readStored<ThemeChoice>(THEME_KEY, ['light', 'dark'])
-      if (!manual) {
-        setThemeState(e.matches ? 'dark' : 'light')
-      }
-    }
-    mq.addEventListener?.('change', onChange)
-    return () => mq.removeEventListener?.('change', onChange)
-  }, [])
+  // Keep theme locked to light default unless explicitly toggled by user
+
 
   useEffect(() => {
     const root = document.documentElement

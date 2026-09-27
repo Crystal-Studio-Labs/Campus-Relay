@@ -6,7 +6,8 @@
  *  queue with the same target as a request filed from a phone.
  *
  *  Redesigned with Industrial Brutalism: High-contrast console frames, instant
- *  one-tap test roll chips, physical voucher receipt styling, and SLA dispatch badges.
+ *  one-tap test roll chips, physical voucher receipt styling, and multilingual
+ *  English / Hindi / Odia support.
  */
 
 import { useState } from 'react'
@@ -17,6 +18,7 @@ import { useRemote } from '../../state/hooks'
 import { Badge, Button, Card, Field, Select, TextArea, TextInput } from '../../components/ui'
 import { KioskShell } from '../../layouts/KioskShell'
 import { CaseStatusBadge, PriorityBadge } from '../../components/StatusChip'
+import { useLanguage } from '../../lib/i18n'
 import type { CaseBrief } from '../../lib/types'
 
 interface KioskService {
@@ -54,6 +56,7 @@ const QUICK_TEST_ROLLS = [
 
 export function KioskPage() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [step, setStep] = useState<Step>('identify')
   const [roll, setRoll] = useState('')
   const [student, setStudent] = useState<LookupResult | null>(null)
@@ -120,7 +123,7 @@ export function KioskPage() {
         priority,
         location_code: locationCode || undefined,
         state_payload: values,
-        language: 'en',
+        language: language || 'en',
         client_ref: `kiosk-${Date.now()}`,
       })
       setReceipt(response.receipt)
@@ -162,10 +165,10 @@ export function KioskPage() {
 
             <div style={{ textAlign: 'start', marginBottom: 'var(--sp-4)' }}>
               <h1 className="kiosk-title" style={{ margin: '0 0 6px', textTransform: 'uppercase' }}>
-                Student Service Terminal
+                {t('kiosk.title')}
               </h1>
               <p className="kiosk-hint" style={{ margin: 0 }}>
-                Enter your student roll number to check ticket status or file an urgent hostel / campus grievance.
+                {t('kiosk.subtitle')}
               </p>
             </div>
 
@@ -175,7 +178,7 @@ export function KioskPage() {
                 data-guide="kiosk-id"
                 value={roll}
                 onChange={(event) => setRoll(event.target.value.toUpperCase())}
-                placeholder="ROLL NUMBER (E.G. 2026-CS-042)"
+                placeholder={t('kiosk.rollPlaceholder')}
                 aria-label="Student roll number"
                 onKeyDown={(event) => event.key === 'Enter' && void lookup()}
                 autoFocus
@@ -184,7 +187,7 @@ export function KioskPage() {
               {/* Quick test rolls strip for effortless evaluation */}
               <div>
                 <div className="mono tiny muted" style={{ marginBottom: 4, fontWeight: 700 }}>
-                  QUICK-TEST ROLL PRESETS (TAP TO VERIFY):
+                  {t('kiosk.quickTestRolls')}
                 </div>
                 <div className="kiosk-quick-rolls">
                   {QUICK_TEST_ROLLS.map((item) => (
@@ -212,13 +215,13 @@ export function KioskPage() {
                   onClick={() => void lookup()}
                   style={{ minHeight: 52, fontSize: 'var(--fs-lg)', fontWeight: 800 }}
                 >
-                  ⚡ Verify Identity & Open Services →
+                  {t('kiosk.verifyIdentity')}
                 </Button>
               </div>
             </div>
 
             <div className="row-between wrap" style={{ borderTop: '1px solid var(--line)', marginTop: 'var(--sp-5)', paddingTop: 12 }}>
-              <span className="mono tiny muted">🔒 NO PASSWORDS STORED · 90-SECOND AUTO-PURGE</span>
+              <span className="mono tiny muted">{t('kiosk.securityNotice')}</span>
               <span className="mono tiny muted">PS07 · INDUSTRIAL BRUTALISM v2.4</span>
             </div>
           </div>
@@ -227,8 +230,8 @@ export function KioskPage() {
           {notices.data?.notices?.length ? (
             <Card style={{ width: '100%', maxWidth: 820, textAlign: 'start' }}>
               <div className="row-between" style={{ marginBottom: 8 }}>
-                <div className="section-title" style={{ margin: 0 }}>Campus Alert Bulletin</div>
-                <Badge tone="done">LIVE BROADCAST</Badge>
+                <div className="section-title" style={{ margin: 0 }}>{t('kiosk.alerts')}</div>
+                <Badge tone="done">{t('kiosk.liveBroadcast')}</Badge>
               </div>
               <ul className="list-reset stack" style={{ gap: 8 }}>
                 {notices.data.notices.map((notice) => (
@@ -263,7 +266,7 @@ export function KioskPage() {
           <div className="kiosk-student-header-box">
             <div>
               <div className="row wrap" style={{ gap: 8, alignItems: 'center', marginBottom: 4 }}>
-                <Badge tone="done">STUDENT VERIFIED</Badge>
+                <Badge tone="done">{t('kiosk.studentVerified')}</Badge>
                 <span className="mono bold" style={{ color: 'var(--signal)' }}>{student.student.roll_number}</span>
                 <span className="mono tiny muted">
                   {student.student.branch ?? 'Engineering'} · Year {student.student.year ?? '2026'}
@@ -296,10 +299,10 @@ export function KioskPage() {
 
           <div style={{ textAlign: 'center', maxWidth: 760 }}>
             <h1 className="kiosk-title" style={{ margin: '0 0 6px', textTransform: 'uppercase' }}>
-              Select Service Category
+              {t('kiosk.selectService')}
             </h1>
             <p className="kiosk-hint" style={{ margin: 0 }}>
-              Tap the category that matches your issue. AI dispatch will route this ticket to the on-duty staff queue.
+              {t('kiosk.serviceHint')}
             </p>
           </div>
 
@@ -344,10 +347,10 @@ export function KioskPage() {
 
           <div className="row wrap center" style={{ gap: 12, marginTop: 'var(--sp-2)' }}>
             <Button variant="info" size="lg" onClick={() => setStep('status')}>
-              🔍 Check Status of My Existing Requests
+              {t('kiosk.checkStatus')}
             </Button>
             <Button variant="ghost" size="lg" onClick={reset}>
-              ✕ Start Over
+              {t('kiosk.startOver')}
             </Button>
           </div>
         </div>
@@ -372,9 +375,9 @@ export function KioskPage() {
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-4)' }}>
               <Field
-                label="Describe the Problem (In Your Own Words)"
+                label={t('kiosk.describeProblem')}
                 required
-                hint="Minimum 8 characters. Say it plainly — AI classification will triage priority."
+                hint={t('kiosk.describeHint')}
               >
                 <TextArea
                   value={description}
@@ -412,8 +415,8 @@ export function KioskPage() {
               ))}
 
               <Field
-                label="Location Code / Room / Asset Label (Optional)"
-                hint="Printed on the door, appliance sticker, or corridor switchboard (e.g. H3-204, LAB-4B)."
+                label={t('kiosk.locationCode')}
+                hint={t('kiosk.locationHint')}
               >
                 <TextInput
                   value={locationCode}
@@ -424,7 +427,7 @@ export function KioskPage() {
 
               <div className="row wrap center" style={{ gap: 12, marginTop: 'var(--sp-3)' }}>
                 <Button variant="ghost" size="lg" onClick={() => setStep('choose')}>
-                  ← Back to Services
+                  {t('kiosk.backToServices')}
                 </Button>
                 <Button
                   variant="primary"
@@ -434,7 +437,7 @@ export function KioskPage() {
                   onClick={() => void submit()}
                   style={{ minWidth: 260, fontWeight: 800 }}
                 >
-                  ⚡ Register Request & Issue Receipt →
+                  {t('kiosk.registerRequest')}
                 </Button>
               </div>
             </div>
@@ -446,10 +449,10 @@ export function KioskPage() {
       {step === 'receipt' && receipt ? (
         <div className="stack" style={{ alignItems: 'center', width: '100%', gap: 'var(--sp-4)' }}>
           <div className="kiosk-receipt-paper">
-            <span className="kiosk-receipt-badge">OFFICIAL PHYSICAL TRANSACTION RECORD</span>
+            <span className="kiosk-receipt-badge">{t('kiosk.officialReceipt')}</span>
 
             <div className="row-between wrap" style={{ gap: 8, alignItems: 'center', marginBottom: 12 }}>
-              <Badge tone="done">QUEUED & DISPATCHED</Badge>
+              <Badge tone="done">{t('kiosk.queuedDispatched')}</Badge>
               <span className="mono tiny muted">STATION: KSK-NORTH-01</span>
             </div>
 
@@ -484,7 +487,7 @@ export function KioskPage() {
 
           <div className="row wrap center" style={{ gap: 12 }}>
             <Button variant="ghost" size="lg" onClick={() => window.print()}>
-              🖨️ Print Paper Receipt
+              {t('kiosk.printReceipt')}
             </Button>
             <Button
               variant="primary"
@@ -494,10 +497,10 @@ export function KioskPage() {
                 setRoll(student?.student.roll_number ?? '')
               }}
             >
-              + Register Another Request
+              {t('kiosk.anotherRequest')}
             </Button>
             <Button variant="ghost" size="lg" onClick={reset}>
-              ✓ Finish & Wipe Screen
+              {t('kiosk.finish')}
             </Button>
           </div>
         </div>
@@ -508,13 +511,13 @@ export function KioskPage() {
         <div className="stack" style={{ alignItems: 'center', width: '100%', gap: 'var(--sp-4)' }}>
           <div className="kiosk-student-header-box">
             <div>
-              <div className="mono tiny muted">REQUEST TRACKER</div>
+              <div className="mono tiny muted">{t('kiosk.requestTracker')}</div>
               <h2 style={{ margin: 0, textTransform: 'uppercase', fontWeight: 900 }}>
                 {student.student.full_name} ({student.student.roll_number})
               </h2>
             </div>
             <Button variant="ghost" size="sm" onClick={() => setStep('choose')}>
-              ← Back to Services
+              {t('kiosk.backToServices')}
             </Button>
           </div>
 
@@ -551,10 +554,10 @@ export function KioskPage() {
 
           <div className="row wrap center" style={{ gap: 12 }}>
             <Button variant="primary" size="xl" onClick={() => setStep('choose')}>
-              + File a New Request
+              {t('kiosk.newRequest')}
             </Button>
             <Button variant="ghost" size="lg" onClick={reset}>
-              ✓ Finish & Wipe Screen
+              {t('kiosk.finish')}
             </Button>
           </div>
         </div>
@@ -562,7 +565,7 @@ export function KioskPage() {
 
       {step !== 'identify' ? (
         <Button variant="ghost" size="sm" onClick={() => navigate('/')} style={{ marginTop: 'var(--sp-2)' }}>
-          Exit Kiosk Mode
+          {t('kiosk.exitKiosk')}
         </Button>
       ) : null}
     </KioskShell>

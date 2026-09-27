@@ -57,14 +57,14 @@ DEFAULT_INSTITUTION: dict[str, Any] = {
     },
     "localisation": {
         "default_language": "en",
-        "languages": ["en", "or"],
+        "languages": ["en", "hi", "or"],
     },
     "appearance": {
         # Which design language the deployment ships with. See
         # frontend/src/theme/registry.ts - a skin is a token set, never a fork.
         "skin": "industrial",
-        # "device" follows the visitor's operating system on a first visit.
-        "default_theme": "device",
+        # "light" is the clean white mode default.
+        "default_theme": "light",
         "allow_user_theme_override": True,
         # An institution colour applied as the primary action colour. Left empty
         # by default: the shipped hazard orange already clears contrast on both

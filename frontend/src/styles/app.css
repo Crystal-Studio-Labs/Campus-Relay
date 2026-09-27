@@ -542,11 +542,93 @@
 .kiosk-header {
   background: var(--surface);
   color: var(--ink);
-  padding: var(--sp-5);
+  padding: var(--sp-3) var(--sp-5) var(--sp-4);
   text-align: center;
   border-bottom: var(--border-w) solid var(--line);
   box-shadow: var(--shadow-sm);
 }
+.kiosk-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-2);
+  border-bottom: 1px solid var(--line);
+}
+.kiosk-header-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.kiosk-clock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  background: var(--surface-alt);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.kiosk-lang-group {
+  display: inline-flex;
+  gap: 3px;
+  background: var(--surface-alt);
+  padding: 3px;
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-sm);
+}
+.kiosk-lang-btn {
+  padding: 4px 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted-ink);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+.kiosk-lang-btn:hover {
+  color: var(--ink);
+  background: var(--surface);
+}
+.kiosk-lang-btn.is-active {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--line);
+  box-shadow: 1px 1px 0px var(--shadow-ink);
+}
+.kiosk-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--surface-alt);
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink);
+  cursor: pointer;
+  box-shadow: 1px 1px 0px var(--shadow-ink);
+  transition: all 0.15s ease;
+}
+.kiosk-theme-btn:hover {
+  background: var(--surface);
+  border-color: var(--signal);
+  transform: translateY(-1px);
+}
+.kiosk-theme-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
 .kiosk-body {
   flex: 1;
   padding: var(--sp-6);

@@ -6,7 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5"
     />
-    <meta name="theme-color" content="#090d14" />
+    <meta name="theme-color" content="#f8fafc" />
     <meta
       name="description"
       content="A resilient operating layer for everyday campus operations: one case engine, an auditable trail, and an interface that keeps working when the network does not."
@@ -38,10 +38,7 @@
         var PAPER = { light: '#f8fafc', dark: '#090d14' }
         try {
           var storedTheme = localStorage.getItem('campusrelay.theme')
-          var dark = storedTheme
-            ? storedTheme === 'dark'
-            : window.matchMedia('(prefers-color-scheme: dark)').matches
-          var theme = dark ? 'dark' : 'light'
+          var theme = storedTheme === 'dark' ? 'dark' : 'light'
 
           var skin =
             localStorage.getItem('campusrelay.skin') || null
