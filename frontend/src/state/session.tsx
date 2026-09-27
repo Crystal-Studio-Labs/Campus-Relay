@@ -11,6 +11,7 @@ import {
 } from 'react'
 import { ApiError, api, setChannel, tokenStore } from '../lib/api'
 import { setLanguage } from '../lib/i18n'
+import { syncEngine } from '../lib/sync'
 import type { Profile, RoleKey } from '../lib/types'
 
 interface SessionValue {
@@ -44,6 +45,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (fresh.language) setLanguage(fresh.language === 'or' ? 'or' : 'en')
       setStatus('authenticated')
       setError(null)
+      void syncEngine.probe().catch(() => undefined)
     } catch (requestError) {
       if (requestError instanceof ApiError && requestError.isAuthFailure) {
         tokenStore.clear()
@@ -76,6 +78,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     setProfile(response.profile)
     if (response.profile.language) setLanguage(response.profile.language === 'or' ? 'or' : 'en')
     setStatus('authenticated')
+    void syncEngine.probe().catch(() => undefined)
     return response.profile
   }, [])
 

@@ -28,6 +28,26 @@ export interface SyncSnapshot {
   storageReason: string | null
 }
 
+const LAST_SYNC_KEY = 'campus_relay_last_sync'
+
+function getPersistedLastSync(): string | null {
+  if (typeof window === 'undefined') return null
+  try {
+    return window.localStorage.getItem(LAST_SYNC_KEY)
+  } catch {
+    return null
+  }
+}
+
+function persistLastSync(value: string) {
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(LAST_SYNC_KEY, value)
+  } catch {
+    // Ignore storage quota or access errors
+  }
+}
+
 type Listener = (snapshot: SyncSnapshot) => void
 
 const PROBE_INTERVAL_MS = 20_000
@@ -45,11 +65,20 @@ export class SyncEngine {
     conflicts: 0,
     requiresAction: 0,
     syncedTotal: 0,
-    lastFlushAt: null,
+    lastFlushAt: getPersistedLastSync(),
     lastError: null,
     operations: [],
     storageAvailable: true,
     storageReason: null,
+  }
+
+  getSnapshot(): SyncSnapshot {
+    return this.snapshot
+  }
+
+  recordSync(timestamp: string = new Date().toISOString()) {
+    persistLastSync(timestamp)
+    this.emit({ lastFlushAt: timestamp })
   }
 
   subscribe(listener: Listener): () => void {
@@ -102,7 +131,10 @@ export class SyncEngine {
       online = await api.reachable()
     }
     this.emit({ online, checking: false })
-    if (online) await this.flush()
+    if (online) {
+      this.recordSync()
+      await this.flush()
+    }
     return online
   }
 
@@ -202,9 +234,9 @@ export class SyncEngine {
         }
       }
 
+      this.recordSync()
       this.emit({
         syncedTotal: this.snapshot.syncedTotal + synced,
-        lastFlushAt: new Date().toISOString(),
         lastError: null,
       })
     } catch (error) {

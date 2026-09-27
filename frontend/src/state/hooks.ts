@@ -90,21 +90,7 @@ export function useRemote<T>(
 
 /** Subscribe to the sync engine's snapshot. */
 export function useSyncState(): SyncSnapshot & { flush: () => Promise<void>; probe: () => Promise<boolean> } {
-  const [snapshot, setSnapshot] = useState<SyncSnapshot>(() => ({
-    online: true,
-    checking: false,
-    flushing: false,
-    pending: 0,
-    retrying: 0,
-    conflicts: 0,
-    requiresAction: 0,
-    syncedTotal: 0,
-    lastFlushAt: null,
-    lastError: null,
-    operations: [],
-    storageAvailable: true,
-    storageReason: null,
-  }))
+  const [snapshot, setSnapshot] = useState<SyncSnapshot>(() => syncEngine.getSnapshot())
 
   useEffect(() => syncEngine.subscribe(setSnapshot), [])
 

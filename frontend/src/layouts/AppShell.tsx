@@ -136,7 +136,7 @@ export function AppShell() {
                 <Badge tone="urgent">{sync.conflicts + sync.requiresAction} need attention</Badge>
               ) : null}
               <span className="small muted nowrap">
-                Last sync {sync.lastFlushAt ? relative(sync.lastFlushAt) : '—'}
+                Last sync {sync.lastFlushAt ? relative(sync.lastFlushAt) : sync.online ? 'just now' : '—'}
               </span>
             </div>
           )}
