@@ -688,6 +688,7 @@ This project is developed for BPUT Hackathon 2026 — Problem Statement 07 (Fret
 
 <div align="center">
   <p>Built with ❤️ by <b>Crystal Studio Labs</b></p>
-  <p><sub>Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Subhankar Mohapatra • Pruthiraj Lenka</sub></p>
+  <p>BPUT Hackathon 2026 • Problem Statement 07 (Fretbox)</p>
+  <p><sub><b>Team:</b> Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Pruthiraj Lenka • Manas Kumar Mallick • Bibhu Bhusan Giri • Nandita Das</sub></p>
   <p><b>Official Contact:</b> <a href="mailto:connect.crystalstudio@gmail.com">connect.crystalstudio@gmail.com</a></p>
 </div>

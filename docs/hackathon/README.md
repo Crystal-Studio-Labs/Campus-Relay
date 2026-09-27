@@ -56,6 +56,23 @@ flowchart TD
 
 ---
 
+---
+
+## 👥 BPUT Hackathon 2026 Team Roster
+
+| Role / Domain | Full Name | Focus Areas |
+| :--- | :--- | :--- |
+| **Team Designation** | **Crystal Studio Labs** | BPUT Hackathon 2026 |
+| **Competition Track**| **Problem Statement 07 (Fretbox)** | A Resilient Operating Layer for Everyday Campus Operations |
+| **Participant** | **Shuvransu Sekhar Sahoo** | Core Systems Architecture & Orchestration |
+| **Participant** | **Snehal Kumar Moharana** | Backend Services & Database Engineering |
+| **Participant** | **Pruthiraj Lenka** | Frontend Engineering & Local-First PWA |
+| **Participant** | **Manas Kumar Mallick** | Case Lifecycle Engine & Verification |
+| **Participant** | **Bibhu Bhusan Giri** | Security Gate Pass & Station Infrastructure |
+| **Participant** | **Nandita Das** | UI Design System & Technical Specifications |
+
+---
+
 ### 📬 Contact & Institutional Support
 - **Lead Organization**: **Crystal Studio Labs**
 - **Direct Support & Inquiries**: [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com)

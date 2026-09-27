@@ -136,6 +136,7 @@ docs/
 
 ### 📬 Contact & Institutional Support
 - **Lead Organization**: **Crystal Studio Labs**
+- **Team**: Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Pruthiraj Lenka • Manas Kumar Mallick • Bibhu Bhusan Giri • Nandita Das
 - **Direct Support & Inquiries**: [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com)
 - **Competition Track**: BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)
 - **Main Repository**: [GitHub: Crystal-Studio-Labs/Campus-Relay](https://github.com/Crystal-Studio-Labs/Campus-Relay)

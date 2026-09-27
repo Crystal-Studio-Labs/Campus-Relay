@@ -13,7 +13,11 @@ GLOBAL BRIEF (applies to every slide)
 
 PROJECT        Campus Relay
 TAGLINE        "A resilient operating layer for everyday campus operations."
-SUBTITLE       Crystal Studio Labs — BPUT Hackathon 2026 · Problem Statement 07 (Fretbox)
+TEAM           Crystal Studio Labs
+TEAM MEMBERS   Shuvransu Sekhar Sahoo, Snehal Kumar Moharana, Pruthiraj Lenka,
+               Manas Kumar Mallick, Bibhu Bhusan Giri, Nandita Das
+PROBLEM STMT   BPUT Hackathon 2026 · Problem Statement 07 (Fretbox)
+CONTACT EMAIL  connect.crystalstudio@gmail.com
 AUDIENCE       Hackathon judges, college decision-makers (registrar / warden /
                IT head), and a review panel. Some are technical, some are not.
 TONE           Confident, concrete, calm. No hype. No buzzword soup. Short
