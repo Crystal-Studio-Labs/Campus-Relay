@@ -27,11 +27,13 @@ html,
 body,
 #root {
   min-height: 100%;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 html {
   -webkit-text-size-adjust: 100%;
-  scrollbar-gutter: stable;
 }
 
 body,
@@ -226,6 +228,13 @@ hr {
   max-width: var(--page-max);
   margin: 0 auto;
   padding: var(--page-pad);
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .page {
+    padding: var(--sp-3);
+  }
 }
 
 @media (min-width: 1800px) {
@@ -285,23 +294,35 @@ hr {
 .grid {
   display: grid;
   gap: var(--sp-4);
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
   align-items: stretch;
 }
 .grid-2 {
   display: grid;
   gap: var(--sp-4);
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   align-items: stretch;
 }
 .grid-metrics {
   display: grid;
   gap: var(--sp-3);
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
   align-items: stretch;
 }
 .grid-span-all {
   grid-column: 1 / -1;
+}
+
+@media (max-width: 640px) {
+  .grid,
+  .grid-2 {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+  }
+  .grid-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-2);
+  }
 }
 
 /* Cards as columns: one on a phone, two at 900px, three at 1500px. Fixed
@@ -327,21 +348,29 @@ hr {
 .cards {
   display: grid;
   gap: var(--sp-4);
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
   align-items: stretch;
 }
 .cards-wide {
-  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
 }
 .cards-narrow {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+@media (max-width: 640px) {
+  .cards,
+  .cards-wide {
+    grid-template-columns: 1fr;
+    gap: var(--sp-3);
+  }
 }
 
 /* Detail / list split: a rail on the left, the working area on the right. */
 .split {
   display: grid;
   gap: var(--sp-4);
-  grid-template-columns: minmax(320px, 400px) 1fr;
+  grid-template-columns: minmax(min(100%, 320px), 400px) 1fr;
   align-items: start;
 }
 @media (max-width: 1024px) {

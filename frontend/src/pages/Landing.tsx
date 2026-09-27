@@ -223,24 +223,26 @@ export function LandingPage() {
           <a href="#tech">Tech Stack</a>
           <a href="#credits">Credits</a>
         </nav>
-        <div className="switcher" role="group" aria-label="Theme switcher">
-          {THEME_OPTIONS.map((option) => (
-            <button
-              key={option.id}
-              type="button"
-              className="symbol"
-              aria-pressed={theme === option.id}
-              aria-label={option.hint}
-              title={option.hint}
-              onClick={() => setTheme(option.id)}
-            >
-              <span aria-hidden="true">{option.symbol}</span>
-            </button>
-          ))}
+        <div className="landing-top-actions">
+          <div className="switcher" role="group" aria-label="Theme switcher">
+            {THEME_OPTIONS.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                className="symbol"
+                aria-pressed={theme === option.id}
+                aria-label={option.hint}
+                title={option.hint}
+                onClick={() => setTheme(option.id)}
+              >
+                <span aria-hidden="true">{option.symbol}</span>
+              </button>
+            ))}
+          </div>
+          <Link className="btn btn-primary btn-sm" to="/login">
+            Sign In
+          </Link>
         </div>
-        <Link className="btn btn-primary btn-sm" to="/login">
-          Sign In
-        </Link>
       </header>
 
       <div className="landing-wrap">
@@ -250,7 +252,7 @@ export function LandingPage() {
             <Badge tone="warn" className="pulse-beacon">
               BPUT Hackathon 2026
             </Badge>
-            <Badge tone="open">Problem Statement 07 · Fretbox</Badge>
+            <Badge tone="open">PS07 · Fretbox</Badge>
             <span className="small muted">Crystal Studio Labs</span>
           </div>
 
@@ -468,7 +470,7 @@ export function LandingPage() {
             and containerized deployment options:
           </p>
 
-          <div className="table-wrap" style={{ marginTop: 16 }}>
+          <div className="table-wrap become-cards" style={{ marginTop: 16 }}>
             <table className="data">
               <thead>
                 <tr>
@@ -479,8 +481,8 @@ export function LandingPage() {
               <tbody>
                 {TECH_STACK.map((item) => (
                   <tr key={item.name}>
-                    <td className="bold mono small">{item.name}</td>
-                    <td className="small">{item.role}</td>
+                    <td data-label="Component" className="bold mono small">{item.name}</td>
+                    <td data-label="Implementation" className="small">{item.role}</td>
                   </tr>
                 ))}
               </tbody>
@@ -490,7 +492,7 @@ export function LandingPage() {
 
         {/* ------------------------------------------------------------ CREDITS & GOVERNANCE */}
         <section className="landing-section" id="credits">
-          <div className="card" style={{ padding: 32, border: 'var(--border-w-fat) solid var(--line)' }}>
+          <div className="card credits-card">
             <div className="row wrap" style={{ gap: 10, alignItems: 'center', marginBottom: 12 }}>
               <span className="brand-mark" aria-hidden="true" data-monogram="CR" />
               <h2 style={{ margin: 0 }}>Campus Relay · Credits &amp; Attribution</h2>
@@ -503,7 +505,7 @@ export function LandingPage() {
               <strong>Problem Statement 07: Fretbox</strong>.
             </p>
 
-            <div className="landing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginTop: 16 }}>
+            <div className="landing-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', marginTop: 16 }}>
               <div className="metric">
                 <span className="metric-label">DEVELOPED BY</span>
                 <span className="metric-value bold">Crystal Studio Labs</span>
