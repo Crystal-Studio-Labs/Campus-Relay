@@ -61,8 +61,12 @@
 12. [Configuration Reference](#configuration-reference)
 13. [End-to-End Automated Verification Suite](#end-to-end-automated-verification-suite)
 14. [API Surface & Interactive Documentation](#api-surface--interactive-documentation)
-15. [Star History](#-star-history)
-16. [Contact & Support](#contact--support)
+15. [One-Click Deployment](#-one-click-deployment)
+16. [Contributing](#-contributing)
+17. [Security Policy](#-security)
+18. [Star History](#-star-history)
+19. [License & Governance](#-license)
+20. [Contact & Support](#-contact--institutional-support)
 
 ---
 
@@ -631,27 +635,48 @@ Once the backend is started, explore the full OpenAPI specification and test end
 
 ---
 
-## 🌟 Star History
+## 🚀 One-Click Deployment
 
-<p align="center">
-  <a href="https://star-history.com/#Crystal-Studio-Labs/Campus-Relay&Date">
-    <img src="https://api.star-history.com/svg?repos=Crystal-Studio-Labs/Campus-Relay&type=Date" alt="Campus Relay Star History Chart" width="100%" style="max-width: 820px;" />
-  </a>
-</p>
+Deploy your own instance of Campus Relay instantly using any of these platforms:
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Crystal-Studio-Labs/Campus-Relay) [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Crystal-Studio-Labs/Campus-Relay)
 
 ---
 
-## 📬 Contact & Support
+## 🤝 Contributing
 
-Developed with architectural precision by **Crystal Studio Labs**.
+Campus Relay is an engineered institutional operating layer. Please read our [Documentation Hub](docs/README.md) and architectural guides before submitting Pull Requests.
 
-| Attribute | Details |
-| :--- | :--- |
-| **Organization** | **Crystal Studio Labs** |
-| **Hackathon** | BPUT Hackathon 2026 — Problem Statement 07 (Fretbox) |
-| **Official Email** | [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com) |
-| **Source Code** | [GitHub Repository](https://github.com/Crystal-Studio-Labs/Campus-Relay) |
-| **Documentation Hub** | [`docs/README.md`](docs/README.md) |
-| **License** | Proprietary Institutional Evaluation License |
+---
 
-*A resilient operating layer for everyday campus operations.*
+## 🔒 Security
+
+If you discover a security vulnerability, please refer to our [Security Architecture](docs/architecture/security.md) or email us directly at [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com) to report it responsibly.
+
+---
+
+## 🌟 Star History
+
+<div align="center">
+  <a href="https://star-history.com/#Crystal-Studio-Labs/Campus-Relay&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Crystal-Studio-Labs/Campus-Relay&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Crystal-Studio-Labs/Campus-Relay&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Crystal-Studio-Labs/Campus-Relay&type=Date" />
+    </picture>
+  </a>
+</div>
+
+---
+
+## 📄 License
+
+This project is developed for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox) by **Crystal Studio Labs**. Licensed under the MIT License.
+
+---
+
+<div align="center">
+  <p>Built with ❤️ by <b>Crystal Studio Labs</b></p>
+  <p><sub>Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Subhankar Mohapatra • Pruthiraj Lenka</sub></p>
+  <p><b>Official Contact:</b> <a href="mailto:connect.crystalstudio@gmail.com">connect.crystalstudio@gmail.com</a></p>
+</div>
