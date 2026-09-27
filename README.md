@@ -1,20 +1,20 @@
-# Campus Relay
+# 🏛️ Campus Relay
 
 > **A resilient operating layer for everyday campus operations.**  
-> *Developed by Crystal Studio Labs for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
+> *Developed by **Crystal Studio Labs** for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
 
-[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.115+-009688.svg?style=flat&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_16-336791.svg?style=flat&logo=postgresql&logoColor=white)](https://www.postgresql.org)
-[![React](https://img.shields.io/badge/Frontend-React_18_PWA-61DAFB.svg?style=flat&logo=react&logoColor=black)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript_5-3178C6.svg?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-[![Vite](https://img.shields.io/badge/Bundler-Vite_5-646CFF.svg?style=flat&logo=vite&logoColor=white)](https://vitejs.dev)
-[![Design](https://img.shields.io/badge/Design-Bright_Institutional-2563EB.svg?style=flat&logoColor=white)](#frontend-design-system--bright-institutional)
-[![Template](https://img.shields.io/badge/Template-Config--per--Institution-2F9E58.svg?style=flat)](#configuration-reference)
-[![Offline](https://img.shields.io/badge/Storage-Local--First_IndexedDB-success.svg?style=flat)](#offline-first-architecture--synchronization)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_0.115+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL_16-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org)
+[![React](https://img.shields.io/badge/Frontend-React_18_PWA-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/Language-TypeScript_5-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Vite](https://img.shields.io/badge/Bundler-Vite_5-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
+[![Design](https://img.shields.io/badge/Design-Bright_Institutional-2563EB.svg?style=for-the-badge&logoColor=white)](#frontend-design-system--bright-institutional)
+[![Offline](https://img.shields.io/badge/Storage-Local--First_IndexedDB-success.svg?style=for-the-badge)](#offline-first-architecture--synchronization)
+[![License](https://img.shields.io/badge/License-Proprietary_Evaluation-amber.svg?style=for-the-badge)](#contact--support)
 
 ---
 
-## Table of Contents
+## 📑 Table of Contents
 
 1. [Executive Summary](#executive-summary)
 2. [Architectural Philosophy](#architectural-philosophy)
@@ -32,26 +32,47 @@
 12. [Configuration Reference](#configuration-reference)
 13. [End-to-End Automated Verification Suite](#end-to-end-automated-verification-suite)
 14. [API Surface & Interactive Documentation](#api-surface--interactive-documentation)
+15. [Contact & Support](#contact--support)
 
 ---
 
-## Executive Summary
+## 🎯 Executive Summary
 
 Campus operations across universities and colleges suffer from acute fragmentation: maintenance issues rely on paper registers, academic notices are lost across unmonitored WhatsApp groups, gate passes require physical signatures on paper slips, and students without smartphones or stable internet connections are routinely left stranded.
 
 **Campus Relay** transforms this landscape by replacing disjointed point solutions with a single, resilient operational layer. Every operational request—whether a leaking hostel washroom tap, a bonafide certificate for an education loan, a hostel leave pass, or a mess complaint—is represented as a trackable **Campus Case**, governed by formal state machines, deterministic service level agreements (SLAs), append-only audit histories, and offline-first client replication.
 
-> **The adoption promise.** *Give us your college's information and this is a configurable engine you can have running within an hour of setup.* Departments, hostels, rooms, staff and students are configuration and CSV import — not a fork and not a rebuild. See **[docs/guides/adoption-plan.md](docs/guides/adoption-plan.md)** for the migration order and **[docs/guides/setup-guide.md](docs/guides/setup-guide.md)** for the hour-by-hour walkthrough.
+> [!IMPORTANT]
+> **The Adoption Promise:** *Give us your college's information and this is a configurable engine you can have running within an hour of setup.*  
+> Departments, hostels, rooms, staff and students are configuration and CSV import — not a fork and not a rebuild.  
+> See **[`docs/guides/adoption-plan.md`](docs/guides/adoption-plan.md)** for the migration order and **[`docs/guides/setup-guide.md`](docs/guides/setup-guide.md)** for the hour-by-hour walkthrough.
 
 ---
 
-## Architectural Philosophy
+## 🏛️ Architectural Philosophy
 
 Campus Relay is built on foundational architectural principles designed to survive real-world campus constraints:
 
-```
-REQUEST -> CASE -> POLICY -> WORKFLOW -> APPROVAL -> SLA -> ASSIGNMENT 
-        -> NOTIFICATION -> RESOLUTION -> VERIFICATION -> AUDIT
+```mermaid
+flowchart LR
+    REQ[REQUEST] --> CASE[CASE]
+    CASE --> POL[POLICY]
+    POL --> WF[WORKFLOW]
+    WF --> APP[APPROVAL]
+    APP --> SLA[SLA]
+    SLA --> ASN[ASSIGNMENT]
+    ASN --> NOTIF[NOTIFICATION]
+    NOTIF --> RES[RESOLUTION]
+    RES --> VER[VERIFICATION]
+    VER --> AUDIT[AUDIT]
+
+    style REQ fill:#3b82f6,stroke:#1d4ed8,color:#ffffff
+    style CASE fill:#1d4ed8,stroke:#172554,color:#ffffff
+    style POL fill:#0284c7,stroke:#0369a1,color:#ffffff
+    style SLA fill:#f59e0b,stroke:#b45309,color:#ffffff
+    style RES fill:#10b981,stroke:#047857,color:#ffffff
+    style VER fill:#059669,stroke:#064e3b,color:#ffffff
+    style AUDIT fill:#475569,stroke:#1e293b,color:#ffffff
 ```
 
 1. **Universal Campus Case Engine**: Adding a new campus service (e.g. sports equipment requisition, fee query, library clearance) requires configuring service catalog policies and workflow steps rather than writing a new application.
@@ -62,92 +83,144 @@ REQUEST -> CASE -> POLICY -> WORKFLOW -> APPROVAL -> SLA -> ASSIGNMENT
 
 ---
 
-## Key Highlights & Competitive Reality
+## 📊 Key Highlights & Competitive Reality
 
 | Capability | Legacy Campus Software / Silos | Typical Campus Management Tools | Campus Relay |
 | :--- | :--- | :--- | :--- |
-| **Operational Architecture** | Siloed CRUD forms for each department | Modular but disconnected databases | **Universal Case Engine** with unified state machine |
-| **Offline Reliability** | Requires constant active internet | Cached read-only web views | **Local-First PWA with IndexedDB outbox & idempotent replay** |
-| **Audit Integrity** | Mutable database rows, easily overwritten | Basic timestamp fields | **Append-only event sourcing with DB-level immutability triggers** |
-| **Document Verification** | Scanned paper documents, easily forged | Static PDF downloads | **Verifiable PDFs with cryptographic serials & public QR verification** |
-| **Gate Security** | Physical paper registers at the gate | Standalone gate software | **Integrated leave-to-pass workflow with anti-passback validation** |
-| **Communication Layer** | Blast WhatsApp messages / notice boards | Generic bulk email | **Targeted delivery tracking, read receipts, and required action tracking** |
-| **Campus Kiosk** | None | Cloned desktop portal on a tablet | **Dedicated touch-first kiosk mode with roll number lookup & timeout** |
-| **AI Integration** | None or ungrounded external chatbots | Hallucination-prone LLM chat | **4 Controlled Agents with tool sandboxes & human-in-the-loop confirmation** |
+| **Operational Architecture** | ❌ Siloed CRUD forms for each department | ⚠️ Modular but disconnected databases | ✅ **Universal Case Engine** with unified state machine |
+| **Offline Reliability** | ❌ Requires constant active internet | ⚠️ Cached read-only web views | ✅ **Local-First PWA with IndexedDB outbox & idempotent replay** |
+| **Audit Integrity** | ❌ Mutable database rows, easily overwritten | ⚠️ Basic timestamp fields | ✅ **Append-only event sourcing with DB-level immutability triggers** |
+| **Document Verification** | ❌ Scanned paper documents, easily forged | ⚠️ Static PDF downloads | ✅ **Verifiable PDFs with cryptographic serials & public QR verification** |
+| **Gate Security** | ❌ Physical paper registers at the gate | ⚠️ Standalone gate software | ✅ **Integrated leave-to-pass workflow with anti-passback validation** |
+| **Communication Layer** | ❌ Blast WhatsApp messages / notice boards | ⚠️ Generic bulk email | ✅ **Targeted delivery tracking, read receipts, and required action tracking** |
+| **Campus Kiosk** | ❌ None | ⚠️ Cloned desktop portal on a tablet | ✅ **Dedicated touch-first kiosk mode with roll number lookup & timeout** |
+| **AI Integration** | ❌ None or ungrounded external chatbots | ⚠️ Hallucination-prone LLM chat | ✅ **4 Controlled Agents with tool sandboxes & human-in-the-loop confirmation** |
 
 ---
 
-## Master End-to-End Workflows
+## 🔄 Master End-to-End Workflows
 
 Campus Relay includes 5 core end-to-end workflows that solve real campus operational bottlenecks:
 
 ### Workflow A: Hostel Maintenance Lifecycle
+
+```mermaid
+flowchart TD
+    A([Student scans QR / selects Service]) --> B[Intake Agent classifies priority & category]
+    B --> C[Policy Engine validates location & deduplicates]
+    C --> D[Routing Engine assigns to Department & Technician]
+    D --> E[Technician updates status to IN_PROGRESS & adds evidence]
+    E --> F[Technician resolves issue: RESOLVED]
+    F --> G{Student verifies fix?}
+    G -- "Verified" --> H([Case CLOSED])
+    G -- "Issue Persists" --> I[Case REOPENED -> IN_PROGRESS]
+    I --> E
+
+    style A fill:#2563eb,stroke:#1d4ed8,color:#ffffff
+    style F fill:#f59e0b,stroke:#b45309,color:#ffffff
+    style H fill:#10b981,stroke:#047857,color:#ffffff
+    style I fill:#ef4444,stroke:#b91c1c,color:#ffffff
 ```
-[Student scans QR / selects Service] 
-  -> [Intake Agent classifies priority & category]
-  -> [Policy Engine validates location & deduplicates]
-  -> [Routing Engine assigns to Department & Technician]
-  -> [Technician updates status to IN_PROGRESS & adds evidence]
-  -> [Technician resolves issue]
-  -> [Student verifies fix (VERIFICATION_REQUIRED -> CLOSED)]
-  -> [Option to REOPEN if issue recurs]
-```
+
 - **Physical QR Code Integration**: Every room, washroom, corridor, and lab features a privacy-preserving QR code containing only location metadata (never student PII). Scanning immediately pre-fills the complaint context.
 - **Requester Verification Guard**: A case cannot be marked permanently closed by staff alone; the student must verify the resolution or it can be reopened.
 
 ### Workflow B: Verifiable Bonafide Certificate
+
+```mermaid
+flowchart TD
+    A([Student requests Certificate with Purpose]) --> B[Policy Engine validates prerequisites & dues balance]
+    B --> C[Enters Admin / Registrar Approval Queue]
+    C --> D[Admin reviews & approves request]
+    D --> E[ReportLab generates verifiable PDF with QR & Serial No]
+    E --> F[Student downloads PDF from portal]
+    F --> G([External authority scans QR to verify authenticity at /api/v1/documents/verify/{code}])
+
+    style A fill:#2563eb,stroke:#1d4ed8,color:#ffffff
+    style D fill:#10b981,stroke:#047857,color:#ffffff
+    style E fill:#6366f1,stroke:#4338ca,color:#ffffff
+    style G fill:#059669,stroke:#064e3b,color:#ffffff
 ```
-[Student requests Certificate with Purpose]
-  -> [Policy Engine validates prerequisites & dues balance]
-  -> [Enters Admin / Registrar Approval Queue]
-  -> [Admin approves request]
-  -> [ReportLab generates verifiable PDF with QR & Serial No]
-  -> [Student downloads PDF from portal]
-  -> [External authority scans QR to verify authenticity at /api/v1/documents/verify/{code}]
-```
+
 - **Zero-Trust Document Verification**: Public endpoint confirms document validity, serial number, issue date, and student identity without exposing private academic or financial data.
 
 ### Workflow C: Leave Approval, Digital Gate Pass & Anti-Passback
+
+```mermaid
+flowchart TD
+    A([Hostel student submits Leave Request]) --> B[Policy Engine verifies date window]
+    B --> C[Warden Approval Queue: Hostel Scoped]
+    C --> D[Warden approves & issues Digital Gate Pass]
+    D --> E[Security Guard scans pass QR at Gate Desk]
+    E --> F[Security logs EXIT movement]
+    F --> G{Anti-passback check}
+    G -- "Duplicate Exit" --> H[Refused: Cannot exit twice]
+    G -- "Return" --> I[Security logs ENTRY movement upon return]
+    I --> J([Leave case automatically closes upon verified return])
+
+    style A fill:#2563eb,stroke:#1d4ed8,color:#ffffff
+    style D fill:#10b981,stroke:#047857,color:#ffffff
+    style H fill:#ef4444,stroke:#b91c1c,color:#ffffff
+    style J fill:#059669,stroke:#064e3b,color:#ffffff
 ```
-[Hostel student submits Leave Request (dates, destination, guardian contact)]
-  -> [Policy Engine verifies date window]
-  -> [Warden Approval Queue (Hostel scoped)]
-  -> [Warden approves & issues Digital Gate Pass]
-  -> [Security Guard scans pass QR at Gate Desk]
-  -> [Security logs EXIT movement (Anti-passback: duplicate exits refused)]
-  -> [Security logs ENTRY movement upon return]
-  -> [Leave case automatically closes upon verified return]
-```
+
 - **Strict Anti-Passback**: A pass cannot be used for multiple exits or entries out of order. Gate counts update live in the Security Command Center.
 
 ### Workflow D: Offline Outbox & Idempotent Sync
-```
-[Hostel Wi-Fi disconnects]
-  -> [Student files complaint or acknowledges notice offline]
-  -> [Client generates stable idempotency key: op-<timestamp>-<rand>]
-  -> [Saved locally in IndexedDB outbox & UI reflects pending status]
-  -> [Wi-Fi reconnects -> Sync engine replays mutations to /api/v1/sync/push]
-  -> [Server commits operations idempotently; duplicate pushes return original result]
-  -> [Stale client state triggers CONFLICT status rather than overwriting]
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Student
+    participant PWA as PWA UI (Client)
+    participant IDB as IndexedDB Outbox
+    participant API as FastAPI Server (/api/v1/sync/push)
+    participant DB as PostgreSQL 16
+
+    Note over Student,PWA: Hostel Wi-Fi disconnects
+    Student->>PWA: File complaint or acknowledge notice
+    PWA->>IDB: Generate idempotency key (op-timestamp-rand) & save locally
+    Note over PWA,IDB: UI displays "Pending Offline Sync"
+    Note over Student,API: Wi-Fi connectivity returns
+    IDB->>API: Background sync worker replays mutation batch
+    API->>DB: Check idempotency key in sync_operations
+    alt New Operation
+        API->>DB: Execute transaction & save audit trail
+        DB-->>API: Commit successful
+        API-->>IDB: Return status 200 (SYNCED)
+        IDB->>PWA: Mark complete & update cache
+    else Duplicate Replay
+        DB-->>API: Return original recorded result
+        API-->>IDB: Return original result without duplicating
+    else Stale State Conflict
+        API-->>IDB: Return 409 CONFLICT with current server state
+        IDB->>PWA: Prompt user for reconciliation
+    end
 ```
 
 ### Workflow E: Targeted Notice Studio & Action Tracking
-```
-[Admin creates urgent notice (e.g. Water Tank Maintenance)]
-  -> [Selects granular targets: Hostel A, CSE Department, Batch 2026]
-  -> [Notice published -> Appears only in targeted students' inboxes]
-  -> [Tracks: Sent -> Delivered -> Read -> Acknowledged]
-  -> [Admin views real-time delivery and action analytics]
-  -> [Optional public shareable link with sanitized view]
+
+```mermaid
+flowchart TD
+    A([Admin creates notice: Water Tank Maintenance]) --> B[Selects granular targets: Hostel A, CSE, Batch 2026]
+    B --> C[Notice published -> Appears only in targeted inboxes]
+    C --> D[Lifecycle Tracking: Sent -> Delivered -> Read -> Acknowledged]
+    D --> E[Admin views real-time delivery & action analytics]
+    E --> F[Optional public shareable link with sanitized view]
+
+    style A fill:#2563eb,stroke:#1d4ed8,color:#ffffff
+    style C fill:#0284c7,stroke:#0369a1,color:#ffffff
+    style D fill:#10b981,stroke:#047857,color:#ffffff
 ```
 
 ---
 
-## Role-Based Access Control (RBAC) & Pre-configured Demo Accounts
+## 👥 Role-Based Access Control (RBAC) & Pre-configured Demo Accounts
 
 Campus Relay enforces granular Role-Based Access Control on every API endpoint and frontend route, backed by organizational data scoping (e.g., wardens only see their assigned hostels; staff only see assigned tasks).
 
-All demo accounts use the standard password: **`Campus@2026`**
+> [!NOTE]
+> All demo accounts use the standard password: **`Campus@2026`**
 
 | Role | Account Email | Role Scope & Responsibilities |
 | :--- | :--- | :--- |
@@ -163,26 +236,31 @@ All demo accounts use the standard password: **`Campus@2026`**
 
 ---
 
-## Offline-First Architecture & Synchronization
+## ⚡ Offline-First Architecture & Synchronization
 
 Campus Relay implements a true local-first PWA architecture:
 
-```
-+-------------------------------------------------------------------+
-|                           PWA Client                              |
-|  +--------------------+   +-------------------+   +------------+  |
-|  |   UI Components    |-->| IndexedDB Cache   |   | Outbox Q   |  |
-|  +--------------------+   +-------------------+   +------------+  |
-|                                                          |        |
-|                                             Network probe & sync  |
-+----------------------------------------------------------|--------+
-                                                           v
-+-------------------------------------------------------------------+
-|                       FastAPI Server Layer                        |
-|  +--------------------+   +-------------------+   +------------+  |
-|  | /api/v1/sync/push  |-->| Idempotency Engine|-->| PostgreSQL |  |
-|  +--------------------+   +-------------------+   +------------+  |
-+-------------------------------------------------------------------+
+```mermaid
+flowchart TD
+    subgraph Client ["PWA Client (Local Device)"]
+        UI[UI Components] --> Cache[(IndexedDB Cache)]
+        UI --> Drafts[(IndexedDB Drafts)]
+        UI --> Outbox[(IndexedDB Outbox Queue)]
+    end
+
+    Outbox -- "Network probe & automatic replay" --> SyncAPI["FastAPI /api/v1/sync/push"]
+
+    subgraph Server ["FastAPI Server Layer"]
+        SyncAPI --> IdemCheck{Idempotency Engine}
+        IdemCheck -- "First Seen" --> Tx[Execute Mutation Transaction]
+        IdemCheck -- "Duplicate" --> CachedResp[Return Prior Result]
+        Tx --> Postgres[(PostgreSQL 16 Engine)]
+    end
+
+    style Client fill:#f8fafc,stroke:#94a3b8,color:#0f172a
+    style Server fill:#f0fdf4,stroke:#86efac,color:#0f172a
+    style Outbox fill:#fef3c7,stroke:#f59e0b,color:#78350f
+    style Postgres fill:#336791,stroke:#1e3a8a,color:#ffffff
 ```
 
 - **IndexedDB Stores**:
@@ -194,26 +272,31 @@ Campus Relay implements a true local-first PWA architecture:
 
 ---
 
-## Controlled AI Agents & Operations Layer
+## 🤖 Controlled AI Agents & Operations Layer
 
 Rather than relying on ungrounded or hallucinating chatbots, Campus Relay deploys **4 purpose-built, controlled AI agents**:
 
-```
-+--------------------------------------------------------------------------+
-|                      CAMPUS RELAY INTELLIGENCE LAYER                     |
-|                                                                          |
-|  [Agent 1: Intake & Classification]                                      |
-|    Parses unstructured text -> assigns category, subcategory & priority  |
-|                                                                          |
-|  [Agent 2: Smart Routing]                                                |
-|    Matches service, location & department -> selects optimal staff        |
-|                                                                          |
-|  [Agent 3: Operations & Anomaly Briefing]                                |
-|    Detects SLA risks, recurring issues & staff workload imbalances       |
-|                                                                          |
-|  [Agent 4: Student Campus Assistant]                                     |
-|    Answers questions using sandbox tools + human-in-the-loop confirmation|
-+--------------------------------------------------------------------------+
+```mermaid
+flowchart TB
+    subgraph Agents ["Campus Relay Intelligence Layer"]
+        A1["Agent 1: Intake & Classification<br/><i>Parses unstructured text -> assigns category & priority</i>"]
+        A2["Agent 2: Smart Routing<br/><i>Matches service & department -> selects optimal staff</i>"]
+        A3["Agent 3: Operations & Anomaly Briefing<br/><i>Detects SLA risks, recurring issues & workload spikes</i>"]
+        A4["Agent 4: Student Campus Assistant<br/><i>Answers questions using real backend tools & confirms actions</i>"]
+    end
+
+    subgraph Governance ["Safety & Sandboxing Boundary"]
+        A1 & A2 & A3 & A4 --> Sandbox["Structured Tool Sandbox (agents/tools.py)"]
+        Sandbox --> AuthCheck["Strict RBAC & Tenant Data Scope Check"]
+        AuthCheck --> PolicyCheck["Policy Engine Verification"]
+        PolicyCheck --> ServiceLayer["Application Service Layer"]
+    end
+
+    ServiceLayer --> DB[(PostgreSQL 16 + Audit Event)]
+
+    style Agents fill:#eff6ff,stroke:#93c5fd,color:#1e3a8a
+    style Governance fill:#fdf4ff,stroke:#f0abfc,color:#581c87
+    style DB fill:#10b981,stroke:#059669,color:#ffffff
 ```
 
 ### Dual Engine Capability:
@@ -226,38 +309,25 @@ Rather than relying on ungrounded or hallucinating chatbots, Campus Relay deploy
 
 ---
 
-## Frontend Design System & Bright Institutional
+## 🎨 Frontend Design System & Bright Institutional
 
-The shipped interface is **bright institutional**: a calm, modern administration
-platform that reads as trustworthy to a registrar and familiar to a student.
-- **Soft elevation**: white surfaces on a soft blue-grey page, generous radii and
-  quiet shadows instead of hard plates — the content is the loudest thing on screen.
-- **One confident blue for action**, green for done, amber for attention. Colour
-  never carries meaning alone: every status chip also carries its word.
+The shipped interface is **bright institutional**: a calm, modern administration platform that reads as trustworthy to a registrar and familiar to a student.
+- **Soft elevation**: white surfaces on a soft blue-grey page, generous radii and quiet shadows instead of hard plates — the content is the loudest thing on screen.
+- **One confident blue for action**, green for done, amber for attention. Colour never carries meaning alone: every status chip also carries its word.
 - **Sentence-case labels** and real headings, sized so a dense queue still scans.
-- **Accessibility & Contrast**: WCAG AA across both themes; `--muted-ink` is a
-  real measured colour, never faded body text.
-- **Two independent axes**: *theme* (light/dark, chosen per person) and *skin*
-  (the design language, chosen per institution). Four skins ship — modern
-  institutional (default), engineering blueprint, government portal and
-  university portal. See `docs/specifications/THEMES.md`.
-- **Fixed module navigation**: one information architecture across roles —
-  Overview, Requests, Communication, Security, Insights, People, Stations and
-  System — with items filtered by permission. Breadcrumbs and a quick switcher
-  (Ctrl/Cmd-K) make every screen findable without hunting the sidebar.
+- **Accessibility & Contrast**: WCAG AA across both themes; `--muted-ink` is a real measured colour, never faded body text.
+- **Two independent axes**: *theme* (light/dark, chosen per person) and *skin* (the design language, chosen per institution). Four skins ship — modern institutional (default), engineering blueprint, government portal and university portal. See [`docs/specifications/THEMES.md`](docs/specifications/THEMES.md).
+- **Fixed module navigation**: one information architecture across roles — Overview, Requests, Communication, Security, Insights, People, Stations and System — with items filtered by permission. Breadcrumbs and a quick switcher (`Ctrl`/`Cmd`+`K`) make every screen findable without hunting the sidebar.
 - **Adaptive Layouts**:
   - **Mobile Experience**: Thumb-friendly bottom navigation bar, expandable sheets, compact case cards, tables that become labelled record cards.
   - **Desktop Experience**: Persistent module sidebar, high-density data tables, a five-level command centre.
-  - **Kiosk Mode**: High-contrast, large touch-friendly buttons, multi-lingual prompts, automatic session timeout after inactivity (configurable).
+  - **Kiosk Mode**: High-contrast, large touch-friendly buttons, multi-lingual prompts (English, Odia, Hindi), automatic session timeout after inactivity.
 
-The stylesheet is layered — `tokens → base → components → app` — with one
-manifest (`frontend/src/styles/index.css`); the design roadmap (high-contrast
-theme, density switch, portable design pack) is registered in the product itself
-on `/setup` and `/guide?tab=themes`.
+The stylesheet is layered — `tokens → base → components → app` — with one manifest (`frontend/src/styles/index.css`); the design roadmap (high-contrast theme, density switch, portable design pack) is registered in the product itself on `/setup` and `/guide?tab=themes`.
 
 ---
 
-## Tech Stack
+## 💻 Tech Stack
 
 ### Backend
 - **Framework**: [FastAPI 0.115+](https://fastapi.tiangolo.com)
@@ -281,18 +351,18 @@ on `/setup` and `/guide?tab=themes`.
 
 ---
 
-## Repository Structure
+## 📂 Repository Structure
 
 ```
 Campus-Relay/
 ├── config.bat                 # Configuration file for batch launcher
 ├── run.bat                    # Master Windows launcher (concurrent backend & frontend)
 ├── stop.bat                   # Clean shutdown utility for background servers
-├── docker-compose.yml         # Container configuration for PostgreSQL (and optional Redis)
+├── docker-compose.yml         # Container configuration for PostgreSQL
 ├── .env.example               # Environment template
 ├── .env                       # Active application environment variables
 ├── config/
-│   └── institution.json       # THE template file a college edits (identity, skin, vocabulary, features)
+│   └── institution.json       # Config template a college edits (identity, skin, vocabulary, features)
 ├── docs/
 │   ├── README.md              # Central documentation hub
 │   ├── architecture/          # Modular monolith architecture, data models, workflows, offline sync
@@ -359,7 +429,7 @@ Campus-Relay/
 
 ---
 
-## Quick Start Guide
+## 🚀 Quick Start Guide
 
 ### Option A: One-Click Windows Batch Execution (Recommended)
 
@@ -373,23 +443,24 @@ Campus Relay includes an intelligent, zero-configuration master launcher that or
 
 2. **Launch Campus Relay**:
    Double-click `run.bat` or execute in PowerShell / Command Prompt:
-   ```cmd
+   ```powershell
    .\run.bat
    ```
-   **What `run.bat` automates:**
-   - Detects Python 3.10+ runtime and project virtual environment.
-   - Detects Node.js and installs frontend `node_modules` if missing.
-   - Probes PostgreSQL on port 5432; automatically starts Docker Compose database container if available.
-   - Applies database migrations (`alembic upgrade head`).
-   - Automatically seeds realistic campus demo data if the database is unpopulated.
-   - Launches the FastAPI backend API on `http://127.0.0.1:8000`.
-   - Launches the Vite PWA frontend on `http://localhost:5173`.
-   - Opens your default web browser directly into Campus Relay.
-   - Displays an interactive controller dashboard in your console.
+   > [!TIP]
+   > **What `run.bat` automates:**
+   > - Detects Python 3.10+ runtime and project virtual environment.
+   > - Detects Node.js and installs frontend `node_modules` if missing.
+   > - Probes PostgreSQL on port 5432; automatically starts Docker Compose database container if available.
+   > - Applies database migrations (`alembic upgrade head`).
+   > - Automatically seeds realistic campus demo data if the database is unpopulated.
+   > - Launches the FastAPI backend API on `http://127.0.0.1:8000`.
+   > - Launches the Vite PWA frontend on `http://localhost:5173`.
+   > - Opens your default web browser directly into Campus Relay.
+   > - Displays an interactive controller dashboard in your console.
 
 3. **Clean Shutdown**:
    Press `[S]` in the `run.bat` controller menu, or double-click `stop.bat` to gracefully terminate both background servers:
-   ```cmd
+   ```powershell
    .\stop.bat
    ```
 
@@ -451,15 +522,9 @@ docker compose up -d db
 
 ---
 
-## Configuration Reference
+## ⚙️ Configuration Reference
 
-Configuration has two layers. **Institution configuration** — the template that
-makes any college adoptable without forking — lives in
-`config/institution.json` (identity, design language, vocabulary, languages,
-station behaviour, module switches, accessibility guardrails). It is served by
-`GET /api/v1/institution`, editable without a rebuild, and documented in
-**[docs/specifications/CONFIGURATION.md](docs/specifications/CONFIGURATION.md)**. Administrators can inspect
-and reload it live on the **Institution setup** screen (`/setup`).
+Configuration has two layers. **Institution configuration** — the template that makes any college adoptable without forking — lives in `config/institution.json` (identity, design language, vocabulary, languages, station behaviour, module switches, accessibility guardrails). It is served by `GET /api/v1/institution`, editable without a rebuild, and documented in **[`docs/specifications/CONFIGURATION.md`](docs/specifications/CONFIGURATION.md)**. Administrators can inspect and reload it live on the **Institution setup** screen (`/setup`).
 
 **Environment variables** (in `.env`) carry secrets and infrastructure:
 
@@ -479,7 +544,7 @@ and reload it live on the **Institution setup** screen (`/setup`).
 | `AGENT_LLM_API_KEY` | *(empty)* | Optional LLM API key |
 | `AGENT_LLM_MODEL` | *(empty)* | Optional LLM model identifier |
 | `INSTITUTION_CONFIG_PATH` | *(empty)* | Optional override of the institution config file location |
-| `TELEGRAM_BOT_TOKEN` | *(empty)* | Telegram bot token. When set, the Telegram channel is live; each user links a chat id |
+| `TELEGRAM_BOT_TOKEN` | *(empty)* | Telegram bot token. When set, Telegram channel is live; users link chat id |
 | `WHATSAPP_PHONE_NUMBER_ID` | *(empty)* | Meta WhatsApp Cloud API phone-number id |
 | `WHATSAPP_TOKEN` | *(empty)* | Meta WhatsApp Cloud API permanent token |
 | `WHATSAPP_TEMPLATE` | *(empty)* | Approved template name for institution-initiated messages |
@@ -489,23 +554,17 @@ and reload it live on the **Institution setup** screen (`/setup`).
 
 ### Notification channels
 
-In-app is always real (stored and tracked in Postgres). External channels are
-optional and report themselves honestly via `GET /meta`:
+In-app is always real (stored and tracked in Postgres). External channels are optional and report themselves honestly via `GET /meta`:
 
-- **Telegram** — a real adapter. Set `TELEGRAM_BOT_TOKEN` (from @BotFather) and the
-  channel is live; users link a chat id from **Alerts → Preferences**.
-- **WhatsApp** — a real adapter for the Meta Cloud API, but it stays unconfigured
-  until a phone-number id, a permanent token and an approved template exist.
+- **Telegram** — a real adapter. Set `TELEGRAM_BOT_TOKEN` (from @BotFather) and the channel is live; users link a chat id from **Alerts → Preferences**.
+- **WhatsApp** — a real adapter for the Meta Cloud API, but it stays unconfigured until a phone-number id, a permanent token and an approved template exist.
 - **Push / SMS / email** — adapter slots with no provider configured.
 
-Outbound provider calls never sit in a request transaction: a configured
-notification is written to the `notification_deliveries` outbox and drained by a
-background worker with retry and backoff, which records the true outcome. An
-unconfigured channel queues nothing and claims nothing.
+Outbound provider calls never sit in a request transaction: a configured notification is written to the `notification_deliveries` outbox and drained by a background worker with retry and backoff, which records the true outcome. An unconfigured channel queues nothing and claims nothing.
 
 ---
 
-## End-to-End Automated Verification Suite
+## 🧪 End-to-End Automated Verification Suite
 
 Campus Relay includes a comprehensive end-to-end test suite (`backend/scripts/e2e_demo.py`) that executes against a running instance of the API. It tests the complete lifecycle without mocking:
 
@@ -528,18 +587,30 @@ python -m scripts.e2e_demo --base-url http://127.0.0.1:8000
 
 ---
 
-## API Surface & Interactive Documentation
+## 🌐 API Surface & Interactive Documentation
 
 Once the backend is started, explore the full OpenAPI specification and test endpoints interactively:
 
 - **Swagger UI (Interactive API Explorer)**:  
-  [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs)
+  [`http://127.0.0.1:8000/docs`](http://127.0.0.1:8000/docs)
 - **OpenAPI Schema (Raw JSON)**:  
-  [http://127.0.0.1:8000/openapi.json](http://127.0.0.1:8000/openapi.json)
+  [`http://127.0.0.1:8000/openapi.json`](http://127.0.0.1:8000/openapi.json)
 - **System Health Endpoint**:  
-  [http://127.0.0.1:8000/api/v1/health](http://127.0.0.1:8000/api/v1/health)
+  [`http://127.0.0.1:8000/api/v1/health`](http://127.0.0.1:8000/api/v1/health)
 
 ---
 
-### Developed with precision by Crystal Studio Labs
+## 📬 Contact & Support
+
+Developed with architectural precision by **Crystal Studio Labs**.
+
+| Attribute | Details |
+| :--- | :--- |
+| **Organization** | **Crystal Studio Labs** |
+| **Hackathon** | BPUT Hackathon 2026 — Problem Statement 07 (Fretbox) |
+| **Official Email** | [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com) |
+| **Source Code** | [GitHub Repository](https://github.com/Crystal-Studio-Labs/Campus-Relay) |
+| **Documentation Hub** | [`docs/README.md`](docs/README.md) |
+| **License** | Proprietary Institutional Evaluation License |
+
 *A resilient operating layer for everyday campus operations.*

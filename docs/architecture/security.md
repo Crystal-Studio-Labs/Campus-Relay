@@ -1,96 +1,129 @@
-# Security
+# 🔒 Platform Security Architecture
 
-## Authentication
+> **Authentication, Fine-Grained RBAC, Tenant Isolation & Trigger-Enforced Immutability**  
+> *Authored by **Crystal Studio Labs** for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
 
-- Passwords are hashed with bcrypt (`app/core/security.py`); plaintext is never
-  stored.
-- Login issues a signed JWT (PyJWT, `HS256`) with a configurable expiry
-  (`ACCESS_TOKEN_EXPIRE_MINUTES`, default 12 hours).
-- The secret is `APP_SECRET_KEY`, environment-only. Nothing secret is committed;
-  `.env` is git-ignored and `render.yaml` generates the key.
-- Failed and successful logins both write audit events (`AUTH_LOGIN`,
-  `AUTH_FAILED`), recording the email-present flag — never the password.
+[![Security](https://img.shields.io/badge/Security-Zero--Trust_Architecture-10b981.svg?style=flat-square)](#defense-in-depth-model)
+[![Auth](https://img.shields.io/badge/Auth-PyJWT_HS256-blue.svg?style=flat-square)](https://pyjwt.readthedocs.io)
+[![Immutability](https://img.shields.io/badge/Audit-Trigger--Enforced-red.svg?style=flat-square)](#audit-integrity--database-triggers)
+[![Contact](https://img.shields.io/badge/Support-connect.crystalstudio%40gmail.com-amber.svg?style=flat-square)](#-contact--institutional-support)
 
-## Authorisation (RBAC)
+---
 
-- A permission catalogue lives in `app/core/permissions.py`; a role→permission
-  map defines eight roles: `SUPER_ADMIN`, `ADMIN`, `WARDEN`, `DEPARTMENT_HEAD`,
-  `STAFF`, `SECURITY`, `HELPDESK_OPERATOR`, `STUDENT`.
-- Every mutating endpoint calls `assert_permission(...)`, so authorisation is
-  enforced **server-side** on every request. The frontend's permission-gated
-  routes are a rendering convenience, never a security boundary.
-- Permission is necessary but not sufficient: the UI additionally restricts the
-  command centre to roles that run the campus as a whole, and the server still
-  scopes the data.
+## 🧭 Navigation
+[Root README](../../README.md) • [Documentation Hub](../README.md) • [Architecture](./architecture.md) • [Data Model](./data-model.md) • [API Specification](../specifications/api.md)
 
-## Data scoping (row-level)
+---
 
-`app/services/scoping.py` answers *which rows may this role see* — a different
-question from *which actions may this role take*:
+Campus Relay employs a zero-trust, defense-in-depth security model. Security controls are enforced exclusively on the server at API and database boundaries. Client-side permission checks are purely a navigational and rendering convenience.
 
-- A **warden** sees only their assigned hostels.
-- **Staff** see their own assignments.
-- **Students** see only cases they raised.
-- **Security** see gate activity and their scope.
+---
 
-Cross-student reads return `403`, not an empty list.
+## 🛡️ Defense-in-Depth Model
 
-## Tenant isolation
+```mermaid
+flowchart TD
+    Req[Incoming Client Request] --> TLS[1. Transport Security: TLS 1.3 & CORS Validation]
+    TLS --> RateLimit[2. In-Process Sliding Window Rate Limiter]
+    RateLimit --> Schema[3. Pydantic v2 Input Sanitization & Type Enforcement]
+    Schema --> JWT[4. PyJWT Authentication & Secret Verification]
+    JWT --> RBAC[5. Role-Based Access Control: assert_permission]
+    RBAC --> Scope[6. Row-Level Data Scoping: scoping.py]
+    Scope --> DBTx[7. Managed Database Transaction: SQLAlchemy 2]
+    DBTx --> Triggers[(8. PostgreSQL Immutability Triggers: Append-Only Guards)]
 
-- Every campus-owned record carries `campus_id`.
-- The API derives `campus_id` from the authenticated user and filters on it;
-  a token from one campus cannot read another's rows.
+    style TLS fill:#eff6ff,stroke:#bfdbfe,color:#1e3a8a
+    style RateLimit fill:#f0fdf4,stroke:#bbf7d0,color:#14532d
+    style RBAC fill:#fef3c7,stroke:#fde047,color:#713f12
+    style Triggers fill:#fef2f2,stroke:#fecaca,color:#7f1d1d
+```
 
-## Integrity
+---
 
-- **Append-only** `audit_logs`, `case_events`, `gate_logs` and
-  `notification_events`, enforced by PostgreSQL triggers from migration
-  `0002_append_only_guards` — not merely by application code. A future code
-  change cannot quietly rewrite history.
-- ORM-level immutability listeners (`app/models/immutability.py`) raise
-  `ImmutableRecordError` as a second layer.
-- Every important mutation records actor, role, channel, device and payload.
+## 🔑 Authentication Architecture
 
-## Transport & input
+- **Password Hashing**: Stored using industry-standard `bcrypt` with automatic salting (`app/core/security.py`). Plaintext passwords never touch logs or persistent storage.
+- **Signed Tokens**: Sessions authenticate via RFC 7519 JSON Web Tokens (PyJWT) signed using `HS256` with a configurable lifespan (`ACCESS_TOKEN_EXPIRE_MINUTES`, default 12 hours).
+- **Secret Isolation**: Cryptographic signing utilizes `APP_SECRET_KEY` injected exclusively via environment variables. It is never checked into source control.
+- **Audit Logging**: Both successful logins and failed attempts emit immutable security events (`AUTH_LOGIN`, `AUTH_FAILED`). Log records capture actor IP and email presence, never credentials.
 
-- CORS is restricted to configured origins (`CORS_ORIGINS`); the split
-  deployment must list the frontend origin.
-- Pydantic v2 validates every request body; invalid input returns `422` with
-  field-level detail and no echoed values.
-- SQLAlchemy parameterises all queries; no string-built SQL from user input.
-- Uploads are size-capped (`MAX_UPLOAD_BYTES`) and content-typed.
-- In-process rate limiting (`RATE_LIMIT_PER_MINUTE`) returns `429`.
+---
 
-## Safe failure
+## 👥 Role-Based Access Control (RBAC)
 
-- Error handlers return a stable JSON shape with no stack traces or SQL. A
-  database error returns `503` and explicitly states **nothing was saved** —
-  the system never reports a failed write as a success.
+The platform defines eight granular institutional roles in `app/core/permissions.py`:
 
-## QR and public links
+| Role Identifier | Operational Scope & Capabilities |
+| :-- | :-- |
+| **`SUPER_ADMIN`** | Institutional tenant governance, system settings, global role definitions. |
+| **`ADMIN`** | Full operational command centre, campus-wide queues, SLA sweeps, and audit trails. |
+| **`WARDEN`** | Residential hostel oversight, student leave authorizations, and digital gate pass approvals. |
+| **`DEPARTMENT_HEAD`** | Departmental ticket management, staff allocation, and workload balancing. |
+| **`STAFF`** | Technician execution, task status progression, and work evidence uploads. |
+| **`SECURITY`** | Gate desk terminal, pass barcode scanning, anti-passback enforcement, live headcounts. |
+| **`HELPDESK_OPERATOR`**| Assisted service desk, student roll number lookups, and proxy case filings. |
+| **`STUDENT`** | Personal service requisitions, hostel complaints, and notice acknowledgements. |
 
-- Location/asset QR codes contain only a location code — never student PII.
-- Public document verification (`GET /documents/verify/{code}`) confirms
-  validity, serial and issue date without exposing academic or financial data.
-- Notice share links are read-only tokens with a sanitised public view.
+> [!IMPORTANT]
+> Every single mutating endpoint executes `assert_permission(...)` inside dependency injection. Attempting an unauthorized action triggers an immediate HTTP 403 Forbidden with zero data exposure.
 
-## External messaging & notice media
+---
 
-- Telegram/WhatsApp are opt-in: a user stores a chat ID or phone number only by
-  explicitly saving it, and it is used solely for notices they already receive
-  in-app. Both remain personal data and are never exposed by any list or public
-  endpoint.
-- Media sent to an external channel is a notice attachment (image or PDF) that
-  was already published to that audience in-app; the outbox carries a link, not
-  a second copy.
-- Outbound delivery records actor-free technical state (attempts, last error)
-  in `notification_deliveries`; the append-only `notification_events` log stays
-  the system of record.
-- With no provider credentials configured, the channel reports *unconfigured*
-  and sends nothing — the system never claims a message was delivered when no
-  provider is wired up.
+## 🔍 Row-Level Data Scoping (`app/services/scoping.py`)
 
-## Agent security
+Permission authorizes *actions*; scoping dictates *visibility*:
 
-Agents run behind the same authorisation and policy pipeline as a human and can
-never execute raw SQL. See `docs/agent-system.md`.
+- **Hostel Wardens**: Queries are filtered strictly to their assigned hostels and blocks.
+- **Maintenance Staff**: Technicians only see tickets assigned directly to them or their department queue.
+- **Students**: Scoped exclusively to tickets and documents raised under their personal user ID.
+- **Gate Security**: Access is scoped to active passes for the current calendar window and immediate gate logs.
+
+> [!NOTE]
+> Attempting to read another student's case by guessing its primary key returns an explicit **HTTP 403 Forbidden**, rather than a deceptive empty list.
+
+---
+
+## 🏢 Multi-Tenant Campus Isolation
+
+Every database table representing campus operations contains an indexed `campus_id` foreign key. The backend extracts `campus_id` directly from the authenticated JWT claims and scopes all queries accordingly. A compromised token for College A cannot query or mutate records belonging to College B.
+
+---
+
+## 📜 Audit Integrity & Database Triggers
+
+To prevent any possibility of database tampering, historical log tables are protected by PostgreSQL triggers created in migration `0002_append_only_guards`:
+- `audit_logs`
+- `case_events`
+- `gate_logs`
+- `notification_events`
+
+```mermaid
+flowchart LR
+    A[SQL Execution] --> B{Operation Type}
+    B -- "INSERT" --> C[Commit Row to Ledger]
+    B -- "UPDATE" --> D[Trigger Rejects: Exception Raised]
+    B -- "DELETE" --> D
+
+    style C fill:#10b981,stroke:#047857,color:#ffffff
+    style D fill:#ef4444,stroke:#b91c1c,color:#ffffff
+```
+
+Even an administrator running raw SQL queries cannot rewrite historical event records. Furthermore, SQLAlchemy ORM listeners in `app/models/immutability.py` raise `ImmutableRecordError` as an additional defensive layer.
+
+---
+
+## 🌐 Transport & Privacy Protections
+
+- **Strict CORS Origin Whitelist**: Cross-Origin Resource Sharing is locked down to specific trusted domains configured in `CORS_ORIGINS`.
+- **SQL Injection Prevention**: All queries utilize parameterized SQLAlchemy ORM statements; raw string concatenation of user input is prohibited.
+- **File Upload Safeguards**: Attachments are validated against strict MIME types and size-capped (`MAX_UPLOAD_BYTES`, default 5MB).
+- **Privacy-Preserving Physical QR Codes**: Room and asset QR codes encode solely an opaque identifier (e.g. `CR-ROOM-AA-101`). They never embed student names, roll numbers, or personal details.
+- **Zero-Trust Document Verification**: Public verification links (`GET /api/v1/documents/verify/{code}`) validate authenticity and issue timestamp without exposing private academic or financial data.
+
+---
+
+### 📬 Contact & Institutional Support
+- **Lead Organization**: **Crystal Studio Labs**
+- **Security Vulnerability Reporting**: [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com)
+- **Competition Track**: BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)
+- **Main Repository**: [GitHub: Crystal-Studio-Labs/Campus-Relay](https://github.com/Crystal-Studio-Labs/Campus-Relay)

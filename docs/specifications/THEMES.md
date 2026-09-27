@@ -1,213 +1,135 @@
-# Themes and design languages
+# 🎨 Themes & Design Languages Specification
 
-This product keeps two visual axes deliberately separate, and that separation is
-what lets any college adopt it — and change its mind later — without forking.
+> **The Dual-Axis Visual Architecture: Themes (Per-Person) × Skins (Per-Institution)**  
+> *Authored by **Crystal Studio Labs** for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
 
-| Axis | Question it answers | Who chooses | Where it lives |
-| --- | --- | --- | --- |
-| **Theme** | How much light comes off the screen? | The person using the device | `data-theme="light\|dark"` on `<html>`, remembered per device |
-| **Skin** | What does the interface look like? | The institution | `data-skin="…"` on `<html>`, set from `config/institution.json` |
-
-There is also a third, smaller switch: **text size** (`data-text="normal|large"`),
-a per-device accessibility choice, the mirror image of the theme.
-
-Because the axes are independent, a college that switches to a government-portal
-look keeps dark mode, keeps large text, and keeps every contrast guarantee. The
-palette lives in the theme layer; a skin only changes structural tokens.
+[![Themes](https://img.shields.io/badge/Themes-Light_%26_Dark_Modes-2563eb.svg?style=flat-square)](#the-dual-axis-visual-model)
+[![Skins](https://img.shields.io/badge/Skins-4_Shipped_Design_Languages-10b981.svg?style=flat-square)](#1-the-four-shipped-design-skins)
+[![A11y](https://img.shields.io/badge/Contrast-WCAG_AA_Guaranteed-purple.svg?style=flat-square)](#accessibility--dark-mode-guardrails)
+[![Contact](https://img.shields.io/badge/Support-connect.crystalstudio%40gmail.com-amber.svg?style=flat-square)](#-contact--institutional-support)
 
 ---
 
-## 1. The shipped skins
+## 🧭 Navigation
+[Root README](../../README.md) • [Documentation Hub](../README.md) • [UI System](./ui-system.md) • [Configuration](./CONFIGURATION.md) • [Setup Guide](../guides/setup-guide.md)
 
-Four design languages ship today. **Modern institutional** is the default.
+---
 
-### Modern institutional (default)
+Campus Relay decouples visual styling across two completely orthogonal axes. This fundamental separation allows an institution to overhaul its branding language without compromising individual accessibility preferences or color contrast ratios.
 
-A calm, contemporary public-service interface: white surfaces on a soft
-blue-grey page, one confident blue for action, green for done, soft elevation
-instead of hard edges, generous whitespace and sentence-case labels. It is
-designed to read as trustworthy to a registrar and familiar to a student.
+---
 
-- **Rounded surfaces** (10–22px radii) with soft elevation (`--shadow*`).
-- **One action colour** (blue) plus semantic green/amber/red; colour is never the
-  only signal, every chip carries its word.
-- **Sentence-case labels** and larger headings for fast scanning.
-- **No page texture**: the surface is clean, and content is the loudest thing.
+## 📐 The Dual-Axis Visual Model
 
-### Engineering blueprint
+```mermaid
+flowchart TD
+    subgraph Axis1 ["Axis 1: Theme (User Preference)"]
+        T1["Light Mode (data-theme='light')"]
+        T2["Dark Mode (data-theme='dark')"]
+        T3["High Contrast (data-contrast='high')"]
+    end
 
-A technical, drawing-sheet variant that keeps the original brutalist vocabulary:
+    subgraph Axis2 ["Axis 2: Skin (Institutional Identity)"]
+        S1["Modern Institutional (Default)"]
+        S2["Engineering Blueprint (Brutalist)"]
+        S3["Government Portal (Flat / Dense)"]
+        S4["University Portal (Serif Display)"]
+    end
 
-- **Squared corners** (2px radius) and 1–3px hard rules.
-- **Engineering-paper grid** behind the page (`--grid-line` at 28px, with a
-  heavier rule every fifth cell).
-- **Hard plate edges instead of blurred shadows** (`--plate-lift*`).
-- **Hazard markings** reserved for the brand plate and live/urgent states.
-- **Stencilled labels**: uppercase, wide tracking.
+    Axis1 -.-> |"Independent Combination"| RenderEngine["CSS Custom Properties Engine<br/>(tokens.css → base.css → components.css → app.css)"]
+    Axis2 -.-> |"Independent Combination"| RenderEngine
 
-### Government portal and university portal
+    style Axis1 fill:#eff6ff,stroke:#bfdbfe,color:#1e3a8a
+    style Axis2 fill:#f0fdf4,stroke:#bbf7d0,color:#14532d
+    style RenderEngine fill:#fdf4ff,stroke:#f0abfc,color:#581c87
+```
 
-Flat, dense, print-first (government) and serif-headed, crest-driven, generous
-measure (university). Both keep every accessibility guarantee.
+| Visual Dimension | Core Question It Answers | Governed By | HTML Execution Target |
+| :-- | :-- | :-- | :-- |
+| **Theme** | *How much luminance is emitted from the screen?* | The end-user | `data-theme="light\|dark"` on `<html>`, stored in localStorage. |
+| **Skin** | *What structural design language does the campus project?* | The institution | `data-skin="…"` on `<html>`, defined in `config/institution.json`. |
+| **Density** | *How compact should operational tables and queues appear?* | The end-user | `data-density="normal\|compact"` on `<html>`. |
+| **Text Scale** | *Is enhanced readability or screen magnification needed?* | The end-user | `data-text="normal\|large"` on `<html>`. |
 
-### Common to all skins
+---
 
-- **Identifiers in tabular monospace** (`.ident`): case numbers, asset codes and
-  roll numbers line up in columns and never confuse 0 with O.
-- **Status is always colour plus a word.** Every chip carries its label.
-- **Palettes live in the theme layer**, so a skin cannot break contrast.
+## 1. The Four Shipped Design Skins
 
-### Where the files are
+All four skins are registered in `frontend/src/theme/registry.ts` and selectable via the account settings menu or live `/setup` preview:
+
+### 1. Modern Institutional (Shipped Default)
+- **Visual Aesthetic**: Calm, contemporary, and trustworthy; clean white surfaces against a subtle blue-grey canvas.
+- **Surface Elevation**: Soft rounded corners (10–22px border radius) paired with gentle diffused drop shadows (`--shadow*`).
+- **Color Discipline**: One confident institutional blue for primary action, semantic emerald for completed states, amber for attention.
+- **Typography**: Clean sentence-case headings and generous structural whitespace.
+
+### 2. Engineering Blueprint (Industrial Brutalism)
+- **Visual Aesthetic**: Rigorous, technical drawing-sheet appearance tailored for lab terminals, engineering workstations, and projector displays.
+- **Surface Elevation**: Sharp squared corners (2px radius) and 1–3px solid mechanical border rules.
+- **Grid Background**: Faint architectural grid lines (`--grid-line` at 28px intervals with heavy accents every fifth rule).
+- **Hazard Accents**: Industrial diagonal hazard striping reserved for brand plates, priority elevation chips, and critical alerts.
+
+### 3. Government Portal (Administrative Density)
+- **Visual Aesthetic**: High-density, paper-first, and regulatory; designed to visually align with state and national public service portals.
+- **Surface Elevation**: Zero border radius (`--radius: 0px`), 1px hairline rules, zero shadow lifts.
+- **Information Density**: Maximized tabular rows per viewport screen.
+
+### 4. University Portal (Traditional Academic Heritage)
+- **Visual Aesthetic**: Dignified collegiate presentation designed for universities matching established heritage websites.
+- **Typography**: High-authority serif display headings for major banners and mastheads.
+- **Measure**: Extended reading measure and integrated institutional heraldic crest slots.
+
+---
+
+## 2. Layered CSS Architecture
 
 ```
 frontend/src/styles/
-  index.css      the manifest — four layers, imported in order
-  tokens.css     1. design tokens: type, spacing, themes, skins
-  base.css       2. reset, typography, accessibility, layout primitives
-  components.css 3. plates, buttons, chips, forms, tables, overlays
-  app.css        4. shell, page structure, stations, landing, device lab
+  ├── index.css      Manifest importer enforcing strict layer precedence
+  ├── tokens.css     Layer 1: Colors, light/dark palettes, and skin token blocks
+  ├── base.css       Layer 2: Typography, resets, and layout primitives
+  ├── components.css Layer 3: Buttons, cards, status chips, modal sheets, tables
+  └── app.css        Layer 4: AppShell, responsive drawer, kiosk views, and stations
 ```
 
-The cascade rule: a later layer may build on an earlier one but never re-declares
-a rule an earlier layer owns. Each file opens with its contents list. Add a new
-stylesheet by giving it a layer number — not by appending another override pass.
-
-### The two themes, and the dark-mode traps already paid for
-
-Both palettes live in `tokens.css` under `[data-theme='light']` and
-`[data-theme='dark']`, held to the same standard: body copy clears 7:1, muted
-copy and chip labels clear 4.5:1, `--muted-ink` is a real measured colour (never
-body text at 60% opacity), and `prefers-color-scheme` is honoured only until the
-app has read the saved preference.
-
-The traps this theme set has already been through, encoded as rules so they are
-not re-introduced by the next redesign:
-
-1. **Structure is not text.** Borders use `--line` / `--line-soft`, which are
-   softer than `--ink` in dark mode. A screen edged in pure white at night is
-   physically painful.
-2. **Tinted blocks pin their own copy.** Any `.tint-*` block forces
-   `--on-block` copy and renders nested chips black-on-white. Without this,
-   light-coloured blocks inherit pale dark-theme text and read as empty boxes.
-3. **Text on danger uses `--on-danger`** — white in light, near-black in dark —
-   because white on a mid red fails contrast in one of the two themes.
-4. **No flash of the wrong theme.** `index.html` runs a pre-paint script that
-   sets `data-theme`, `data-skin` and `data-text` before first paint, from
-   localStorage (with the cached institution config consulted for the skin).
+> [!NOTE]
+> **Strict Precedence Rule**: A later stylesheet layer may extend an earlier layer, but is never permitted to re-declare or override tokens owned by an earlier layer.
 
 ---
 
-## 2. The skin registry
+## 3. Accessibility & Dark-Mode Guardrails
 
-`frontend/src/theme/registry.ts` is the single list of design languages. Each
-entry records its id, status (`shipped` or `planned`), a one-line summary, the
-characteristics an administrator can check, and who asked for it.
-
-- `modern` — **shipped**. The default: bright institutional, soft elevation,
-  one confident blue for action, generous whitespace, sentence-case labels.
-- `industrial` — **shipped**. Engineering blueprint: squared plates, a faint
-  drawing-sheet grid, hazard markings and stencilled labels, for a technical
-  drawing-sheet feel on shared desks and projectors.
-- `govt-portal` — **shipped**. Flat and dense, 1px hairlines, sentence-case
-  labels, no visible grid, print-first. For colleges filing documents with
-  state or central portals.
-- `university-portal` — **shipped**. Serif display headings (system stack, no
-  webfont), soft radius restored, longer measure. For institutions that must
-  visibly match an existing website identity.
-
-A skin becomes selectable only once its token block exists, so a switch that
-nothing implements is never offered.
-
-### Adding a skin (the whole procedure)
-
-1. **A token block.** Copy the `[data-skin='modern']` block in
-   `tokens.css`, rename the selector, change the values — radius, border
-   widths, plate lift, label transform, panel head treatment, grid visibility,
-   optionally the display font. Usually 15–25 lines.
-2. **A registry entry.** Add it to `SKINS` in `src/theme/registry.ts` with
-   `status: 'shipped'` and honest characteristics.
-3. **A configuration line.** Point `appearance.skin` at it in
-   `config/institution.json`.
-4. **A four-width check.** Both themes at 390 / 768 / 1280 / 1600. Palettes and
-   the contrast floor come from the theme layer, so they carry over untouched.
-
-Nothing in the application branches on the skin name. A new design language
-therefore cannot silently lose an accessibility guarantee, a permission check or
-an offline behaviour that a shipped one has.
-
-Example skeleton (from the registry comments):
-
-```css
-[data-skin='govt-portal'] {
-  --radius: 0px;
-  --border-w: 1px;
-  --plate-lift: 0px;        /* no raised edges: flat tables */
-  --label-transform: none;  /* sentence-case labels */
-  --label-tracking: 0;
-  --panel-head-bg: var(--surface-sunken);
-  --grid-line: transparent; /* no visible grid */
-  --font: 'Noto Sans', system-ui, sans-serif;
-}
-```
-
-Both example skins are now implemented in `tokens.css` and selectable from the
-account menu's design-language preview.
-
-### Density and high contrast
-
-Two more per-device choices sit beside the theme and text size, applied as
-attributes on `<html>`:
-
-- `data-density="compact"` tightens spacing for queue, audit and table screens
-  (it does **not** shrink touch targets — density is about whitespace).
-- `data-contrast="high"` widens structure and lifts muted copy to full ink,
-  without changing any palette. The OS-level `prefers-contrast: more` path
-  remains as well.
+Both light and dark palettes adhere to rigorous contrast standards:
+- **Body Copy**: Maintains at least a **7:1** contrast ratio against backgrounds.
+- **Muted Captions & Status Chips**: Exceeds the **4.5:1** WCAG AA threshold.
+- **Measured Colors**: `--muted-ink` is a calibrated, measured hex color — never body text rendered at reduced opacity.
+- **Zero Flash of Unstyled Theme (FOUT)**: An inline script in `index.html` evaluates stored preferences and applies `data-theme`, `data-skin`, and `data-text` attributes **prior to first DOM paint**.
 
 ---
 
-## 3. Roadmap: what colleges are expected to ask for next
+## 4. How to Add a Custom Institutional Skin
 
-### Shipped in this build
+Creating a custom campus skin requires just 4 straightforward steps:
 
-`SHIPPED_DESIGN` in the registry records what has left the roadmap, so the
-setup and guide screens never list finished work as future work:
-
-| Capability | Where it lives |
-| --- | --- |
-| Brand accent from the institution config | `appearance.accent`; applied by `state/theme.tsx` only after a WCAG contrast check |
-| Crest and logo slot | `appearance.crest_url`; rendered by the shell with a monochrome dark-theme treatment |
-| Right-to-left layout | `appearance.direction`; the shell and layout primitives use logical properties |
-| Density and high-contrast variants | per-device `data-density` / `data-contrast` on `<html>` |
-
-### Still planned
-
-Kept in the product (`DESIGN_ROADMAP` in the registry, rendered on `/setup` and
-on Guide → Themes & roadmap) rather than in a tracker nobody opens:
-
-| Item | Effort | Note |
-| --- | --- | --- |
-| Time-of-day automatic theme | product change | Follows shift hours, not the device setting |
-| Per-station default theme | config only | Lobby kiosk light, security post dark; belongs in the `stations` block |
-| Additional institution skins | new skin | A fourth/fifth design language beyond the three shipped |
-| Portable design pack (import / export) | product change | Ship a skin, accent, crest and density as one adoptable file |
-
-Effort buckets, honestly labelled:
-
-- **config only** — a value in `config/institution.json`.
-- **one token block** — a palette or spacing set in `tokens.css`; no components.
-- **new skin** — the four-step procedure above.
-- **product change** — real code, and it will say so when it is estimated.
+1. **Add Token Block**: In `tokens.css`, define a new `[data-skin='your-skin']` block with your structural overrides (15–20 lines of CSS):
+   ```css
+   [data-skin='campus-classic'] {
+     --radius: 8px;
+     --border-w: 1px;
+     --plate-lift: 2px;
+     --label-transform: uppercase;
+     --label-tracking: 0.05em;
+     --grid-line: transparent;
+   }
+   ```
+2. **Register Skin**: Add entry to `SKINS` in `frontend/src/theme/registry.ts` with `status: 'shipped'`.
+3. **Configure Institution**: Update `appearance.skin` in `config/institution.json`.
+4. **Responsive Verification**: Verify layouts across mobile (390px), tablet (768px), and desktop (1280px+).
 
 ---
 
-## 4. In-product surfaces to know about
-
-| Surface | Route | What it shows |
-| --- | --- | --- |
-| Institution setup | `/setup` (`config:manage`) | Live config + provenance, edit checklist, skins with preview buttons, the design roadmap |
-| Guide → Themes & roadmap | `/guide?tab=themes` | The two-axis model, registered skins, roadmap — for non-administrators and reviewers |
-| Skin preview | account modal (administrators) | Per-device skin switch; the institution default is unchanged |
-
-The preview deliberately changes only the current device: evaluating a new look
-should never require risking the deployment.
+### 📬 Contact & Institutional Support
+- **Lead Organization**: **Crystal Studio Labs**
+- **Design System Inquiries**: [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com)
+- **Competition Track**: BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)
+- **Main Repository**: [GitHub: Crystal-Studio-Labs/Campus-Relay](https://github.com/Crystal-Studio-Labs/Campus-Relay)

@@ -1,129 +1,176 @@
-# Setup Guide
+# 🚀 Institutional Setup & Onboarding Runbook
 
-From nothing to a running, configured campus. The goal is **operational within an
-hour** for a college that has its data to hand.
+> **From Zero to Fully Operational Campus in Under One Hour**  
+> *Authored by **Crystal Studio Labs** for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
 
-## 0. Prerequisites
+[![Guide](https://img.shields.io/badge/Runbook-60_Minute_Setup-10b981.svg?style=flat-square)](#onboarding-timeline-overview)
+[![Config](https://img.shields.io/badge/Template-institution.json-blue.svg?style=flat-square)](#step-2-configure-your-institution)
+[![Import](https://img.shields.io/badge/Data-CSV_Bulk_Import-purple.svg?style=flat-square)](#step-3-bulk-import-campus-data)
+[![Contact](https://img.shields.io/badge/Support-connect.crystalstudio%40gmail.com-amber.svg?style=flat-square)](#-contact--institutional-support)
 
-- Docker (single machine) **or** a Render + Vercel + Supabase account (split
-  cloud).
-- Your college's information: name, monogram, city/region, and CSV exports of
-  departments, hostels, rooms, staff and students.
+---
 
-## 1. Choose a deployment
+## 🧭 Navigation
+[Root README](../../README.md) • [Documentation Hub](../README.md) • [Adoption Plan](./adoption-plan.md) • [Demo Script](./demo-script.md) • [Deployment Guide](../deployment/DEPLOYMENT.md)
 
-Follow `docs/DEPLOYMENT.md`. The short version:
+---
 
-**Single machine**
+Campus Relay is designed as a configurable, multi-tenant institutional template. Adopting the platform requires **zero code rewrites or custom programming** — an administrator simply modifies a single configuration file (`config/institution.json`) and imports organizational CSV rosters.
 
+---
+
+## ⏱️ Onboarding Timeline Overview
+
+```mermaid
+gantt
+    title Hour-by-Hour Operational Launch Plan
+    dateFormat mm
+    axisFormat %M min
+
+    section Infrastructure
+    Deploy Database & Containers        :00, 15m
+    Verify Health Endpoints             :15, 05m
+
+    section Configuration
+    Customize institution.json Branding :20, 10m
+    Review Default SLA & Policies       :30, 10m
+
+    section Data Ingestion
+    Import Organizational CSVs          :40, 10m
+    Verify Staff & Student Accounts     :50, 05m
+
+    section Launch
+    Execute End-to-End Test Ticket      :55, 05m
+```
+
+---
+
+## Step 0: Prerequisites
+
+Before initiating setup, ensure you have:
+1. **Infrastructure**: A local Docker host (for on-premises single-machine deployment) **OR** active accounts on Render, Vercel, and Supabase (for split-cloud deployment).
+2. **Campus Master Data**: Institution name, official logo/crest, short code, and CSV exports for departments, hostels, rooms, faculty, staff, and enrolled students.
+
+---
+
+## Step 1: Initialize the Host Infrastructure
+
+Choose your target deployment model (see full details in [`docs/deployment/DEPLOYMENT.md`](../deployment/DEPLOYMENT.md)):
+
+### Option A: On-Premises Single Machine (Docker Compose)
 ```bash
-cp .env.example .env        # set APP_SECRET_KEY and POSTGRES_PASSWORD
+# Clone the repository
+git clone https://github.com/Crystal-Studio-Labs/Campus-Relay.git
+cd Campus-Relay
+
+# Generate configuration and secrets
+cp .env.example .env
+
+# Launch database, backend API, and web interface
 docker compose -f docker-compose.selfhost.yml up -d --build
-# open http://<server-ip>:8080
+
+# Verify platform is live
+curl http://localhost:8000/api/v1/health
 ```
 
-**Split cloud** — deploy the backend via `render.yaml`, the frontend on Vercel
-with `VITE_API_BASE_URL` set, and create the Supabase database.
+### Option B: Split Cloud (Render + Vercel + Supabase)
+1. Provision a PostgreSQL instance on **Supabase**.
+2. Connect the repository to **Render** using the provided `render.yaml` blueprint.
+3. Deploy the frontend to **Vercel** pointing `VITE_API_BASE_URL` to your Render API domain.
 
-## 2. Configure the institution
+---
 
-Edit `config/institution.json` — the one file a college edits:
+## Step 2: Configure Your Institution
 
-| Key | Meaning |
+Modify `config/institution.json` to reflect your university's visual identity, vocabulary, and feature toggles:
+
+| Configuration Block | Parameters & Impact |
 | :-- | :-- |
-| `identity` | Name, short name, monogram, city, region, support contact |
-| `academics` | Term label, timezone, week start |
-| `localisation` | Default language and the languages offered |
-| `appearance` | Design skin, default theme, accent colour, crest, reading direction |
-| `vocabulary` | What you call a hostel, a branch, a batch… |
-| `stations` | Kiosk idle timeout, default theme, helpdesk channel |
-| `features` | Module switches (agents, kiosk, gate, notices, offline_sync) |
-| `guardrails` | WCAG level, min contrast, min touch target |
+| **`identity`** | Legal name, abbreviation, crest URL, primary city, and institutional contact email. |
+| **`academics`** | Academic term labels (e.g. "Semester" vs "Trimester"), default timezone, week start day. |
+| **`localisation`** | Default UI language (`en`, `or`, `hi`) and supported regional translations. |
+| **`appearance`** | Default theme (Light/Dark), accent color palette, and design skin (Institutional, Blueprint, Gov). |
+| **`vocabulary`** | Regional terminology overrides (e.g. rename "Hostel" to "Hall of Residence"). |
+| **`stations`** | Touch kiosk idle timeout duration, auto-logout delays, and default station views. |
+| **`features`** | Granular module switches: enable/disable AI Agents, Physical Kiosk, Gate Security, Offline Sync. |
 
-On a single-machine install the file is mounted, so press **Reload from disk** on
-the **Institution setup** screen (`/setup`) or `POST /admin/institution/reload`.
-Identity and branding can also be written live from the **onboarding wizard** on
-the same screen (`POST /admin/institution/identity`): name, monogram, accent,
-crest and reading direction are applied without a rebuild or a restart.
+> [!TIP]
+> Changes can be reloaded in real time without restarting the application by visiting `/setup` and clicking **"Reload from Disk"** or invoking `POST /api/v1/admin/institution/reload`.
 
-## 3. Bring in your data
+---
 
-Download the CSV templates and fill them in this order (foreign keys depend on
-it):
+## Step 3: Bulk Import Campus Data
 
+To maintain foreign key integrity, CSV imports must strictly follow this dependency order:
+
+```mermaid
+flowchart LR
+    A[1. departments.csv] --> B[2. branches.csv]
+    B --> C[3. hostels.csv]
+    C --> D[4. rooms.csv]
+    D --> E[5. locations.csv]
+    E --> F[6. assets.csv]
+    F --> G[7. staff.csv]
+    G --> H[8. students.csv]
+    H --> I[9. services.csv]
+    I --> J[10. historical_cases.csv]
+
+    style A fill:#eff6ff,stroke:#bfdbfe,color:#1e3a8a
+    style G fill:#fef3c7,stroke:#fde047,color:#713f12
+    style H fill:#f0fdf4,stroke:#bbf7d0,color:#14532d
+    style J fill:#f8fafc,stroke:#cbd5e1,color:#0f172a
 ```
-departments.csv → branches.csv → hostels.csv → rooms.csv
-→ locations.csv → assets.csv → staff.csv → students.csv
-→ services.csv → existing_complaints.csv
+
+### Download the Onboarding Starter Pack
+Administrators can download blank CSV templates and a pre-formatted `institution.json` directly from the UI at `/setup` or via:
+```bash
+curl -X GET "http://localhost:8000/api/v1/admin/data/onboarding-pack" -H "Authorization: Bearer <TOKEN>" -o onboarding_pack.zip
 ```
 
-Download the whole set at once with **Download onboarding pack** on the
-**Institution setup** screen (`GET /admin/data/onboarding-pack`): it bundles the
-CSV templates, a README and an `institution.json` skeleton.
+### Import Execution
+Upload files via the Admin Command Centre under **Directory → Import** or via the CLI:
+```bash
+curl -X POST "http://localhost:8000/api/v1/admin/data/import/students" \
+     -H "Authorization: Bearer <TOKEN>" \
+     -F "file=@students.csv"
+```
+> [!NOTE]
+> The bulk ingestion engine performs dry-run validation first and reports exact line numbers and failed fields. It never creates partial or corrupt datasets.
 
-Import from the admin **Directory → Import** screen (or `POST /admin/data/import/{entity}`).
-The importer reports per-row errors; fix and re-import. It never silently drops
-rows and never reports a partial import as complete.
+---
 
-> Until you import your own people, the seeded **demo campus** is present.
-> Rebuild it any time from Profile → Demo controls (demo mode only).
+## Step 4: Verify the Core Workflows
 
-## 4. Verify the first workflow
+1. **Sign in as Admin** (`admin@campusrelay.demo` / `Campus@2026`).
+2. Verify that total enrolled students, staff count, and hostel blocks match imported numbers in the **Command Centre**.
+3. Log in as a student, scan a room QR code (`CR-ROOM-AA-101`), and submit a maintenance ticket.
+4. Log in as a maintenance technician, transition the ticket to `IN_PROGRESS`, attach a completion photo, and click `RESOLVED`.
+5. Switch back to the student account and click `VERIFY RESOLUTION` to close the ticket.
+6. Verify the immutable entry in the system **Audit Ledger**.
 
-1. Sign in as an administrator.
-2. Open **Command centre** — metrics should reflect your imported data.
-3. Raise a test complaint as a student, resolve it as a technician, verify it.
-4. Confirm the audit trail shows every step.
+---
 
-## 5. Set your real targets
+## Step 5: Configure Outbound Messaging (Optional)
 
-- Review **SLA rules** (service + priority → target). The seeded 24h/8h/2h values
-  are demo defaults; replace them with institutional ones.
-- Review **policies** for leave, certificate and gate pass.
-- Assign wardens to hostels and staff to departments so scoping is correct.
+Configure your `.env` file to enable external broadcast integrations:
 
-## 6. Configure notification channels
+```ini
+# Telegram Integration
+TELEGRAM_BOT_TOKEN="your-bot-token-from-botfather"
 
-In-app delivery needs nothing. To reach students where they already are, set the
-provider credentials in `.env` and restart the backend:
+# WhatsApp Cloud API Integration
+WHATSAPP_PHONE_NUMBER_ID="your-phone-id"
+WHATSAPP_TOKEN="your-meta-cloud-token"
+WHATSAPP_TEMPLATE="campus_notice_update"
 
-| Channel | Variables |
-| :-- | :-- |
-| Telegram | `TELEGRAM_BOT_TOKEN` (and, optionally, `TELEGRAM_API_BASE` for a local Bot API server) |
-| WhatsApp | `WHATSAPP_PHONE_NUMBER_ID`, `WHATSAPP_TOKEN`, and the approved `WHATSAPP_TEMPLATE` / `WHATSAPP_TEMPLATE_LANGUAGE` |
-| Public media | `PUBLIC_BASE_URL` — the backend's public origin, so an image/PDF notice has a URL the provider can fetch |
+# Public Hostname for Media CDN Previews
+PUBLIC_BASE_URL="https://campus.youruniversity.edu"
+```
 
-The delivery outbox worker is tuned with `DELIVERY_WORKER_ENABLED`,
-`DELIVERY_POLL_SECONDS` and `DELIVERY_BATCH_SIZE` (see
-`docs/notification-system.md`).
+---
 
-Students opt in under **Profile → Notifications** (and set their chat id or
-number). A notice with an image or PDF attachment is delivered as that media.
-Until a credential is present, `/meta` reports the channel as *not configured*
-and nothing is queued — so a demo never claims a delivery that did not happen.
-
-## 7. Train and roll out
-
-- Students: the PWA (`/`), installable on a phone.
-- Staff: their task queue (`/tasks`).
-- Security: the gate desk (`/gate`).
-- Set a shared tablet up as a **kiosk** (`/kiosk`) for students without phones.
-
-## 8. Go-live checklist
-
-- [ ] `APP_ENV=production` (disables the demo reset endpoint).
-- [ ] `APP_SECRET_KEY` changed from the default.
-- [ ] `CORS_ORIGINS` set to the real frontend origin (split cloud).
-- [ ] Database backed up and a restore tested.
-- [ ] Your data imported and spot-checked.
-- [ ] SLA targets replaced with real ones.
-- [ ] At least one real case completed end to end.
-
-## Troubleshooting
-
-| Symptom | Likely cause |
-| :-- | :-- |
-| Backend cannot reach the database | Wrong `DATABASE_URL`, or missing `?sslmode=require` |
-| Browser blocked by CORS | Frontend origin missing from `CORS_ORIGINS` |
-| Kiosk resets too fast/slow | `stations.kiosk_idle_seconds` |
-| Config changes not appearing | Press "Reload from disk", or restart the container |
+### 📬 Contact & Institutional Support
+- **Lead Organization**: **Crystal Studio Labs**
+- **Direct Onboarding Assistance**: [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com)
+- **Competition Track**: BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)
+- **Main Repository**: [GitHub: Crystal-Studio-Labs/Campus-Relay](https://github.com/Crystal-Studio-Labs/Campus-Relay)

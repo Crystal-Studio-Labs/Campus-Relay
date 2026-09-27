@@ -1,93 +1,102 @@
-# UI System
+# 🖥️ Frontend UI System & Component Architecture
 
-One product, one design language, many experiences. The interface is an adaptive
-client of the operational engine, not the engine itself.
+> **Adaptive Shells, Modular Primitives, Touch Ergonomics & Responsive Layouts**  
+> *Authored by **Crystal Studio Labs** for BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)*
 
-## The design language: bright institutional
+[![UI System](https://img.shields.io/badge/System-Bright_Institutional-2563eb.svg?style=flat-square)](#the-design-language-bright-institutional)
+[![Components](https://img.shields.io/badge/Library-Zero--Dependency_React_18-10b981.svg?style=flat-square)](#shared-component-primitives)
+[![A11y](https://img.shields.io/badge/A11y-WCAG_AA_Compliant-purple.svg?style=flat-square)](#accessibility-standards)
+[![Contact](https://img.shields.io/badge/Support-connect.crystalstudio%40gmail.com-amber.svg?style=flat-square)](#-contact--institutional-support)
 
-The shipped look is **modern institutional**: white surfaces on a soft blue-grey
-page, one confident blue for action, green for done, soft elevation, generous
-whitespace and sentence-case labels. It is built to read as trustworthy to a
-registrar and familiar to a student.
+---
 
-- **Rounded surfaces** (10–22px radii) with soft elevation instead of hard edges.
-- **One action colour** (blue) plus semantic green/amber/red.
-- **Sentence-case labels** and larger headings for fast scanning.
-- **Colour has meaning**: each status chip carries its word as well as its
-  colour, so nothing depends on hue alone.
-- **Identifiers in tabular monospace** so `0` never reads as `O`.
+## 🧭 Navigation
+[Root README](../../README.md) • [Documentation Hub](../README.md) • [Themes Specification](./THEMES.md) • [Configuration](./CONFIGURATION.md) • [API Specification](./api.md)
 
-Three further design languages ship as skins — **engineering blueprint**
-(technical, squared, blueprint grid), **government portal** (flat, dense,
-print-first) and **university portal** (serif, crest-driven). A skin restyles
-structure only; the palette stays in the theme layer, so contrast is never at
-risk. See [THEMES.md](THEMES.md).
+---
 
-## Layered stylesheet
+Campus Relay delivers a unified, highly adaptable user experience across mobile phones, desktop workstations, and physical touch kiosks. The frontend is architected as an **adaptive client of the operational engine**, ensuring that business logic is never duplicated across viewports.
 
-One manifest (`frontend/src/styles/index.css`) imports four layers in cascade
-order:
+---
+
+## 📱 Responsive Layout Adaptation
+
+```mermaid
+flowchart TD
+    Viewport{Viewport Width Detection}
+    Viewport -- "< 768px (Mobile Phone)" --> Mobile[Mobile PWA Experience]
+    Viewport -- "768px - 1024px (Tablet / iPad)" --> Tablet[Hybrid Tablet Rail]
+    Viewport -- "> 1024px (Desktop Workstation)" --> Desktop[Desktop Command Centre]
+    Viewport -- "Kiosk Route (/kiosk)" --> Kiosk[Touch-First Kiosk Terminal]
+
+    Mobile --> M_Features["Thumb Bottom Navigation • Sheet Drawers • Fluid Cards"]
+    Desktop --> D_Features["Categorized Sidebar • High-Density Tables • Modal Overlays"]
+    Kiosk --> K_Features["Oversized Hit Targets • Auto-Reset Timer • High Contrast"]
+
+    style Viewport fill:#eff6ff,stroke:#bfdbfe,color:#1e3a8a
+    style Mobile fill:#f0fdf4,stroke:#bbf7d0,color:#14532d
+    style Desktop fill:#fef3c7,stroke:#fde047,color:#713f12
+    style Kiosk fill:#fdf4ff,stroke:#f0abfc,color:#581c87
+```
+
+---
+
+## 🎨 The Design Language: Bright Institutional
+
+The default design language is **modern institutional**: clean white surfaces on a soft blue-grey canvas, confident blue for primary interaction, semantic emerald for completed states, and amber for attention.
+- **Rounded Surfaces**: 10–22px border radii paired with soft elevation (`--shadow*`).
+- **Color Discipline**: Status indicators never rely on color alone; every chip pairs semantic hue with explicit text (`OPEN`, `RESOLVED`, `BREACHED`).
+- **Tabular Monospace Identifiers** (`.ident`): Ticket IDs (`CR-CASE-001`), room numbers, and asset codes line up cleanly in columns without ambiguous glyphs.
+- **Zero Heavy Plate Borders**: Clean whitespace and typography guide user attention to the active task.
+
+---
+
+## 📐 Layered Stylesheet Pipeline
+
+One manifest (`frontend/src/styles/index.css`) imports four layers in strict cascade order:
 
 ```
 tokens.css  →  base.css  →  components.css  →  app.css
 ```
 
-| Layer | Contents |
+| Layer File | Architectural Purpose & Scope |
 | :-- | :-- |
-| `tokens.css` | Colours, typography, spacing, radii, borders, shadows, breakpoints, status colours |
-| `base.css` | Element defaults, focus rings, print rules, reduced-motion |
-| `components.css` | `.btn`, `.card`, `.panel`, `.badge`, `.table`, forms, timeline |
-| `app.css` | Shell, page structure, kiosk, landing, guide, device lab |
+| **`tokens.css`** | Global design tokens: brand colors, light/dark palettes, radii, spacing units, and skin blocks. |
+| **`base.css`** | CSS reset, base typography rules, focus outlines, and `prefers-reduced-motion` fallbacks. |
+| **`components.css`** | Core UI primitives: `.btn`, `.card`, `.panel`, `.badge`, `.table`, form inputs, timeline nodes. |
+| **`app.css`** | Layout shells, responsive grids, kiosk stations, and command centre dashboard layouts. |
 
-Nothing else in the app imports CSS.
+> [!NOTE]
+> No individual React component imports private CSS files. All styling derives predictably from the centralized CSS custom property cascade.
 
-## Two independent axes
+---
 
-| Axis | Question | Values | Stored |
-| :-- | :-- | :-- | :-- |
-| **Theme** | How much light comes off the screen | `light`, `dark` | per device (`campusrelay.theme`) |
-| **Skin** | What the interface looks like | `industrial` (shipped) | per deployment (institution config) |
+## 🧩 Shared Component Primitives (`frontend/src/components/`)
 
-A **skin is a token set, never a fork**. No component branches on the skin name;
-the skin only changes values in `tokens.css`. `govt-portal` and
-`university-portal` are registered as `planned` (see `frontend/src/theme/registry.ts`)
-and deliberately not selectable until their token blocks exist — a switch that
-does nothing is worse than no switch. See `docs/THEMES.md`.
+| Component Name | Source File | Description & Capabilities |
+| :-- | :-- | :-- |
+| **`Button` / `Card` / `Badge`** | `ui.tsx` | Highly optimized, accessible design primitives supporting semantic variants. |
+| **`Metric` / `KV`** | `ui.tsx` | Key-value pairs and KPI statistical widgets for administrative dashboards. |
+| **`CaseCard`** | `CaseCard.tsx` | Compact, scan-friendly ticket summary card displaying SLA countdown and status. |
+| **`NoticeCard`** | `NoticeCard.tsx` | Broadcast circular display with embedded circular photo preview and action buttons. |
+| **`Timeline`** | `Timeline.tsx` | Chronological visual history of state changes, technician comments, and audit events. |
+| **`OfflineBar`** | `OfflineBar.tsx` | Connectivity banner with deep-link trigger into the local Sync Centre outbox sheet. |
+| **`ScanTarget`** | `ScanTarget.tsx` | Camera QR barcode scanner with manual fallback input for low-light conditions. |
+| **`Assistant`** | `Assistant.tsx` | Interactive drawer providing natural language inquiries and tool proposals. |
 
-## Layouts
+---
 
-One shell (`layouts/AppShell.tsx`) with device-dependent form: bottom tabs on a
-phone, a grouped rail on a desktop. Navigation is grouped into **Work / Manage /
-Stations / Device** and filtered by permission **and** role.
+## ♿ Accessibility & Ergonomics Standards
 
-Dedicated shells/layouts:
+- **WCAG 2.1 AA Compliance**: All text elements satisfy minimum 4.5:1 contrast in both light and dark modes.
+- **Oversized Touch Targets**: Minimum touch target size `--touch-min: 46px` enforced across mobile and kiosk interfaces.
+- **Fluid Table-to-Card Transformation**: Tables incorporate `.table-wrap.become-cards`, automatically morphing into stacked cards on narrow smartphone viewports to eliminate horizontal scrolling.
+- **Motion Reduction**: All transitions respect the user's operating system `prefers-reduced-motion` flag.
 
-- `KioskShell` — huge targets, idle reset, clock, channel `KIOSK`.
-- Helpdesk, staff tasks, security gate desk — their own page structures inside
-  the shared shell.
+---
 
-The build spec's separate mobile/desktop layouts are realised as responsive
-variants of one shell per role rather than 12 duplicated files, so business
-logic is never duplicated.
-
-## Shared components (`frontend/src/components/`)
-
-`ui.tsx` (Button, Card, Badge, Metric, Tabs, Modal, Select, KV, PageHeader,
-EmptyState/LoadingState/ErrorState), `CaseCard`, `NoticeCard`, `Timeline`,
-`StatusChip`, `OfflineBar` (connectivity + sync centre sheet), `ScanTarget`
-(camera + manual QR entry), `Assistant`, `Guide`.
-
-## Accessibility
-
-- WCAG AA contrast across both themes; `--muted-ink` is a measured colour, not
-  faded body text.
-- Large touch targets (`--touch-min: 46px`), semantic HTML, keyboard navigation,
-  visible focus rings, `prefers-reduced-motion` and `prefers-contrast` support.
-- Status is never colour-only.
-
-## Responsiveness
-
-Layouts are fluid from small phones to ultrawide. Tables use a
-`.table-wrap.become-cards` pattern that converts to stacked cards on narrow
-screens instead of scrolling sideways. Short-landscape phones drop the fixed
-bottom bar so content is not eaten.
+### 📬 Contact & Institutional Support
+- **Lead Organization**: **Crystal Studio Labs**
+- **UI Architecture Inquiries**: [`connect.crystalstudio@gmail.com`](mailto:connect.crystalstudio@gmail.com)
+- **Competition Track**: BPUT Hackathon 2026 — Problem Statement 07 (Fretbox)
+- **Main Repository**: [GitHub: Crystal-Studio-Labs/Campus-Relay](https://github.com/Crystal-Studio-Labs/Campus-Relay)
