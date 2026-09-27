@@ -22,7 +22,7 @@ export function NoticeCard({
       as="article"
       ariaLabel={`Notice: ${notice.title}`}
       accent={notice.notice_type === 'EMERGENCY' ? 'urgent' : notice.is_pinned ? 'sun' : undefined}
-      className={unread ? 'is-unread' : undefined}
+      className={`animate-entrance${unread ? ' is-unread' : ''}`}
     >
       <div className="row wrap" style={{ gap: 6 }}>
         {notice.is_pinned ? <Badge tone="warn">Pinned</Badge> : null}

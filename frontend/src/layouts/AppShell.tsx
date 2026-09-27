@@ -128,7 +128,9 @@ export function AppShell() {
             </div>
           ) : (
             <div className="grow row" style={{ gap: 'var(--sp-2)' }}>
-              <Badge tone={sync.online ? 'done' : 'warn'}>{sync.online ? 'Online' : 'Offline'}</Badge>
+              <Badge tone={sync.online ? 'done' : 'warn'} className={sync.online ? 'pulse-beacon' : ''}>
+                {sync.online ? 'Online' : 'Offline'}
+              </Badge>
               {totalQueued > 0 ? <Badge tone="open">{totalQueued} queued</Badge> : null}
               {sync.conflicts + sync.requiresAction > 0 ? (
                 <Badge tone="urgent">{sync.conflicts + sync.requiresAction} need attention</Badge>

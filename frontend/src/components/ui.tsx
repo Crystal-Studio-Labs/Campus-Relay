@@ -24,14 +24,16 @@ export function Badge({
   children,
   block,
   title,
+  className = '',
 }: {
   tone?: Tone
   children: ReactNode
   block?: boolean
   title?: string
+  className?: string
 }) {
   return (
-    <span className={`badge badge-${tone}${block ? ' badge-block' : ''}`} title={title}>
+    <span className={`badge badge-${tone}${block ? ' badge-block' : ''}${className ? ` ${className}` : ''}`} title={title}>
       {children}
     </span>
   )

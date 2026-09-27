@@ -53,7 +53,7 @@ export function CaseCard({
 
   return (
     <article
-      className="case-row"
+      className="case-row animate-entrance"
       style={accent ? { borderInlineStart: `4px solid ${accent}` } : undefined}
       role="button"
       tabIndex={0}
