@@ -1770,196 +1770,214 @@
   background: var(--line);
 }
 
-/* Fast-Pass Role Grid */
-.auth-fastpass-section {
+/* Compact Demo Roles Quick-Fill Strip */
+.auth-role-strip-wrap {
+  margin-top: var(--sp-2);
   display: flex;
   flex-direction: column;
-  gap: var(--sp-3);
-}
-.auth-fastpass-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 8px;
 }
-@media (max-width: 520px) {
-  .auth-fastpass-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.auth-fastpass-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 10px;
-  background: var(--surface-alt);
-  border: var(--border-w) solid var(--line);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-sm);
-  text-align: left;
-  transition: transform 0.15s ease, border-color 0.15s ease;
-}
-.auth-fastpass-card:hover {
-  border-color: var(--signal);
-  transform: translateY(-1.5px);
-}
-.auth-fastpass-top {
+.auth-role-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 4px;
+  gap: 8px;
 }
-.auth-fastpass-role {
-  font-size: 11px;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--ink);
-}
-.auth-fastpass-sub {
-  font-size: 10.5px;
-  color: var(--muted-ink);
-  line-height: 1.35;
-}
-.auth-fastpass-btn {
-  width: 100%;
-  margin-top: 4px;
-  font-size: 10.5px;
-  font-family: var(--font-mono);
-  font-weight: 800;
-  justify-content: center;
-}
-
-/* --- Dedicated Helpdesk Sign-In Layout --- */
-.desk-auth-shell {
-  max-width: 1140px;
-  margin: 0 auto;
-  padding: var(--sp-6) var(--sp-4) var(--sp-12);
-  width: 100%;
-  box-sizing: border-box;
-}
-.desk-auth-header {
-  border: 2px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-  padding: var(--sp-5);
-  margin-bottom: var(--sp-6);
+.auth-role-pills {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--sp-4);
   flex-wrap: wrap;
+  gap: 6px;
 }
-.desk-auth-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-6);
-  align-items: start;
-}
-@media (max-width: 860px) {
-  .desk-auth-grid {
-    grid-template-columns: 1fr;
-  }
-}
-.desk-protocol-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-.desk-protocol-card {
+.auth-role-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--surface-alt);
   border: var(--border-w) solid var(--line);
   border-radius: var(--radius-sm);
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-  padding: var(--sp-4);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.desk-protocol-step {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 800;
-  color: var(--signal);
   text-transform: uppercase;
-}
-.desk-protocol-title {
-  font-weight: 800;
-  font-size: var(--fs-base);
   color: var(--ink);
-  margin: 0;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 1px 1px 0px var(--shadow-ink);
 }
-.desk-protocol-desc {
-  font-size: var(--fs-sm);
-  color: var(--muted-ink);
-  line-height: 1.45;
-  margin: 0;
+.auth-role-pill:hover {
+  border-color: var(--signal);
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+.auth-role-pill.is-active {
+  background: var(--surface);
+  border-color: var(--signal);
+  box-shadow: 0 0 0 1px var(--signal), 1.5px 1.5px 0px var(--shadow-ink);
+}
+.auth-role-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--line);
+}
+.auth-role-pill.is-active .pill-dot {
+  background: var(--signal);
+}
+.auth-autofill-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-inline-start: 3px solid var(--signal);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  color: var(--ink);
 }
 
-/* --- Dedicated Kiosk Sign-In Layout --- */
-.kiosk-auth-frame {
-  width: 100%;
-  max-width: 680px;
-  border: 2px solid var(--line);
-  border-radius: var(--radius);
+/* --- Auth Demo Modal Grid & Cards --- */
+.auth-demo-modal-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+}
+.auth-demo-modal-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: var(--sp-3);
+  text-align: left;
+  transition: all 0.15s ease;
+}
+.auth-demo-modal-card:hover {
+  border-color: var(--signal);
   background: var(--surface);
+}
+
+/* --- Kiosk Self-Service Brutalist Enhancements --- */
+.kiosk-card-frame {
+  width: 100%;
+  max-width: 820px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
   box-shadow: var(--shadow);
   padding: var(--sp-6);
   text-align: left;
   box-sizing: border-box;
 }
-.kiosk-operator-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--sp-3);
-  width: 100%;
-  margin-top: var(--sp-3);
-}
-.kiosk-operator-tile {
-  border: var(--border-w) solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--surface-alt);
-  padding: var(--sp-4);
+.kiosk-terminal-header {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-  box-shadow: var(--shadow-sm);
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--line);
 }
-.kiosk-operator-tile:hover {
+.kiosk-quick-rolls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+.kiosk-quick-roll-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+.kiosk-quick-roll-btn:hover {
   border-color: var(--signal);
   background: var(--surface);
+  transform: translateY(-1px);
+}
+.kiosk-student-header-box {
+  width: 100%;
+  max-width: 860px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  padding: var(--sp-4) var(--sp-5);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  text-align: left;
+}
+.kiosk-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-4);
+  width: 100%;
+  max-width: 860px;
+}
+.kiosk-service-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 8px;
+  padding: var(--sp-5);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  color: var(--ink);
+  transition: all 0.15s ease;
+}
+.kiosk-service-card:hover {
+  border-color: var(--signal);
   transform: translateY(-2px);
   box-shadow: var(--shadow);
 }
-.kiosk-security-strip {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-3);
+.kiosk-service-card.is-active {
+  border-color: var(--signal);
+  background: var(--surface-alt);
+  box-shadow: 0 0 0 1px var(--signal), var(--shadow);
+}
+.kiosk-receipt-paper {
   width: 100%;
-  max-width: 900px;
-  margin-top: var(--sp-6);
-  text-align: left;
-}
-@media (max-width: 768px) {
-  .kiosk-security-strip {
-    grid-template-columns: 1fr;
-  }
-}
-.kiosk-sec-card {
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
+  max-width: 680px;
   background: var(--surface);
-  padding: var(--sp-3);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-shadow: var(--shadow-sm);
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  padding: var(--sp-6);
+  text-align: left;
+  position: relative;
 }
+.kiosk-receipt-badge {
+  display: inline-block;
+  background: var(--signal);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 2px 10px;
+  border-radius: 2px;
+  margin-bottom: var(--sp-3);
+}
+
 
 @media (max-width: 899px) {
   .auth-brand {

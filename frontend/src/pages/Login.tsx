@@ -19,8 +19,7 @@ import { ApiError, api, currentDeviceMode, setDeviceMode, type DeviceMode } from
 import { useSession } from '../state/session'
 import { useInstitution } from '../state/institution'
 import { useTheme } from '../state/theme'
-import { Badge, Button, Card, Field, TextInput } from '../components/ui'
-import { KioskShell } from '../layouts/KioskShell'
+import { Badge, Button, Field, TextInput } from '../components/ui'
 import { THEME_OPTIONS } from '../state/theme'
 import type { Profile, RoleKey } from '../lib/types'
 
@@ -63,7 +62,7 @@ function IconStations() {
   )
 }
 
-/** Three architectural guarantees verified by the system */
+/** Three architectural guarantees verified by the system for Personal Sign-in */
 const AUTH_POINTS = [
   {
     icon: <IconWifiOff />,
@@ -79,6 +78,44 @@ const AUTH_POINTS = [
     icon: <IconStations />,
     title: '8 Tailored Station Workspaces',
     body: 'Ergonomic, specialized operational environments for Students, Technicians, Wardens, Security Officers, Admins, and Corridor Kiosks.',
+  },
+]
+
+/** Helpdesk operational protocols */
+const DESK_POINTS = [
+  {
+    icon: <IconShieldCheck />,
+    title: 'Protocol 01 · Identity Verification',
+    body: 'Instant lookup of student enrollment, branch, hostel block, and room. Eliminates identity delays for walk-in students without devices.',
+  },
+  {
+    icon: <IconWifiOff />,
+    title: 'Protocol 02 · Dual-Identity Cryptographic Ledger',
+    body: 'Cases record both the student identity and your operator signature under the ASSISTED_DESK channel for complete auditable compliance.',
+  },
+  {
+    icon: <IconStations />,
+    title: 'Protocol 03 · Verbatim Intake & Printed Receipts',
+    body: 'Preserves the student’s exact spoken words while the AI engine triages SLA and priority. Issue immediate physical reference slips.',
+  },
+]
+
+/** Kiosk corridor bootloader security directives */
+const KIOSK_POINTS = [
+  {
+    icon: <IconShieldCheck />,
+    title: 'Directive 01 · Zero Residual Storage',
+    body: 'Students interact via roll number only. No personal passwords, tokens, or private credentials are ever stored on this terminal.',
+  },
+  {
+    icon: <IconWifiOff />,
+    title: 'Directive 02 · 90-Second Inactivity Scrub',
+    body: 'Automatic idle countdown actively scrubs local state, resets all form entries, and returns to the home screen after 90 seconds.',
+  },
+  {
+    icon: <IconStations />,
+    title: 'Directive 03 · Mesh Outbox Buffering',
+    body: 'During campus network drops, grievances buffer locally in IndexedDB with UUIDv4 idempotency keys and synchronize upon reconnection.',
   },
 ]
 
@@ -113,6 +150,16 @@ const PERSONAS_CONFIG: Record<string, { label: string; tone: 'open' | 'warn' | '
     tone: 'open',
     desc: 'Walk-up Assisted Counter Operator',
   },
+  SUPER_ADMIN: {
+    label: 'Super Admin',
+    tone: 'urgent',
+    desc: 'Global System Administrator',
+  },
+  DEPARTMENT_HEAD: {
+    label: 'Department Head',
+    tone: 'open',
+    desc: 'Academic & Facility Oversight',
+  },
 }
 
 /** Where each role wakes up. The login "type" decides the landing experience. */
@@ -146,6 +193,8 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
   const [error, setError] = useState<string | null>(null)
   const [accounts, setAccounts] = useState<DemoAccount[] | null>(null)
   const [showPassword, setShowPassword] = useState(false)
+  const [showDemoModal, setShowDemoModal] = useState(false)
+  const [autoFilledRole, setAutoFilledRole] = useState<string | null>(null)
 
   useEffect(() => {
     void api
@@ -181,6 +230,20 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
     return true
   })
 
+  const handleFillAccount = (account: DemoAccount) => {
+    setEmail(account.email)
+    setPassword(account.password)
+    setAutoFilledRole(account.label)
+  }
+
+  const handleModalLaunch = (account: DemoAccount) => {
+    setEmail(account.email)
+    setPassword(account.password)
+    setAutoFilledRole(account.label)
+    setShowDemoModal(false)
+    void submit(account.email, account.password)
+  }
+
   const form = (
     <form
       onSubmit={(event) => {
@@ -189,15 +252,18 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
       }}
       style={{ display: 'flex', flexDirection: 'column', gap: 'var(--sp-3)' }}
     >
-      <Field label={variant === 'kiosk' ? 'Operator Email' : 'Campus Email'} htmlFor="email">
+      <Field label={variant === 'kiosk' ? 'Operator Email' : variant === 'desk' ? 'Desk Operator Email' : 'Campus Email'} htmlFor="email">
         <TextInput
           id="email"
           value={email}
-          onChange={setEmail}
+          onChange={(val) => {
+            setEmail(val)
+            if (autoFilledRole) setAutoFilledRole(null)
+          }}
           type="email"
           autoComplete="username"
           inputMode="email"
-          placeholder={variant === 'kiosk' ? 'operator@campus.example' : 'you@campus.example'}
+          placeholder={variant === 'kiosk' ? 'operator@campus.example' : variant === 'desk' ? 'desk@campus.example' : 'you@campus.example'}
         />
       </Field>
       <Field label="Password" htmlFor="password">
@@ -205,7 +271,10 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
           <TextInput
             id="password"
             value={password}
-            onChange={setPassword}
+            onChange={(val) => {
+              setPassword(val)
+              if (autoFilledRole) setAutoFilledRole(null)
+            }}
             type={showPassword ? 'text' : 'password'}
             autoComplete="current-password"
             placeholder="••••••••"
@@ -234,253 +303,221 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         style={{ fontWeight: 800, letterSpacing: '0.02em', minHeight: 46 }}
       >
         {variant === 'kiosk'
-          ? '⚡ Initialize Public Kiosk'
+          ? '⚡ Initialize Public Kiosk →'
           : variant === 'desk'
-          ? '⚡ Open Assisted Counter Desk'
+          ? '⚡ Open Assisted Counter Desk →'
           : 'Authenticate & Enter Station →'}
       </Button>
     </form>
   )
 
-  // ---------------------------------------------------------------- KIOSK VARIANT
+  // ---------------------------------------------------------------- KIOSK VARIANT (Station 06)
   if (variant === 'kiosk') {
     return (
-      <KioskShell>
-        <div className="stack" style={{ alignItems: 'center', width: '100%', maxWidth: 860, gap: 'var(--sp-4)' }}>
-          <div className="landing-kicker">
-            <span className="hero-kicker-beacon" aria-hidden="true" />
-            <Badge tone="warn">STATION 06</Badge>
-            <span className="mono tiny bold">[PUBLIC CORRIDOR KIOSK BOOTLOADER]</span>
-          </div>
+      <div className="auth animate-entrance">
+        {/* Left Column: Brand & Security Directives */}
+        <section className="auth-brand">
+          <Link to="/" className="sidebar-brand" style={{ marginBottom: 0, width: 'fit-content' }}>
+            <span className="brand-mark" aria-hidden="true" data-monogram={institution.monogram} />
+            <span className="brand-name">{institution.shortName}</span>
+          </Link>
 
-          <div style={{ textAlign: 'center' }}>
-            <h1 className="kiosk-title" style={{ margin: '0 0 6px', textTransform: 'uppercase' }}>
-              Corridor Kiosk Provisioning
+          <div className="auth-brand-inner">
+            <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
+              <Badge tone="warn">STATION 06</Badge>
+              <Badge tone="open">CORRIDOR KIOSK BOOTLOADER</Badge>
+              <Badge tone="done">90S IDLE PURGE</Badge>
+            </div>
+
+            <h1 className="auth-title">
+              Corridor Terminal Provisioning.
+              <span className="auth-accent">Zero Residual Storage.</span>
             </h1>
-            <p className="kiosk-hint" style={{ margin: 0, maxWidth: 600 }}>
-              Operator authorization required to unlock and provision this shared corridor terminal.
-              Once unlocked, the terminal enters public student self-service mode with automatic 90s idle wipe.
+
+            <p className="auth-lede">
+              Operator authorization unlocks this terminal into public student self-service mode with automatic 90-second inactivity wipe and offline mesh buffering.
             </p>
-          </div>
 
-          <div className="kiosk-auth-frame">
-            <div className="auth-station-tag">
-              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>OPERATOR CREDENTIALS REQUIRED</span>
-              <Badge tone="done">90S IDLE RESET ACTIVE</Badge>
-            </div>
-            <div style={{ marginTop: 'var(--sp-3)' }}>
-              {form}
-            </div>
-          </div>
-
-          {/* Quick Operator Fast-Pass */}
-          <div style={{ width: '100%', maxWidth: 680 }}>
-            <div className="section-title" style={{ textAlign: 'start', marginBottom: 8 }}>
-              Quick Operator Provisioning — Tap to Initialize
-            </div>
-            <div className="kiosk-operator-grid">
-              {filtered.map((account) => (
-                <div
-                  key={account.email}
-                  className="kiosk-operator-tile"
-                  onClick={() => void submit(account.email, account.password, 'kiosk')}
-                >
-                  <div className="row-between">
-                    <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>
-                      {account.role.replaceAll('_', ' ')}
-                    </span>
-                    <Badge tone="open" className="tiny mono">OPERATOR</Badge>
-                  </div>
-                  <div className="bold small">{account.label}</div>
-                  <code className="tiny muted">{account.email}</code>
-                  <Button
-                    size="sm"
-                    variant="primary"
-                    busy={busy}
-                    style={{ marginTop: 4, width: '100%', justifyContent: 'center' }}
-                  >
-                    ⚡ Initialize as {account.role.split('_')[0]}
-                  </Button>
-                </div>
+            <ul className="auth-points">
+              {KIOSK_POINTS.map((point) => (
+                <li className="auth-point" key={point.title}>
+                  <span className="auth-point-icon" aria-hidden="true">
+                    {point.icon}
+                  </span>
+                  <span>
+                    <b>{point.title}</b>
+                    <span>{point.body}</span>
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
-          {/* Security & Audit Directives */}
-          <div className="kiosk-security-strip">
-            <div className="kiosk-sec-card">
-              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>01 · ZERO RESIDUAL CACHE</span>
-              <span className="tiny muted">
-                Students query tickets by roll number only. No personal passwords or persistent tokens remain on this terminal.
-              </span>
-            </div>
-            <div className="kiosk-sec-card">
-              <span className="mono tiny bold" style={{ color: 'var(--status-warn)' }}>02 · 90-SECOND IDLE PURGE</span>
-              <span className="tiny muted">
-                The terminal immediately scrubs local storage, resets all form inputs, and returns to the home screen if idle for 90s.
-              </span>
-            </div>
-            <div className="kiosk-sec-card">
-              <span className="mono tiny bold" style={{ color: 'var(--mint)' }}>03 · OFFLINE BUFFERING</span>
-              <span className="tiny muted">
-                During network blackouts, complaints are queued into local IndexedDB and issue a local verification hash.
-              </span>
-            </div>
+          <div className="row-between wrap" style={{ borderTop: '1px solid var(--line)', paddingTop: 12 }}>
+            <span className="mono tiny muted">BUILD: 2026.09 · CORRIDOR TERMINAL v2</span>
+            <span className="mono tiny bold" style={{ color: 'var(--mint)' }}>BOOTLOADER.READY</span>
           </div>
+        </section>
 
-          <div className="row wrap center" style={{ gap: 12, marginTop: 12 }}>
+        {/* Right Column: Station Switcher & Compact Auth Card */}
+        <section className="auth-side">
+          <div className="auth-side-top">
             <VariantPicker active="kiosk" />
-            <Link className="btn btn-ghost btn-sm" to="/">
-              ← Back to Campus Portal
-            </Link>
-          </div>
-        </div>
-      </KioskShell>
-    )
-  }
-
-  // ---------------------------------------------------------------- DESK VARIANT
-  if (variant === 'desk') {
-    return (
-      <div className="desk-auth-shell animate-entrance">
-        {/* Helpdesk Top Bar */}
-        <div className="row-between wrap" style={{ gap: 12, marginBottom: 'var(--sp-4)' }}>
-          <div className="row" style={{ alignItems: 'center', gap: 10 }}>
-            <Link to="/" className="sidebar-brand" style={{ marginBottom: 0 }}>
-              <span className="brand-mark" aria-hidden="true" data-monogram={institution.monogram} />
-              <span className="brand-name">{institution.shortName}</span>
-            </Link>
-            <div
-              className="status-pill hide-mobile"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-sm)',
-                border: 'var(--border-w) solid var(--line)',
-                background: 'var(--surface)',
-              }}
-            >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--mint)', display: 'inline-block' }} />
-              <span className="mono tiny bold">SYS.ONLINE</span>
-            </div>
-          </div>
-          <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
-            <VariantPicker active="desk" />
             <ThemeToggle />
           </div>
-        </div>
 
-        {/* Station Identification Plate */}
-        <div className="desk-auth-header">
-          <div>
-            <div className="row wrap" style={{ gap: 8, alignItems: 'center', marginBottom: 6 }}>
-              <Badge tone="warn">STATION 02</Badge>
-              <span className="mono tiny bold">[ASSISTED WALK-UP HELPDESK]</span>
-              <Badge tone="done">CHANNEL: ASSISTED_DESK</Badge>
+          <div className="auth-card">
+            <div className="auth-station-tag">
+              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>OPERATOR CREDENTIALS REQUIRED</span>
+              <Badge tone="done">90S IDLE PURGE ACTIVE</Badge>
             </div>
-            <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', textTransform: 'uppercase', fontWeight: 900 }}>
-              Helpdesk Operator Authentication
-            </h1>
-            <p className="desk-protocol-desc" style={{ maxWidth: 720 }}>
-              This station files requests on behalf of students who lack smartphones or network connectivity.
-              Every ticket filed records <strong>dual identity</strong> (student roll number + operating staff signature)
-              in the immutable audit ledger.
-            </p>
-          </div>
-          <div className="hide-mobile mono tiny muted" style={{ textAlign: 'right' }}>
-            <div>GATEWAY: ENCRYPTED TLS</div>
-            <div>STATION ID: DESK_01</div>
-          </div>
-        </div>
 
-        {/* 2-Column Split: Form + Protocols */}
-        <div className="desk-auth-grid">
-          {/* Left: Operator Terminal Form */}
-          <div className="stack" style={{ gap: 'var(--sp-4)' }}>
-            <Card style={{ padding: 'var(--sp-5)' }}>
-              <div className="auth-station-tag" style={{ marginBottom: 'var(--sp-3)' }}>
-                <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>OPERATOR SIGN-IN</span>
-                <span className="mono tiny muted">STAFF ACCESS ONLY</span>
-              </div>
-              {form}
-            </Card>
-
-            {/* Quick Operator Fast-Pass */}
-            <Card>
-              <div className="row-between" style={{ marginBottom: 8 }}>
-                <span className="bold small">Operator Fast-Pass</span>
-                <span className="mono tiny muted">Pre-Seeded Roles</span>
-              </div>
-              <div className="stack" style={{ gap: 8 }}>
-                {filtered.map((account) => (
-                  <div key={account.email} className="row-between" style={{ background: 'var(--surface-alt)', padding: '8px 10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--line)' }}>
-                    <div>
-                      <div className="bold small">{account.role.replaceAll('_', ' ')}</div>
-                      <div className="tiny muted">{account.label}</div>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      busy={busy}
-                      onClick={() => void submit(account.email, account.password, 'desk')}
-                    >
-                      ⚡ Open Desk
-                    </Button>
-                  </div>
-                ))}
-              </div>
-              <div className="mono tiny muted" style={{ marginTop: 8 }}>
-                Universal password: <code className="bold">Campus@2026</code>
-              </div>
-            </Card>
-          </div>
-
-          {/* Right: Operational Protocols & Governance */}
-          <div className="desk-protocol-list">
-            <div className="desk-protocol-card">
-              <span className="desk-protocol-step">PROTOCOL 01 · IDENTITY LOOKUP</span>
-              <h3 className="desk-protocol-title">Student Verification</h3>
-              <p className="desk-protocol-desc">
-                Search students by roll number or name. The desk checks active enrollment, branch, hostel block, and dues balance before filing.
+            <div>
+              <h2 className="section-title" style={{ margin: '0 0 4px', fontSize: 'var(--fs-xl)' }}>
+                Unlock Corridor Terminal
+              </h2>
+              <p className="page-sub" style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>
+                Operator credentials required to initialize student self-service kiosk.
               </p>
             </div>
 
-            <div className="desk-protocol-card">
-              <span className="desk-protocol-step">PROTOCOL 02 · VERBATIM CAPTURE</span>
-              <h3 className="desk-protocol-title">Exact Words Preservation</h3>
-              <p className="desk-protocol-desc">
-                Record the student's exact spoken words rather than bureaucratic phrasing. The AI triage agent automatically categorizes urgency and priority.
-              </p>
-            </div>
+            {form}
 
-            <div className="desk-protocol-card">
-              <span className="desk-protocol-step">PROTOCOL 03 · DUAL IDENTITY LOGGING</span>
-              <h3 className="desk-protocol-title">Auditable Accountability</h3>
-              <p className="desk-protocol-desc">
-                Cases store both the student identity and your authenticated operator signature under the <code>ASSISTED_DESK</code> channel for full compliance.
-              </p>
-            </div>
+            <div className="auth-or">or choose operator role</div>
 
-            <div className="desk-protocol-card">
-              <span className="desk-protocol-step">PROTOCOL 04 · RECEIPT ISSUANCE</span>
-              <h3 className="desk-protocol-title">Receipt Tracking Key</h3>
-              <p className="desk-protocol-desc">
-                Hand over the generated Case Reference Number or print the formal receipt for the student to monitor progress via SMS or corridor kiosk.
-              </p>
-            </div>
+            <RoleQuickStrip
+              accounts={filtered}
+              currentEmail={email}
+              autoFilledRole={autoFilledRole}
+              onFill={handleFillAccount}
+              onOpenModal={() => setShowDemoModal(true)}
+              onLaunch={() => void submit()}
+              busy={busy}
+              title="Operator Fast-Pass"
+            />
 
-            <p className="tiny muted" style={{ margin: '4px 0 0' }}>
+            <p className="small muted" style={{ margin: 'var(--sp-2) 0 0', textAlign: 'center' }}>
               <Link to="/">← Back to Campus Portal</Link>
             </p>
           </div>
-        </div>
+        </section>
+
+        <DemoAccountsModal
+          isOpen={showDemoModal}
+          onClose={() => setShowDemoModal(false)}
+          accounts={filtered}
+          onSelect={handleModalLaunch}
+          busy={busy}
+          title="Kiosk Operator Personas"
+        />
       </div>
     )
   }
 
-  // ---------------------------------------------------------------- STANDARD VARIANT
+  // ---------------------------------------------------------------- DESK VARIANT (Station 02)
+  if (variant === 'desk') {
+    return (
+      <div className="auth animate-entrance">
+        {/* Left Column: Brand & Operational Protocols */}
+        <section className="auth-brand">
+          <Link to="/" className="sidebar-brand" style={{ marginBottom: 0, width: 'fit-content' }}>
+            <span className="brand-mark" aria-hidden="true" data-monogram={institution.monogram} />
+            <span className="brand-name">{institution.shortName}</span>
+          </Link>
+
+          <div className="auth-brand-inner">
+            <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
+              <Badge tone="warn">STATION 02</Badge>
+              <Badge tone="open">ASSISTED WALK-UP COUNTER</Badge>
+              <Badge tone="done">CHANNEL: ASSISTED_DESK</Badge>
+            </div>
+
+            <h1 className="auth-title">
+              Assisted Walk-Up Intake.
+              <span className="auth-accent">Dual-Identity Protocol.</span>
+            </h1>
+
+            <p className="auth-lede">
+              Operated station filing complaints and verified requests on behalf of walk-up students, offline campus members, and visitors without smartphones.
+            </p>
+
+            <ul className="auth-points">
+              {DESK_POINTS.map((point) => (
+                <li className="auth-point" key={point.title}>
+                  <span className="auth-point-icon" aria-hidden="true">
+                    {point.icon}
+                  </span>
+                  <span>
+                    <b>{point.title}</b>
+                    <span>{point.body}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="row-between wrap" style={{ borderTop: '1px solid var(--line)', paddingTop: 12 }}>
+            <span className="mono tiny muted">BUILD: 2026.09 · DUAL-IDENTITY ASSISTED INTAKE</span>
+            <span className="mono tiny bold" style={{ color: 'var(--mint)' }}>GATEWAY: ENCRYPTED TLS</span>
+          </div>
+        </section>
+
+        {/* Right Column: Station Switcher & Compact Auth Card */}
+        <section className="auth-side">
+          <div className="auth-side-top">
+            <VariantPicker active="desk" />
+            <ThemeToggle />
+          </div>
+
+          <div className="auth-card">
+            <div className="auth-station-tag">
+              <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>STATION 02 · OPERATOR AUTHENTICATION</span>
+              <Badge tone="warn">STAFF ACCESS ONLY</Badge>
+            </div>
+
+            <div>
+              <h2 className="section-title" style={{ margin: '0 0 4px', fontSize: 'var(--fs-xl)' }}>
+                Helpdesk Operator Sign In
+              </h2>
+              <p className="page-sub" style={{ margin: 0, fontSize: 'var(--fs-sm)' }}>
+                Authenticate as an authorized desk clerk or hostel warden to open the assisted counter.
+              </p>
+            </div>
+
+            {form}
+
+            <div className="auth-or">or choose operator role</div>
+
+            <RoleQuickStrip
+              accounts={filtered}
+              currentEmail={email}
+              autoFilledRole={autoFilledRole}
+              onFill={handleFillAccount}
+              onOpenModal={() => setShowDemoModal(true)}
+              onLaunch={() => void submit()}
+              busy={busy}
+              title="Helpdesk Operator Fast-Pass"
+            />
+
+            <p className="small muted" style={{ margin: 'var(--sp-2) 0 0', textAlign: 'center' }}>
+              <Link to="/">← Back to Campus Portal</Link>
+            </p>
+          </div>
+        </section>
+
+        <DemoAccountsModal
+          isOpen={showDemoModal}
+          onClose={() => setShowDemoModal(false)}
+          accounts={filtered}
+          onSelect={handleModalLaunch}
+          busy={busy}
+          title="Helpdesk Operator Personas"
+        />
+      </div>
+    )
+  }
+
+  // ---------------------------------------------------------------- STANDARD VARIANT (Station 01)
   return (
     <div className="auth animate-entrance">
       {/* Left Column: Brand & Architecture Feature Plates */}
@@ -526,7 +563,7 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
         </div>
       </section>
 
-      {/* Right Column: Station Switcher & Authentication Form */}
+      {/* Right Column: Station Switcher & Compact Authentication Card */}
       <section className="auth-side">
         <div className="auth-side-top">
           <VariantPicker active="standard" />
@@ -552,66 +589,229 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
 
           <div className="auth-or">or choose a fast-pass role</div>
 
-          {/* Categorized Personas Fast-Pass Grid */}
-          <div className="auth-fastpass-section">
-            <div className="auth-fastpass-header">
-              <span className="bold small">Seeded Demo Personas</span>
-              <span className="mono tiny muted">One-Tap Sign In</span>
-            </div>
-
-            <div className="auth-fastpass-grid">
-              {(accounts ?? []).map((account) => {
-                const conf = PERSONAS_CONFIG[account.role] ?? {
-                  label: account.role.replaceAll('_', ' '),
-                  tone: 'open' as const,
-                  desc: account.label,
-                }
-                return (
-                  <div key={account.email} className="auth-fastpass-card">
-                    <div className="auth-fastpass-top">
-                      <span className="auth-fastpass-role">{conf.label}</span>
-                      <Badge tone={conf.tone} className="tiny mono">
-                        {account.role.split('_')[0]}
-                      </Badge>
-                    </div>
-                    <div className="auth-fastpass-sub">{conf.desc}</div>
-                    <code className="tiny muted">{account.email}</code>
-                    <Button
-                      size="sm"
-                      variant="primary"
-                      className="auth-fastpass-btn"
-                      busy={busy}
-                      onClick={() => void submit(account.email, account.password, 'personal')}
-                    >
-                      ⚡ Launch Role →
-                    </Button>
-                  </div>
-                )
-              })}
-            </div>
-
-            <div
-              style={{
-                marginTop: 6,
-                padding: '6px 10px',
-                background: 'var(--surface-alt)',
-                border: '1px solid var(--line)',
-                borderRadius: 'var(--radius-sm)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}
-            >
-              <span className="tiny muted">Universal demo password:</span>
-              <code className="bold tiny mono">Campus@2026</code>
-            </div>
-          </div>
+          {/* Compact Demo Roles Quick-Fill Strip */}
+          <RoleQuickStrip
+            accounts={filtered}
+            currentEmail={email}
+            autoFilledRole={autoFilledRole}
+            onFill={handleFillAccount}
+            onOpenModal={() => setShowDemoModal(true)}
+            onLaunch={() => void submit()}
+            busy={busy}
+            title="Seeded Demo Personas"
+          />
 
           <p className="small muted" style={{ margin: 'var(--sp-2) 0 0', textAlign: 'center' }}>
             <Link to="/">← Back to Campus Portal</Link>
           </p>
         </div>
       </section>
+
+      {/* Floating Demo Accounts Ledger Modal — Never inflates the signin card! */}
+      <DemoAccountsModal
+        isOpen={showDemoModal}
+        onClose={() => setShowDemoModal(false)}
+        accounts={filtered}
+        onSelect={handleModalLaunch}
+        busy={busy}
+        title="Campus Relay · Demo Accounts Ledger"
+      />
+    </div>
+  )
+}
+
+/** Compact 1-Row Role Quick Strip with autofill feedback */
+function RoleQuickStrip({
+  accounts,
+  currentEmail,
+  autoFilledRole,
+  onFill,
+  onOpenModal,
+  onLaunch,
+  busy,
+  title = 'Quick Role Fill',
+}: {
+  accounts: DemoAccount[]
+  currentEmail: string
+  autoFilledRole: string | null
+  onFill: (account: DemoAccount) => void
+  onOpenModal: () => void
+  onLaunch: () => void
+  busy: boolean
+  title?: string
+}) {
+  return (
+    <div className="auth-role-strip-wrap">
+      <div className="auth-role-header">
+        <span className="bold tiny mono" style={{ textTransform: 'uppercase', color: 'var(--muted-ink)' }}>
+          {title}
+        </span>
+        <button
+          type="button"
+          className="btn btn-ghost btn-sm tiny mono bold"
+          onClick={onOpenModal}
+          style={{ padding: '2px 8px', height: 'auto', textDecoration: 'underline' }}
+        >
+          Browse All ({accounts.length}) ↗
+        </button>
+      </div>
+
+      <div className="auth-role-pills" role="toolbar" aria-label="Demo role selector">
+        {accounts.slice(0, 6).map((account) => {
+          const isSelected = currentEmail.toLowerCase() === account.email.toLowerCase()
+          const conf = PERSONAS_CONFIG[account.role]
+          const label = conf?.label.split(' ')[0] ?? account.role.split('_')[0]
+          return (
+            <button
+              key={account.email}
+              type="button"
+              className={`auth-role-pill ${isSelected ? 'is-active' : ''}`}
+              onClick={() => onFill(account)}
+              title={`${account.label} (${account.email})`}
+            >
+              <span className="pill-dot" />
+              <span>{label}</span>
+            </button>
+          )
+        })}
+      </div>
+
+      {autoFilledRole && (
+        <div className="auth-autofill-banner">
+          <div className="row" style={{ alignItems: 'center', gap: 6, minWidth: 0, overflow: 'hidden' }}>
+            <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>✓ LOADED:</span>
+            <span className="tiny bold text-truncate" style={{ maxWidth: 210 }}>{autoFilledRole}</span>
+          </div>
+          <Button
+            size="sm"
+            variant="primary"
+            busy={busy}
+            style={{ padding: '2px 8px', height: 26, minHeight: 26, fontSize: 11 }}
+            onClick={onLaunch}
+          >
+            ⚡ Launch
+          </Button>
+        </div>
+      )}
+
+      <div
+        style={{
+          marginTop: 2,
+          padding: '4px 8px',
+          background: 'var(--surface-alt)',
+          border: '1px solid var(--line)',
+          borderRadius: 'var(--radius-sm)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <span className="tiny muted">Demo password:</span>
+        <code className="bold tiny mono">Campus@2026</code>
+      </div>
+    </div>
+  )
+}
+
+/** Floating Modal Dialog for browsing all demo accounts without inflating card geometry */
+function DemoAccountsModal({
+  isOpen,
+  onClose,
+  accounts,
+  onSelect,
+  busy,
+  title,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  accounts: DemoAccount[]
+  onSelect: (account: DemoAccount) => void
+  busy: boolean
+  title?: string
+}) {
+  if (!isOpen) return null
+  return (
+    <div
+      className="modal-backdrop animate-fade-in"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="demo-accounts-title"
+    >
+      <div
+        className="modal"
+        onClick={(e) => e.stopPropagation()}
+        style={{ maxWidth: 740, maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}
+      >
+        <div className="row-between" style={{ borderBottom: '1px solid var(--line)', paddingBottom: 'var(--sp-3)' }}>
+          <div>
+            <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
+              <Badge tone="warn">PRE-SEEDED DEMO PERSONAS</Badge>
+              <span className="mono tiny muted">ONE-TAP SWITCH</span>
+            </div>
+            <h2 id="demo-accounts-title" className="section-title" style={{ margin: '4px 0 0', fontSize: 'var(--fs-lg)' }}>
+              {title ?? 'Select a Pre-Seeded Persona'}
+            </h2>
+          </div>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm"
+            onClick={onClose}
+            aria-label="Close dialog"
+            style={{ fontSize: '1.2rem', lineHeight: 1 }}
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style={{ overflowY: 'auto', padding: 'var(--sp-3) 0', flex: 1 }}>
+          <p className="small muted" style={{ margin: '0 0 var(--sp-3)' }}>
+            Tap any persona to immediately fill credentials and launch that station workspace. Universal password:{' '}
+            <code className="bold mono">Campus@2026</code>
+          </p>
+
+          <div className="auth-demo-modal-grid">
+            {accounts.map((account) => {
+              const conf = PERSONAS_CONFIG[account.role] ?? {
+                label: account.role.replaceAll('_', ' '),
+                tone: 'open' as const,
+                desc: account.label,
+              }
+              return (
+                <div key={account.email} className="auth-demo-modal-card">
+                  <div className="row-between">
+                    <span className="mono tiny bold" style={{ color: 'var(--signal)' }}>
+                      {conf.label}
+                    </span>
+                    <Badge tone={conf.tone} className="tiny mono">
+                      {account.role.split('_')[0]}
+                    </Badge>
+                  </div>
+                  <div className="bold small">{account.label}</div>
+                  <div className="tiny muted">{conf.desc}</div>
+                  <code className="tiny muted" style={{ wordBreak: 'break-all' }}>{account.email}</code>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    busy={busy}
+                    style={{ marginTop: 6, width: '100%', justifyContent: 'center' }}
+                    onClick={() => onSelect(account)}
+                  >
+                    ⚡ Launch {account.role.split('_')[0]} →
+                  </Button>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        <div className="row-between wrap" style={{ borderTop: '1px solid var(--line)', paddingTop: 'var(--sp-3)', gap: 8 }}>
+          <span className="mono tiny muted">PS07 · INDUSTRIAL BRUTALISM AUTHENTICATION</span>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            Close
+          </Button>
+        </div>
+      </div>
     </div>
   )
 }
