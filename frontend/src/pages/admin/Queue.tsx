@@ -99,7 +99,7 @@ export function QueuePage() {
     for (const caseId of selected) {
       try {
         if (kind === 'escalate') {
-          await api.post(`/cases/${caseId}/escalate`, { reason: reason || 'Bulk escalation from the queue' })
+          await api.post(`/cases/${caseId}/escalate`, { reason: reason || 'Sent higher up in bulk from the queue' })
         } else {
           await api.post(`/cases/${caseId}/assign`, { staff_id: Number(staffId), reason: reason || undefined })
         }
@@ -125,6 +125,7 @@ export function QueuePage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="Case management"
         title="Case queue"
         subtitle={`${queue.data?.total ?? 0} cases in scope · unassigned first, then oldest`}
         actions={
@@ -159,7 +160,7 @@ export function QueuePage() {
                 { value: 'ASSIGNED', label: 'Assigned' },
                 { value: 'IN_PROGRESS', label: 'In progress' },
                 { value: 'WAITING_FOR_APPROVAL', label: 'Awaiting approval' },
-                { value: 'ESCALATED', label: 'Escalated' },
+                { value: 'ESCALATED', label: 'Sent higher up' },
                 { value: 'VERIFICATION_REQUIRED', label: 'Awaiting verification' },
                 { value: 'RESOLVED', label: 'Resolved' },
                 { value: 'CLOSED', label: 'Closed' },
@@ -246,7 +247,7 @@ export function QueuePage() {
               ) : null}
               {can('case:escalate') ? (
                 <Button size="sm" variant="danger" onClick={() => setDialog('escalate')}>
-                  Escalate
+                  Send higher up
                 </Button>
               ) : null}
               <Button size="sm" variant="ghost" onClick={() => setSelected([])}>
@@ -361,16 +362,16 @@ export function QueuePage() {
       <Modal
         open={dialog === 'escalate'}
         onClose={() => setDialog(null)}
-        title={`Escalate ${selected.length} case(s)`}
+        title={`Send ${selected.length} case(s) higher up`}
         footer={
           <Button variant="danger" block busy={busy} onClick={() => void runBulk('escalate')}>
-            Escalate now
+            Send now
           </Button>
         }
       >
         <p className="small">
-          Each case gets its own escalation record against your name, and the responsible head is notified. This is
-          not a bulk "nudge" — it is a real escalation on every one.
+          Each case gets its own record against your name, and the person responsible is notified. This is
+          not a mass reminder — every case is genuinely sent higher up.
         </p>
         <TextArea value={reason} onChange={setReason} rows={3} placeholder="Repeated water leakage, needs civil works" />
       </Modal>

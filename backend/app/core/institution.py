@@ -171,6 +171,42 @@ def _read_file(path: Path) -> tuple[dict[str, Any], str | None]:
     return raw, None
 
 
+# The college logo is stored inline as a data URL so the whole branding lives
+# in one reviewable config file - no upload directory, no object store. The
+# trade-off is size: the file must stay small, so a logo above this many
+# characters is refused rather than silently bloating every /institution read.
+CREST_MAX_CHARS = 200_000  # ~150KB of base64 image, comfortably a small logo
+
+_CREST_MIME_PREFIXES = (
+    "data:image/png;base64,",
+    "data:image/webp;base64,",
+    "data:image/svg+xml;base64,",
+)
+
+
+def _crest_is_safe(value: str) -> bool:
+    """Accept only shapes a browser can render as an <img> and nothing else.
+
+    Allowed: empty (wordmark alone), an http(s) URL, a same-origin path, or a
+    base64 data URL of a PNG / WebP / SVG under the size cap. A javascript:,
+    data:text/html or arbitrary string never reaches an <img src>. SVG is
+    base64-encoded rather than inlined, so script inside the markup cannot run.
+    """
+    value = value.strip()
+    if not value:
+        return True
+    if len(value) > CREST_MAX_CHARS:
+        return False
+    if value.startswith(_CREST_MIME_PREFIXES):
+        return True
+    lowered = value.lower()
+    if lowered.startswith(("http://", "https://")):
+        return True
+    if value.startswith(("/", "./", "../")) and not value.startswith("//"):
+        return True
+    return False
+
+
 def _validate(config: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
     """Keep the merge honest: drop anything that would render the UI broken."""
     notes: list[str] = []
@@ -189,6 +225,11 @@ def _validate(config: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
     if crest is not None and not isinstance(crest, str):
         appearance["crest_url"] = ""
         notes.append("appearance.crest_url must be a string; cleared.")
+    elif isinstance(crest, str) and not _crest_is_safe(crest):
+        appearance["crest_url"] = ""
+        notes.append(
+            "appearance.crest_url was not an allowed logo (see below); cleared."
+        )
     accent = appearance.get("accent")
     if accent is not None and (not isinstance(accent, str) or not accent.strip()):
         appearance["accent"] = None

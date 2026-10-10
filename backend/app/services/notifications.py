@@ -744,7 +744,7 @@ def create_notification(
         event_type=AuditEventType.NOTIFICATION_SENT.value,
         campus_id=notification.campus_id,
         actor=actor,
-        actor_role=actor.role_key if actor else RoleKey.ADMIN.value,
+        actor_role=actor.role_key if actor else RoleKey.MANAGEMENT.value,
         entity_type="NOTIFICATION",
         entity_id=notification.id,
         source_channel=source_channel,
@@ -864,7 +864,7 @@ def notify_admins(
     dedupe_key: str | None = None,
 ) -> list[Notification]:
     created: list[Notification] = []
-    for role_key in (RoleKey.ADMIN.value, RoleKey.SUPER_ADMIN.value, RoleKey.WARDEN.value):
+    for role_key in (RoleKey.MANAGEMENT.value,):
         for user in users_with_role(db, campus_id=campus_id, role_key=role_key):
             note = create_notification(
                 db,

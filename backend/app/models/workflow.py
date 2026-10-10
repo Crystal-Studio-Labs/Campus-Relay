@@ -157,6 +157,6 @@ class SlaRule(Base, SurrogateIdMixin, TimestampMixin):
     target_minutes: Mapped[int] = mapped_column(Integer, nullable=False)
     at_risk_ratio: Mapped[float] = mapped_column(Float, nullable=False, default=0.75)
     escalate_to_role: Mapped[str] = mapped_column(
-        String(32), nullable=False, default=RoleKey.DEPARTMENT_HEAD.value
+        String(32), nullable=False, default=RoleKey.TEACHER.value
     )
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

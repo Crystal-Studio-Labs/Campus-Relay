@@ -8,6 +8,8 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { useEffect, useId, useRef } from 'react'
 import { usePageMeta } from '../lib/seo'
+import { useLanguage } from '../lib/i18n'
+import { Icon } from './Icon'
 
 export type Tone =
   | 'open'
@@ -80,7 +82,7 @@ export function Card({
  *  buttons does not change from one screen to the next.
  *
  *  The kicker names the station the screen belongs to ("Case management",
- *  "Gate", "Administrator") and is what turns a heading into a page header. */
+ *  "Gate", "Management") and is what turns a heading into a page header. */
 export function PageHeader({
   title,
   subtitle,
@@ -245,6 +247,7 @@ export function Button({
   busy,
   style,
   className = '',
+  guide,
 }: {
   children: ReactNode
   onClick?: () => void
@@ -258,6 +261,8 @@ export function Button({
   busy?: boolean
   style?: CSSProperties
   className?: string
+  /** Tour anchor, resolved by the guide. */
+  guide?: string
 }) {
   const classes = [
     'btn',
@@ -278,6 +283,7 @@ export function Button({
       aria-label={ariaLabel}
       aria-busy={busy || undefined}
       style={style}
+      data-guide={guide}
     >
       {busy ? 'Working…' : children}
     </button>
@@ -526,6 +532,8 @@ export function Modal({
   children: ReactNode
   footer?: ReactNode
 }) {
+  // Hooks first: the early return below must not skip the language subscription.
+  const { t } = useLanguage()
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => event.key === 'Escape' && onClose()
@@ -538,7 +546,7 @@ export function Modal({
       <div className="modal" role="dialog" aria-modal="true" aria-label={title} onClick={(e) => e.stopPropagation()}>
         <div className="row-between" style={{ marginBottom: 12 }}>
           <h2>{title}</h2>
-          <Button variant="ghost" size="sm" onClick={onClose} ariaLabel="Close">
+          <Button variant="ghost" size="sm" onClick={onClose} ariaLabel={t('action.close')}>
             ✕
           </Button>
         </div>
@@ -776,5 +784,151 @@ export function Pagination({
         ) : null}
       </div>
     </nav>
+  )
+}
+
+/* ==========================================================================
+   BENTO GRID
+
+   The structural vocabulary every dashboard is built from. A `Bento` is a
+   twelve-column field; a `BentoItem` claims a proportioned slice of it, so a
+   large tile genuinely reads as more important than a small one.
+   ========================================================================== */
+
+export function Bento({
+  children,
+  className = '',
+  tight,
+}: {
+  children: ReactNode
+  className?: string
+  tight?: boolean
+}) {
+  return <div className={`bento${tight ? ' bento-tight' : ''} ${className}`}>{children}</div>
+}
+
+/** Spans at the 760px breakpoint; below that every tile is full width. */
+export type BentoSpan = 3 | 4 | 5 | 6 | 7 | 8 | 9 | 12
+
+export function BentoItem({
+  children,
+  span = 12,
+  className = '',
+  selfStart,
+}: {
+  children: ReactNode
+  span?: BentoSpan
+  className?: string
+  selfStart?: boolean
+}) {
+  return (
+    <div className={`bento-span-${span}${selfStart ? ' bento-self-start' : ''} ${className}`}>
+      {children}
+    </div>
+  )
+}
+
+/** A bento stat tile: an icon, the number, and one line of context. Used for
+ *  the top row of every role dashboard. */
+export function StatTile({
+  label,
+  value,
+  hint,
+  icon,
+  tone = 'ghost',
+  onClick,
+  guide,
+}: {
+  label: string
+  value: ReactNode
+  hint?: ReactNode
+  icon?: string
+  tone?: Tone
+  onClick?: () => void
+  guide?: string
+}) {
+  const tint = toneTint(tone)
+  return (
+    <div
+      className={`card metric-tile${onClick ? ' card-clickable' : ''}`}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      data-guide={guide}
+      onKeyDown={onClick ? (event) => event.key === 'Enter' && onClick() : undefined}
+    >
+      <div className="metric-tile-top">
+        <span className="metric-label">{label}</span>
+        {icon ? (
+          <span className="metric-tile-icon" style={{ background: tint.bg, color: tint.fg }} aria-hidden="true">
+            <Icon name={icon} size={18} />
+          </span>
+        ) : null}
+      </div>
+      <div className="metric-value">{value}</div>
+      {hint ? <div className="metric-hint">{hint}</div> : null}
+    </div>
+  )
+}
+
+function toneTint(tone: Tone): { bg: string; fg: string } {
+  const map: Record<Tone, { bg: string; fg: string }> = {
+    open: { bg: 'var(--tint-sky)', fg: 'var(--status-open)' },
+    progress: { bg: 'var(--tint-sun)', fg: 'var(--status-progress)' },
+    blocked: { bg: 'var(--tint-lilac)', fg: 'var(--status-blocked)' },
+    done: { bg: 'var(--tint-mint)', fg: 'var(--status-done)' },
+    dead: { bg: 'var(--surface-alt)', fg: 'var(--status-dead)' },
+    urgent: { bg: 'var(--tint-danger)', fg: 'var(--status-urgent)' },
+    warn: { bg: 'var(--tint-sun)', fg: 'var(--status-warn)' },
+    agent: { bg: 'var(--tint-lilac)', fg: 'var(--lilac)' },
+    ghost: { bg: 'var(--tint-signal)', fg: 'var(--signal)' },
+  }
+  return map[tone]
+}
+
+/** An icon-only control with a guaranteed accessible name. */
+export function IconButton({
+  name,
+  label,
+  onClick,
+  pressed,
+  disabled,
+  className = '',
+  guide,
+}: {
+  name: string
+  label: string
+  onClick?: () => void
+  pressed?: boolean
+  disabled?: boolean
+  className?: string
+  guide?: string
+}) {
+  return (
+    <button
+      type="button"
+      className={`icon-btn ${className}`}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      aria-pressed={pressed}
+      title={label}
+      data-guide={guide}
+    >
+      <Icon name={name} size={18} />
+    </button>
+  )
+}
+
+/** A short, quiet heading that names a bento band. */
+export function SectionHeading({ children, right, icon }: { children: ReactNode; right?: ReactNode; icon?: string }) {
+  return (
+    <div className="row-between" style={{ marginBottom: 'var(--sp-3)' }}>
+      <h2 className="section-title" style={{ marginBottom: 0 }}>
+        {icon ? <Icon name={icon} size={17} /> : null}
+        {children}
+      </h2>
+      {right}
+    </div>
   )
 }

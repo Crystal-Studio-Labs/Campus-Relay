@@ -101,8 +101,8 @@ export function AuditTrailPage() {
     <div className="stack-lg">
       <PageHeader
         kicker="Insights"
-        title="Audit trail"
-        subtitle={`${data?.total ?? 0} recorded events · newest first · append-only, enforced by database trigger`}
+        title="Activity log"
+        subtitle={`${data?.total ?? 0} recorded events · newest first · entries can only be added, never edited or removed`}
         actions={
           <Button variant="ghost" onClick={() => void refresh()}>
             Refresh
@@ -167,7 +167,7 @@ export function AuditTrailPage() {
         </div>
       </Toolbar>
 
-      {loading && !data ? <LoadingState label="Loading the audit trail" /> : null}
+      {loading && !data ? <LoadingState label="Loading the activity log" /> : null}
       {error && !data ? <ErrorState message={error} onRetry={() => void refresh()} /> : null}
 
       {data && data.entries.length === 0 ? (
@@ -280,8 +280,8 @@ export function AuditTrailPage() {
         <SectionTitle>Why this cannot be edited</SectionTitle>
         <p className="small">
           {data?.immutability_note ??
-            'Audit rows are append-only; the database rejects updates and deletes.'}{' '}
-          That is enforced by a database trigger, not by application code, so no future code change can quietly
+            'Entries here can only be added — the database refuses any change or removal.'}{' '}
+          That is enforced by the database itself, not by the code that runs on top of it, so no future change can quietly
           rewrite history.
         </p>
       </Card>

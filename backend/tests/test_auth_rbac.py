@@ -57,17 +57,16 @@ def test_admin_can_reach_the_dashboard(client, admin_token):
     assert response.status_code == 200
 
 
-def test_technician_cannot_manage_users(client, technician_token):
-    response = client.get("/api/v1/admin/users", headers=auth(technician_token))
+def test_teacher_cannot_manage_users(client, teacher_token):
+    response = client.get("/api/v1/admin/users", headers=auth(teacher_token))
     assert response.status_code == 403
 
 
-def test_security_holds_gate_permissions_only(client, security_token):
-    me = client.get("/api/v1/auth/me", headers=auth(security_token)).json()
-    permissions = set(me["permissions"])
-    assert "gate:verify" in permissions
-    assert "user:manage" not in permissions
-    assert "analytics:read" not in permissions
+def test_student_cannot_read_the_gate_summary(client, student_token):
+    # The gate summary names the students currently off-campus, so it is a staff
+    # view and must not be readable by a student.
+    response = client.get("/api/v1/gate/summary", headers=auth(student_token))
+    assert response.status_code == 403
 
 
 def test_data_import_requires_the_permission(client, student_token):

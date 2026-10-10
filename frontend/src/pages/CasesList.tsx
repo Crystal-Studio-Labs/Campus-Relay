@@ -48,7 +48,7 @@ const FILTER_LABELS: Record<Filter, string> = {
   all: 'All in scope',
   mine: 'Raised by me',
   assigned: 'Assigned to me',
-  breached: 'SLA breached',
+  breached: 'Past its deadline',
   approval: 'Awaiting approval',
   verify: 'Awaiting verification',
 }
@@ -92,7 +92,7 @@ export function CasesListPage() {
   if (can('case:read_own')) tabs.push({ id: 'mine', label: 'Raised by me' })
   if (can('case:update_status')) tabs.push({ id: 'assigned', label: 'Assigned to me' })
   if (can('case:read_scope') || can('case:read_all')) tabs.push({ id: 'all', label: 'All in scope' })
-  tabs.push({ id: 'breached', label: 'SLA breached' })
+  tabs.push({ id: 'breached', label: 'Past its deadline' })
   if (can('approval:decide')) tabs.push({ id: 'approval', label: 'Awaiting approval' })
   tabs.push({ id: 'verify', label: 'Awaiting verification' })
 
@@ -102,21 +102,26 @@ export function CasesListPage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        guide="cases-head"
+        kicker="Requests"
         title="Cases"
         subtitle="Your cases, and whatever your role is allowed to see beyond them"
         actions={total ? <Badge tone="ghost">{total} matching</Badge> : null}
       />
 
-      <Tabs
-        tabs={tabs}
-        active={filter}
-        onChange={(next) => {
-          setFilter(next)
-          setPage(1)
-          setParams(next === 'open' ? {} : { filter: next })
-        }}
-      />
+      <div data-guide="cases-tabs">
+        <Tabs
+          tabs={tabs}
+          active={filter}
+          onChange={(next) => {
+            setFilter(next)
+            setPage(1)
+            setParams(next === 'open' ? {} : { filter: next })
+          }}
+        />
+      </div>
 
+      <div data-guide="cases-filters">
       <Toolbar
         actions={
           <>
@@ -168,6 +173,7 @@ export function CasesListPage() {
           placeholder="Search case number, title or description"
         />
       </Toolbar>
+      </div>
 
       {stale ? (
         <div className="banner banner-info">
@@ -202,12 +208,14 @@ export function CasesListPage() {
       ) : null}
 
       {data?.cases.length ? (
-        <CaseList
-          cases={data.cases}
-          onOpen={(item) => navigate(`/cases/${item.id}`)}
-          showRequester={can('case:read_scope') || can('case:read_all')}
-          showAssignee={can('case:assign')}
-        />
+        <div data-guide="cases-list">
+          <CaseList
+            cases={data.cases}
+            onOpen={(item) => navigate(`/cases/${item.id}`)}
+            showRequester={can('case:read_scope') || can('case:read_all')}
+            showAssignee={can('case:assign')}
+          />
+        </div>
       ) : null}
 
       {data && total > 0 ? (

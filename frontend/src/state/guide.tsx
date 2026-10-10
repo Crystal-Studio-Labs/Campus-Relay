@@ -2,10 +2,18 @@
  *
  *  Rules that keep a guide from becoming an annoyance:
  *   - it is off until switched on, and the choice is remembered per device;
- *   - a step whose element is not on this screen is skipped, not stalled on;
+ *   - it is written for students and teachers only (see lib/tours.ts);
+ *   - a step whose element is not on this screen is dropped, not stalled on -
+ *     unless the step names the screen it belongs to, in which case the overlay
+ *     opens that screen and measures again;
+ *   - a step that still cannot be found is abandoned after a short wait, so a
+ *     guide can never trap somebody on a step that does not exist for their role
+ *     or their device;
  *   - Escape always exits;
- *   - the overlay never blocks the app: the spotlight is inert, only the tip
- *     card takes clicks, so nobody gets trapped behind a dimmed screen.
+ *   - the dim is four panes around the target on a layer above every panel, so
+ *     the spotlit control stays crisp and clickable through the hole while the
+ *     rest of the screen is held still until the step is answered;
+ *   - Escape, Skip and Finish all leave the page exactly as it was found.
  */
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
@@ -21,7 +29,7 @@ interface GuideValue {
   step: TourStep | null
   stepIndex: number
   stepCount: number
-  /** Steps that were skipped because their target is not on this screen. */
+  /** Steps dropped because their target does not exist for this role/device. */
   skipped: string[]
   start: (tourId: string) => void
   next: () => void
@@ -29,6 +37,9 @@ interface GuideValue {
   stop: () => void
   finish: () => void
   completed: string[]
+  /** Abandon the current step and move on. Called by the overlay when a target
+   *  never appears, so the tour always makes progress. */
+  skipStep: () => void
 }
 
 const GuideContext = createContext<GuideValue | null>(null)
@@ -44,6 +55,8 @@ export function GuideProvider({ children }: { children: ReactNode }) {
   const [tourId, setTourId] = useState<string | null>(null)
   const [index, setIndex] = useState(0)
   const [completed, setCompleted] = useState<string[]>([])
+  /** Steps given up on during this run, by title. */
+  const [dropped, setDropped] = useState<string[]>([])
 
   const setEnabled = useCallback((next: boolean) => {
     setEnabledState(next)
@@ -57,54 +70,63 @@ export function GuideProvider({ children }: { children: ReactNode }) {
 
   const tour = useMemo(() => TOURS.find((item) => item.id === tourId) ?? null, [tourId])
 
-  // Resolve which steps are actually present on this screen. Recomputed when the
-  // index changes so a page that renders late is still picked up.
+  // Which steps this person can actually be shown. A step is kept when its
+  // element is on the screen, or when it names the screen to open first.
   const resolved = useMemo(() => {
     if (!tour) return { steps: [] as TourStep[], skipped: [] as string[] }
     const present: TourStep[] = []
     const missing: string[] = []
     for (const step of tour.steps) {
-      if (typeof document === 'undefined' || document.querySelector(step.target)) present.push(step)
+      if (dropped.includes(step.title)) continue
+      const onScreen = typeof document !== 'undefined' && document.querySelector(step.target)
+      if (onScreen || step.route) present.push(step)
       else missing.push(step.title)
     }
     return { steps: present, skipped: missing }
-  }, [tour, index])
+  }, [tour, dropped])
 
   const step = tour ? resolved.steps[index] ?? null : null
 
-  const start = useCallback(
-    (id: string) => {
-      setEnabledState(true)
-      try {
-        window.localStorage.setItem(ENABLED_KEY, 'on')
-      } catch {
-        /* ignore */
-      }
-      setTourId(id)
-      setIndex(0)
-    },
-    [],
-  )
+  const start = useCallback((id: string) => {
+    setEnabledState(true)
+    try {
+      window.localStorage.setItem(ENABLED_KEY, 'on')
+    } catch {
+      /* ignore */
+    }
+    setDropped([])
+    setTourId(id)
+    setIndex(0)
+  }, [])
 
   const stop = useCallback(() => setTourId(null), [])
 
   const finish = useCallback(() => {
     if (tourId) setCompleted((current) => [...new Set([...current, tourId])])
     setTourId(null)
+    setIndex(0)
   }, [tourId])
 
   const next = useCallback(() => {
-    setIndex((current) => {
-      if (current + 1 >= resolved.steps.length) {
-        if (tourId) setCompleted((tours) => [...new Set([...tours, tourId])])
-        setTourId(null)
-        return 0
-      }
-      return current + 1
-    })
-  }, [resolved.steps.length, tourId])
+    if (index + 1 >= resolved.steps.length) {
+      finish()
+      return
+    }
+    setIndex((current) => current + 1)
+  }, [index, resolved.steps.length, finish])
 
   const previous = useCallback(() => setIndex((current) => Math.max(0, current - 1)), [])
+
+  const skipStep = useCallback(() => {
+    if (!step) return
+    setDropped((current) => [...current, step.title])
+  }, [step])
+
+  // If the last step of a run is dropped, the walkthrough ends rather than
+  // sitting on an index that no longer exists.
+  useEffect(() => {
+    if (tour && resolved.steps.length <= index) finish()
+  }, [tour, resolved.steps.length, index, finish])
 
   useEffect(() => {
     if (!tour) return
@@ -132,8 +154,9 @@ export function GuideProvider({ children }: { children: ReactNode }) {
       stop,
       finish,
       completed,
+      skipStep,
     }),
-    [enabled, setEnabled, tour, step, index, resolved, start, next, previous, stop, finish, completed],
+    [enabled, setEnabled, tour, step, index, resolved, start, next, previous, stop, finish, completed, skipStep],
   )
 
   return <GuideContext.Provider value={value}>{children}</GuideContext.Provider>

@@ -12,12 +12,13 @@
  *  answer is on this page.
  */
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   availableFeatures,
   type EditableKey,
   type InstitutionConfig,
 } from '../../lib/institution'
+import { api } from '../../lib/api'
 import { useInstitution } from '../../state/institution'
 import { useTheme } from '../../state/theme'
 import { DESIGN_ROADMAP, SKINS, roadmapCount, shippedSkins } from '../../theme/registry'
@@ -28,11 +29,13 @@ import {
   Button,
   EmptyState,
   ErrorState,
+  Field,
   KV,
   LoadingState,
   Metric,
   PageHeader,
   Panel,
+  TextInput,
 } from '../../components/ui'
 
 export function InstitutionSetup() {
@@ -74,7 +77,7 @@ export function InstitutionSetup() {
   return (
     <div className="stack-lg">
       <PageHeader
-        kicker="Administrator · deployment"
+        kicker="Management · deployment"
         title="Institution setup"
         subtitle="Everything that differs between one college and the next lives in one file. This screen shows what the running server is serving right now, where it read it from, and what the template can do next."
         actions={
@@ -107,8 +110,8 @@ export function InstitutionSetup() {
 
       <DataTransferPanel />
 
-      <div className="board">
-        <div className="board-7">
+      <div className="stack-lg">
+        <div>
           <Panel
             title="Where this configuration comes from"
             subtitle="A file, not a build. Editing it and pressing reload changes the running deployment - no rebuild, no restart, no code change."
@@ -152,7 +155,7 @@ export function InstitutionSetup() {
           </Panel>
         </div>
 
-        <div className="board-5">
+        <div>
           <Panel
             title="Identity"
             subtitle="What every screen calls this deployment."
@@ -173,10 +176,10 @@ export function InstitutionSetup() {
         </div>
       </div>
 
-      <AppearancePanel config={config} />
+      <AppearancePanel config={config} onSaved={onReload} />
 
-      <div className="board">
-        <div className="board-6">
+      <div className="stack-lg">
+        <div>
           <Panel
             title={`Vocabulary — the words this institution uses`}
             subtitle="Used in place of hardcoded words, so an institute that calls hostels 'residences' reads correctly everywhere."
@@ -192,7 +195,7 @@ export function InstitutionSetup() {
             </div>
           </Panel>
         </div>
-        <div className="board-6">
+        <div>
           <Panel title="Stations and modules" subtitle="What this deployment switches on, and how shared devices behave.">
             <KV
               items={[
@@ -301,10 +304,169 @@ export function InstitutionSetup() {
   )
 }
 
+/** The college logo.
+ *
+ *  Upload a PNG / WebP / SVG (or paste a URL) and it is stored as a data URL
+ *  inside config/institution.json, so the whole branding lives in one
+ *  reviewable file with no upload directory to manage and no object store to
+ *  pay for. The size cap keeps that file honest: a logo travels with every
+ *  configuration read, so a 5MB photo would tax every kiosk on the campus.
+ */
+function CrestEditor({ config, onSaved }: { config: InstitutionConfig; onSaved: () => Promise<void> }) {
+  const MAX_BYTES = 128 * 1024
+  const ALLOWED_TYPES = ['image/png', 'image/webp', 'image/svg+xml']
+  const [crest, setCrest] = useState(config.appearance.crest_url)
+  const [busy, setBusy] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [problem, setProblem] = useState<string | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    setCrest(config.appearance.crest_url)
+  }, [config.appearance.crest_url])
+
+  const choose = (file: File | null | undefined) => {
+    if (!file) return
+    setProblem(null)
+    setSaved(false)
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setProblem(`\u201c${file.type || file.name}\u201d is not supported. Use a PNG, WebP or SVG logo.`)
+      return
+    }
+    if (file.size > MAX_BYTES) {
+      setProblem(
+        `That file is ${Math.round(file.size / 1024)} KB. The logo must be under 128 KB because it travels inside the configuration file.`,
+      )
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      setCrest(String(reader.result ?? ''))
+      setSaved(false)
+    }
+    reader.onerror = () => setProblem('The file could not be read. Try another image.')
+    reader.readAsDataURL(file)
+  }
+
+  const save = async () => {
+    setBusy(true)
+    setProblem(null)
+    try {
+      await api.post('/admin/institution/identity', { appearance: { crest_url: crest } })
+      await onSaved()
+      setSaved(true)
+    } catch (issue) {
+      setProblem(issue instanceof Error ? issue.message : 'The logo could not be saved.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const isDataUrl = crest.startsWith('data:')
+
+  return (
+    <div className="stack" style={{ gap: 'var(--sp-3)' }}>
+      <div className="row wrap" style={{ gap: 'var(--sp-4)', alignItems: 'flex-start' }}>
+        {/* Preview at the size it is actually used: the brand plate. */}
+        <div
+          className="card card-flat"
+          style={{ display: 'flex', alignItems: 'center', gap: 'var(--sp-3)', padding: 'var(--sp-3)', minWidth: 220 }}
+        >
+          {crest ? (
+            <img
+              src={crest}
+              alt="College logo preview"
+              onError={() => setProblem('That image could not be rendered. Check the URL or pick a local file.')}
+              style={{ width: 40, height: 40, objectFit: 'contain' }}
+            />
+          ) : (
+            <span
+              className="brand-mark"
+              aria-hidden="true"
+              data-monogram={config.identity.monogram}
+              style={{ width: 40, height: 40, fontSize: 15 }}
+            />
+          )}
+          <div style={{ minWidth: 0 }}>
+            <div className="bold small" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {config.identity.short_name}
+            </div>
+            <div className="tiny muted">{crest ? 'logo in use' : 'wordmark + monogram'}</div>
+          </div>
+        </div>
+
+        <div className="stack" style={{ gap: 'var(--sp-2)', flex: 1, minWidth: 240 }}>
+          <Field
+            label="Logo file"
+            hint="PNG, WebP or SVG, up to 128 KB. Stored inside config/institution.json as a data URL."
+          >
+            <div className="row wrap" style={{ gap: 'var(--sp-2)' }}>
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/png,image/webp,image/svg+xml"
+                style={{ display: 'none' }}
+                onChange={(event) => {
+                  choose(event.target.files?.[0])
+                  event.target.value = ''
+                }}
+              />
+              <Button size="sm" variant="default" onClick={() => inputRef.current?.click()}>
+                Choose image
+              </Button>
+              {crest ? (
+                <Button size="sm" variant="ghost" onClick={() => { setCrest(''); setSaved(false); setProblem(null) }}>
+                  Remove
+                </Button>
+              ) : null}
+              <Button
+                size="sm"
+                variant="primary"
+                busy={busy}
+                disabled={crest === config.appearance.crest_url}
+                onClick={() => void save()}
+              >
+                Save logo
+              </Button>
+            </div>
+          </Field>
+          <Field label="…or paste a URL" hint="An absolute https:// URL or a path under public/, e.g. /icons/crest.svg">
+            <TextInput
+              value={isDataUrl ? '' : crest}
+              onChange={(value) => {
+                setCrest(value)
+                setSaved(false)
+              }}
+              placeholder={isDataUrl ? 'uploaded file in use — save after changing' : '/icons/crest.svg'}
+            />
+          </Field>
+        </div>
+      </div>
+
+      {problem ? (
+        <div className="banner banner-error" role="alert">
+          {problem}
+        </div>
+      ) : null}
+      {saved ? (
+        <div className="banner banner-info" role="status">
+          Logo saved. It now appears on the sign-in screen, the sidebar and the installed app.
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 /** The current design language, plus the ones the registry already names. A
  *  planned skin is listed honestly as planned: an adopting college should be
  *  able to see the cost before they ask for it. */
-function AppearancePanel({ config }: { config: InstitutionConfig }) {
+function AppearancePanel({
+  config,
+  onSaved,
+}: {
+  config: InstitutionConfig
+  onSaved: () => Promise<void>
+}) {
   const { skin, setSkin, theme } = useTheme()
   return (
     <Panel
@@ -317,6 +479,8 @@ function AppearancePanel({ config }: { config: InstitutionConfig }) {
         </>
       }
     >
+      <CrestEditor config={config} onSaved={onSaved} />
+      <hr className="divider" />
       <KV
         items={[
           { label: 'Configured skin', value: config.appearance.skin },

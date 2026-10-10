@@ -2,7 +2,7 @@
 
 import io
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Path, Query
 from fastapi.responses import FileResponse, Response
 
 from app.api.deps import CurrentUser, DbSession, assert_permission
@@ -60,13 +60,18 @@ def download_document(document_id: int, db: DbSession, user: CurrentUser):
 
 
 @router.get("/documents/verify/{verification_code}")
-def verify_document(db: DbSession, verification_code: str):
+def verify_document(
+    db: DbSession, verification_code: str = Path(min_length=4, max_length=64)
+):
     """Public verification: confirms a serial exists and is not revoked."""
     return documents.verify_document(db, verification_code=verification_code)
 
 
 @router.get("/qr/{code}.png")
-def qr_image(code: str, size: int = Query(default=240, ge=80, le=800)):
+def qr_image(
+    code: str = Path(min_length=1, max_length=120),
+    size: int = Query(default=240, ge=80, le=800),
+):
     """Printable QR for a location or gate pass.
 
     The payload embeds no personal data, so this image is safe to stick on a wall.
@@ -108,12 +113,19 @@ def demo_reset(
     confirm: bool = Query(default=False),
     days_of_history: int = Query(default=30, ge=1, le=180),
 ):
-    """DEMO TOOL: rebuild the demo campus from scratch."""
+    """DEMO TOOL: rebuild the demo campus from scratch.
+
+    Refused outside demo mode. This endpoint destroys every row in the campus
+    tables; a production administrator holding the permission must not be one
+    accidental call away from wiping the real database.
+    """
+    if not settings.is_demo_mode:
+        raise NotFoundError("Not found.")
     assert_permission(user, DEMO_RESET)
-    if user.role_key not in {RoleKey.SUPER_ADMIN.value, RoleKey.ADMIN.value}:
+    if user.role_key != RoleKey.MANAGEMENT.value:
         from app.core.errors import PermissionDeniedError
 
-        raise PermissionDeniedError("Only administrators can reset demo data.")
+        raise PermissionDeniedError("Only the management role can reset demo data.")
     if not confirm:
         from app.core.errors import ValidationError
 

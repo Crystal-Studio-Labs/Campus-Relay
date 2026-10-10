@@ -1,9 +1,9 @@
-/** Protected Supervisor and Administrator Modal for Corridor Kiosks.
+/** Protected supervisor modal for corridor kiosks.
  *
  *  Prevents walk-up students or unauthorized users from terminating the kiosk
  *  session, tampering with settings, or logging in with a personal account.
  *
- *  Allows authorized Administrators and Super Admins to:
+ *  Allows the management role to:
  *   1. Change which campus section/station this kiosk belongs to
  *   2. Decommission/sign out the kiosk terminal securely
  *   3. Inspect terminal hardware UID and local storage state
@@ -78,7 +78,7 @@ export function KioskSupervisorModal({ isOpen, onClose, onLogout }: KioskSupervi
           <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
             <span className="hero-kicker-beacon" aria-hidden="true" />
             <span className="mono tiny bold" style={{ letterSpacing: '0.08em' }}>
-              SECURITY GOVERNANCE · ADMIN PROTOCOL
+              ADMIN GOVERNANCE · SUPERVISOR PROTOCOL
             </span>
           </div>
           <button

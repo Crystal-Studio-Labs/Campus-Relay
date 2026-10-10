@@ -141,8 +141,8 @@ class OperationsAgent:
                 {
                     "type": "RECOMMENDATION",
                     "action": "ESCALATE",
-                    "title": f"Escalate {len(breached)} breached case(s)",
-                    "reason": "These cases have passed their SLA target and need a decision now.",
+                    "title": f"Send {len(breached)} overdue case(s) higher up",
+                    "reason": "These cases have passed their deadline and need a decision now.",
                     "case_ids": [c.id for c in breached],
                     "case_numbers": [c.case_number for c in breached],
                 }

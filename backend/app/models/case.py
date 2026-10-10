@@ -156,6 +156,22 @@ class Case(Base, SurrogateIdMixin, TimestampMixin):
             created = created.replace(tzinfo=end.tzinfo)
         return max((end - created).total_seconds() / 60.0, 0.0)
 
+    @property
+    def resolution_minutes(self) -> float | None:
+        """Minutes from filing to the resolution stamp, once there is one.
+
+        Distinct from ``age_minutes``, which measures how old a case is and
+        therefore keeps changing while it is open. This is the number a
+        resolution-time report is about, and it stops moving when the case is
+        resolved - which is what makes it comparable across cases.
+        """
+        if self.resolved_at is None or self.created_at is None:
+            return None
+        created = self.created_at
+        if created.tzinfo is None:
+            created = created.replace(tzinfo=self.resolved_at.tzinfo)
+        return max((self.resolved_at - created).total_seconds() / 60.0, 0.0)
+
 
 class CaseEvent(Base, SurrogateIdMixin):
     """Immutable case timeline. Append-only: enforced in app.models.immutability."""

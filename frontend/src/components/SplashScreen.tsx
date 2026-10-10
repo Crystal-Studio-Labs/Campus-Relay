@@ -6,6 +6,7 @@
  */
 
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { currentChannel, currentDeviceMode, deviceUid } from '../lib/api'
 import { useInstitution } from '../state/institution'
 import { useTheme } from '../state/theme'
@@ -22,10 +23,10 @@ export function SplashScreen({ label = 'Initializing campus operating layer…',
   const [activeStep, setActiveStep] = useState(0)
 
   const steps = [
-    { code: 'BOOT_01', text: 'INITIALIZING MESH CORE & MEMORY CACHE' },
-    { code: 'AUTH_02', text: 'VERIFYING HARDWARE FINGERPRINT & LEDGER' },
-    { code: 'SYNC_03', text: 'LINKING PERSISTENT INDEXEDDB BUFFER' },
-    { code: 'READY_04', text: 'OPERATIONAL LAYER ENGAGED · ONLINE' },
+    { code: 'BOOT_01', text: 'STARTING UP' },
+    { code: 'AUTH_02', text: 'CHECKING THIS DEVICE AND YOUR SIGN-IN' },
+    { code: 'SYNC_03', text: 'OPENING SAVED DATA FOR OFFLINE USE' },
+    { code: 'READY_04', text: 'READY · ONLINE' },
   ]
 
   useEffect(() => {
@@ -59,7 +60,6 @@ export function SplashScreen({ label = 'Initializing campus operating layer…',
   return (
     <div className="splash-screen" role="status" aria-live="polite">
       {/* Background Technical Grid Overlay */}
-      <div className="splash-grid-bg" aria-hidden="true" />
 
       {/* Central Brutalist Console Frame */}
       <div className="splash-console-frame">
@@ -74,11 +74,11 @@ export function SplashScreen({ label = 'Initializing campus operating layer…',
           <div className="row wrap" style={{ gap: 8, alignItems: 'center' }}>
             <span className="hero-kicker-beacon" aria-hidden="true" />
             <span className="mono tiny bold" style={{ letterSpacing: '0.08em' }}>
-              SYS.BOOT // CORE v2.6.4
+              STARTING UP
             </span>
           </div>
           <div className="mono tiny bold hide-mobile" style={{ color: 'var(--mint)' }}>
-            [● TELEMETRY ONLINE]
+            [● CONNECTED]
           </div>
         </div>
 
@@ -132,6 +132,9 @@ export function SplashScreen({ label = 'Initializing campus operating layer…',
                 <div
                   key={step.code}
                   className={`splash-diag-item ${isDone ? 'is-done' : isCurrent ? 'is-active' : ''}`}
+                  /* The lines arrive one after another rather than all at once,
+                     so the screen reads as a boot sequence in progress. */
+                  style={{ '--line-delay': `${idx * 110}ms` } as CSSProperties}
                 >
                   <span className="mono bold tiny splash-diag-status">
                     {isDone ? '[OK]' : isCurrent ? '[▶]' : '[··]'}
@@ -166,7 +169,7 @@ export function SplashScreen({ label = 'Initializing campus operating layer…',
         {/* Bottom Hardware Status */}
         <div className="splash-footer-bar">
           <span className="mono tiny muted">
-            SECURE LOCAL-FIRST ARCHITECTURE · AUDIT IDEMPOTENCY ACTIVE
+            WORKS OFFLINE · EVERY ACTION IS RECORDED
           </span>
         </div>
       </div>

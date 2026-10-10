@@ -18,9 +18,7 @@
     "",
     "Keys beginning with an underscore are comments and are ignored by the loader."
   ],
-
   "schema_version": 1,
-
   "identity": {
     "name": "Crystal Institute of Technology",
     "short_name": "Crystal Institute",
@@ -34,44 +32,70 @@
     "support_phone": "+91 00000 00000",
     "website": ""
   },
-
   "academics": {
     "term_label": "Academic Year 2026-27",
     "timezone": "Asia/Kolkata",
     "week_starts_on": "monday"
   },
-
   "localisation": {
     "default_language": "en",
-    "languages": ["en", "or"]
+    "languages": [
+      "en",
+      "hi",
+      "or"
+    ]
   },
-
   "appearance": {
-    "skin": "industrial",
+    "skin": "bento",
     "default_theme": "device",
     "allow_user_theme_override": true,
-    "accent": null
+    "accent": null,
+    "crest_url": ""
   },
-
   "vocabulary": {
-    "campus": { "singular": "Campus", "plural": "Campuses" },
-    "department": { "singular": "Department", "plural": "Departments" },
-    "branch": { "singular": "Branch", "plural": "Branches" },
-    "year": { "singular": "Year", "plural": "Years" },
-    "batch": { "singular": "Batch", "plural": "Batches" },
-    "hostel": { "singular": "Hostel", "plural": "Hostels" },
-    "block": { "singular": "Block", "plural": "Blocks" },
-    "student": { "singular": "Student", "plural": "Students" },
-    "staff": { "singular": "Staff member", "plural": "Staff" }
+    "campus": {
+      "singular": "Campus",
+      "plural": "Campuses"
+    },
+    "department": {
+      "singular": "Department",
+      "plural": "Departments"
+    },
+    "branch": {
+      "singular": "Branch",
+      "plural": "Branches"
+    },
+    "year": {
+      "singular": "Year",
+      "plural": "Years"
+    },
+    "batch": {
+      "singular": "Batch",
+      "plural": "Batches"
+    },
+    "hostel": {
+      "singular": "Hostel",
+      "plural": "Hostels"
+    },
+    "block": {
+      "singular": "Block",
+      "plural": "Blocks"
+    },
+    "student": {
+      "singular": "Student",
+      "plural": "Students"
+    },
+    "staff": {
+      "singular": "Staff member",
+      "plural": "Staff"
+    }
   },
-
   "stations": {
     "kiosk_idle_seconds": 90,
     "kiosk_default_theme": "light",
     "helpdesk_channel": "ASSISTED_DESK",
     "default_channel": "PWA"
   },
-
   "features": {
     "agents": true,
     "kiosk": true,
@@ -81,7 +105,6 @@
     "guided_tours": true,
     "device_lab": true
   },
-
   "guardrails": {
     "wcag_level": "AA",
     "min_body_contrast": 4.5,

@@ -9,10 +9,13 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { NavItem } from '../lib/navigation'
+import { useLanguage } from '../lib/i18n'
+import { Icon } from './Icon'
 
 export interface PaletteEntry {
   item: NavItem
-  group: string
+  /** Translation key for the module the item belongs to. */
+  groupKey: string
 }
 
 export function CommandPalette({
@@ -26,6 +29,7 @@ export function CommandPalette({
   entries: PaletteEntry[]
   onSelect: (to: string) => void
 }) {
+  const { t } = useLanguage()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -33,10 +37,12 @@ export function CommandPalette({
   const results = useMemo(() => {
     const needle = query.trim().toLowerCase()
     if (!needle) return entries
+    // Searches the *translated* label, so a Hindi or Odia speaker can type what
+    // they actually see on the sidebar.
     return entries.filter((entry) =>
-      `${entry.item.label} ${entry.group} ${entry.item.to}`.toLowerCase().includes(needle),
+      `${t(entry.item.labelKey)} ${t(entry.groupKey)} ${entry.item.to}`.toLowerCase().includes(needle),
     )
-  }, [entries, query])
+  }, [entries, query, t])
 
   // Reset and focus each time it opens, so a previous query never lingers.
   useEffect(() => {
@@ -111,10 +117,10 @@ export function CommandPalette({
                   onClick={() => onSelect(entry.item.to)}
                 >
                   <span aria-hidden="true" className="palette-icon">
-                    {entry.item.icon}
+                    <Icon name={entry.item.icon} size={17} />
                   </span>
-                  <span className="palette-label">{entry.item.label}</span>
-                  <span className="palette-group">{entry.group}</span>
+                  <span className="palette-label">{t(entry.item.labelKey)}</span>
+                  <span className="palette-group">{t(entry.groupKey)}</span>
                 </button>
               </li>
             ))

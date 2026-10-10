@@ -135,7 +135,7 @@ export const DEFAULT_INSTITUTION: InstitutionConfig = {
   academics: { term_label: 'Current term', timezone: 'Asia/Kolkata', week_starts_on: 'monday' },
   localisation: { default_language: 'en', languages: ['en', 'hi', 'or'] },
   appearance: {
-    skin: 'industrial',
+    skin: 'bento',
     default_theme: 'light',
     allow_user_theme_override: true,
     accent: null,
@@ -226,7 +226,7 @@ export function saveCachedInstitution(config: InstitutionConfig): void {
 export const institutionApi = {
   /** Public: also what an unsigned kiosk and the sign-in screen read. */
   public: (signal?: AbortSignal) => api.get<InstitutionConfig>('/institution', signal),
-  /** Administrator: adds provenance and the edit checklist. */
+  /** Management: adds provenance and the edit checklist. */
   full: () => api.get<InstitutionConfig>('/admin/institution'),
   /** Re-read config/institution.json without restarting the API. */
   reload: () =>

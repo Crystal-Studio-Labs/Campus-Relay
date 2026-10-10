@@ -298,9 +298,9 @@ def _import_staff(db: Session, campus_id: int, row: dict[str, str]) -> str | Non
     email = row["email"].strip().lower()
     if not email:
         return "email is required"
-    role = _role(db, RoleKey.STAFF.value)
+    role = _role(db, RoleKey.TEACHER.value)
     if role is None:
-        return "STAFF role is missing from the database"
+        return "TEACHER role is missing from the database"
     user = db.scalar(select(User).where(User.campus_id == campus_id, User.email == email))
     if user is None:
         user = User(

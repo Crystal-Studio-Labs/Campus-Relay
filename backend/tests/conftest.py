@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import Connection
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -23,6 +24,14 @@ from app.main import app
 # assertions by draining the outbox on its own thread. Tests drive
 # `process_due_deliveries` explicitly instead.
 settings.delivery_worker_enabled = False
+
+# Tests run the API the way a production deployment runs it, with two
+# exceptions. The delivery worker is off (above), and the in-process rate
+# limiter is off, because the suite makes far more requests per minute from one
+# client than a single person ever would - throttling it would measure the
+# suite's speed rather than the product. The limiter itself is covered by
+# tests/test_security.py, which turns it back on deliberately.
+settings.app_env = "test"
 
 DEMO_PASSWORD = "Campus@2026"
 
@@ -39,10 +48,20 @@ def connection():
 
 
 @pytest.fixture()
-def db(connection: Session) -> Session:
-    """A session that joins the outer transaction by savepoint, so that a
-    service calling `commit()` releases a savepoint instead of ending the
-    transaction the fixture will roll back."""
+def db(connection: Connection) -> Session:
+    """A session that joins an outer transaction by savepoint, so a route calling
+    `commit()` releases its own savepoint instead of ending the transaction the
+    fixture rolls back.
+
+    The savepoint opened below is load-bearing. In ``create_savepoint`` join mode
+    the session's ``commit()`` *releases* its savepoint, which absorbs the work
+    into the enclosing transaction. Without a savepoint of our own around it, a
+    test's committed rows would survive into the next test in the same process
+    (they only vanished when the session-scoped connection finally rolled back).
+    Holding our own savepoint means one rollback at teardown undoes everything
+    the test did, committed or not.
+    """
+    savepoint = connection.begin_nested()
     session = Session(
         bind=connection,
         join_transaction_mode="create_savepoint",
@@ -52,8 +71,9 @@ def db(connection: Session) -> Session:
     try:
         yield session
     finally:
-        session.rollback()
         session.close()
+        if savepoint.is_active:
+            savepoint.rollback()
 
 
 @pytest.fixture()
@@ -96,10 +116,5 @@ def admin_token(client: TestClient) -> str:
 
 
 @pytest.fixture()
-def technician_token(client: TestClient) -> str:
-    return _login(client, "technician@campusrelay.demo")
-
-
-@pytest.fixture()
-def security_token(client: TestClient) -> str:
-    return _login(client, "security@campusrelay.demo")
+def teacher_token(client: TestClient) -> str:
+    return _login(client, "teacher@campusrelay.demo")

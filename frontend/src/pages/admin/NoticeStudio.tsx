@@ -561,9 +561,8 @@ export function NoticeStudio() {
                           options={[
                             { value: '', label: 'Select role…' },
                             { value: 'STUDENT', label: 'Students only' },
-                            { value: 'STAFF', label: 'Staff / Technicians only' },
-                            { value: 'WARDEN', label: 'Wardens only' },
-                            { value: 'SECURITY', label: 'Security officers only' },
+                            { value: 'TEACHER', label: 'Teachers only' },
+                            { value: 'MANAGEMENT', label: 'Management only' },
                           ]}
                         />
                       </Field>

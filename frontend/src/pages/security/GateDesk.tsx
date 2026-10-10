@@ -137,6 +137,7 @@ export function GateDesk() {
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="Security"
         title="Gate desk"
         subtitle={`${dateTime(new Date().toISOString())} · verify passes, record movements, watch who is out`}
         actions={<Badge tone={sync.online ? 'done' : 'warn'}>{sync.online ? 'Connected' : 'Working offline'}</Badge>}
@@ -193,7 +194,7 @@ export function GateDesk() {
           {verdict ? (
             <>
               <div className={`gate-verdict ${verdict.valid ? 'allow' : 'refuse'}`} role="status">
-                {verdict.valid ? 'ALLOW ENTRY' : 'DO NOT ADMIT'}
+                {verdict.valid ? 'PASS VALID — ALLOW MOVEMENT' : 'DO NOT ADMIT'}
                 <div style={{ fontSize: '0.42em', fontWeight: 700 }}>{verdict.reason ?? ''}</div>
               </div>
 
@@ -330,7 +331,7 @@ export function GateDesk() {
 
       {tab === 'logs' ? (
         <Card>
-          <SectionTitle right={<Badge tone="ghost">append-only</Badge>}>Recent movements</SectionTitle>
+          <SectionTitle right={<Badge tone="ghost">cannot be altered</Badge>}>Recent movements</SectionTitle>
           {logs.loading && !logs.data ? <LoadingState /> : null}
           {logs.data?.logs?.length ? (
             <div className="table-wrap become-cards">

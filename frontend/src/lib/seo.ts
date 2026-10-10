@@ -50,17 +50,17 @@ export function setPageMeta({
   updateMeta('twitter:description', metaDesc)
   updateMeta('twitter:image', image)
 
-  // 3. Canonical Link
-  if (canonicalUrl || typeof window !== 'undefined') {
-    const href = canonicalUrl || window.location.href
-    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
-    if (!link) {
-      link = document.createElement('link')
-      link.setAttribute('rel', 'canonical')
-      document.head.appendChild(link)
-    }
-    link.href = href
+  // 3. Canonical Link + og:url (kept in step, so a shared deep link previews
+  // the screen it actually points at rather than the home page).
+  const href = canonicalUrl || window.location.href
+  let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
+  if (!link) {
+    link = document.createElement('link')
+    link.setAttribute('rel', 'canonical')
+    document.head.appendChild(link)
   }
+  link.href = href
+  updateMeta('og:url', href, 'property')
 }
 
 /** React hook that synchronizes page title and SEO meta graphs upon mount/update */

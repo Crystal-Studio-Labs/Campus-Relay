@@ -206,5 +206,5 @@ def app_context(db: DbSession, user: CurrentUser):
         ],
         "channels": ["IN_APP", "PWA_PUSH_OPTIONAL"],
         "agents": provider_status(),
-        "languages": ["en", "or"],
+        "languages": ["en", "hi", "or"],
     }

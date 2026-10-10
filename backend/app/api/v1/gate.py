@@ -78,7 +78,12 @@ def revoke(pass_id: int, db: DbSession, user: CurrentUser, reason: str = "Revoke
 
 @router.get("/gate/summary")
 def gate_summary(db: DbSession, user: CurrentUser):
-    """Live figure the security desk watches: who is out right now."""
+    """Live figure the security desk watches: who is out right now.
+
+    This names the students currently off-campus, so it is a staff view: it
+    requires the gate-log permission rather than merely being authenticated.
+    """
+    assert_permission(user, GATE_LOG_READ)
     from sqlalchemy import func, select
 
     from app.models import Student

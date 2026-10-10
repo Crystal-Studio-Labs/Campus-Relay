@@ -82,7 +82,7 @@ class User(Base, SurrogateIdMixin, TimestampMixin):
     role: Mapped[Role] = relationship(lazy="joined")
     campus: Mapped["Campus"] = relationship(lazy="joined")  # noqa: F821
     student: Mapped["Student | None"] = relationship(
-        back_populates="user", uselist=False, lazy="selectin"
+        back_populates="user", uselist=False, lazy="selectin", foreign_keys="Student.user_id"
     )
     staff: Mapped["Staff | None"] = relationship(
         back_populates="user", uselist=False, lazy="selectin"
@@ -125,7 +125,9 @@ class Student(Base, SurrogateIdMixin, TimestampMixin):
     dues_paid: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     has_smartphone: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
-    user: Mapped[User | None] = relationship(back_populates="student", lazy="joined")
+    user: Mapped[User | None] = relationship(
+        back_populates="student", lazy="joined", foreign_keys="Student.user_id"
+    )
     branch: Mapped["Branch | None"] = relationship(lazy="joined")  # noqa: F821
     year: Mapped["AcademicYear | None"] = relationship(lazy="joined")  # noqa: F821
     batch: Mapped["Batch | None"] = relationship(lazy="joined")  # noqa: F821

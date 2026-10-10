@@ -11,6 +11,8 @@ them. Never point it at a production database.
 from __future__ import annotations
 
 import random
+from datetime import date as date_type
+from datetime import time as time_type
 from datetime import timedelta
 
 from sqlalchemy import func, select, text
@@ -20,11 +22,16 @@ from app.core.permissions import PERMISSION_CATALOGUE, permissions_for_role
 from app.core.security import hash_password
 from app.models import (
     AcademicYear,
+    Activity,
+    ActivityRegistration,
     Asset,
+    AttendanceRecord,
     AuditLog,
     Base,
     Batch,
     Block,
+    Book,
+    BookLoan,
     Branch,
     Campus,
     Case,
@@ -32,13 +39,21 @@ from app.models import (
     CaseAssignment,
     CaseComment,
     CaseEvent,
+    ClearanceRequest,
     Department,
     Device,
     Document,
+    FeeRecord,
+    Feedback,
+    FeedbackRequest,
     GateLog,
     GatePass,
     Hostel,
+    JobApplication,
+    JobPosting,
+    LeaveApplication,
     Location,
+    Mark,
     Notice,
     NoticeAction,
     NoticeRecipient,
@@ -47,6 +62,8 @@ from app.models import (
     Notification,
     NotificationEvent,
     NotificationPreference,
+    Payment,
+    Payslip,
     Permission,
     Policy,
     Role,
@@ -55,16 +72,35 @@ from app.models import (
     Service,
     SlaRule,
     Staff,
+    StaffLeave,
     Student,
+    Subject,
     SyncOperation,
+    TimetableSlot,
     User,
     Workflow,
     WorkflowStep,
 )
 from app.models.enums import (
+    ActivityKind,
+    ActivityState,
+    ApplicationState,
     AssetState,
+    AttendanceStatus,
+    BookLoanState,
     CaseStatus,
+    ClearanceKind,
+    ClearanceState,
+    FeedbackKind,
+    FeedbackRequestState,
+    FeedbackState,
     GateDirection,
+    JobKind,
+    JobState,
+    LeaveKind,
+    LeaveState,
+    ParticipationState,
+    PayslipState,
     LocationKind,
     NoticeStatus,
     NoticeType,
@@ -80,16 +116,18 @@ from app.services import clock
 
 DEMO_PASSWORD = "Campus@2026"
 
+# One advertised sign-in account per role, so the demo surface is one credential
+# each; the wider campus population exists as data, not as login credentials.
+#
+# The maintenance technicians (see `technician_specs` below) are real, active
+# accounts the routing engine assigns work to, but they are deliberately *not*
+# advertised here: they are staff data, not demo personas, and listing one
+# duplicated the "Teacher" pill on the sign-in screen because technicians hold
+# the teacher role. They can still be signed in as directly if needed.
 DEMO_ACCOUNTS = [
-    {"role": RoleKey.SUPER_ADMIN.value, "email": "superadmin@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Super admin (everything)"},
-    {"role": RoleKey.ADMIN.value, "email": "admin@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Registrar / admin command centre"},
-    {"role": RoleKey.WARDEN.value, "email": "warden@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Hostel warden (leave + hostel)"},
-    {"role": RoleKey.DEPARTMENT_HEAD.value, "email": "maintenance.head@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Maintenance head"},
-    {"role": RoleKey.STAFF.value, "email": "technician@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Maintenance technician"},
-    {"role": RoleKey.SECURITY.value, "email": "security@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Gate security"},
-    {"role": RoleKey.HELPDESK_OPERATOR.value, "email": "helpdesk@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Helpdesk / kiosk operator"},
-    {"role": RoleKey.STUDENT.value, "email": "student@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Student (hosteller)"},
-    {"role": RoleKey.STUDENT.value, "email": "student2@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Student (day scholar)"},
+    {"role": RoleKey.STUDENT.value, "email": "student@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Student"},
+    {"role": RoleKey.TEACHER.value, "email": "teacher@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Teacher / faculty"},
+    {"role": RoleKey.MANAGEMENT.value, "email": "admin@campusrelay.demo", "password": DEMO_PASSWORD, "label": "Management"},
 ]
 
 CASE_PREFIX_YEAR = 2026
@@ -98,6 +136,24 @@ CASE_PREFIX_YEAR = 2026
 # --- Reset ---------------------------------------------------------------
 
 TRUNCATE_ORDER = [
+    "activity_registrations",
+    "activities",
+    "job_applications",
+    "job_postings",
+    "book_loans",
+    "books",
+    "clearance_requests",
+    "leave_applications",
+    "staff_leave",
+    "payslips",
+    "feedback",
+    "feedback_requests",
+    "payments",
+    "fee_records",
+    "marks",
+    "attendance_records",
+    "timetable_slots",
+    "subjects",
     "sync_operations",
     "notification_deliveries",
     "notification_events",
@@ -168,14 +224,12 @@ def seed_roles(session: Session) -> dict[str, Role]:
     session.flush()
 
     role_meta = {
-        RoleKey.SUPER_ADMIN.value: ("Super administrator", "Full platform control"),
-        RoleKey.ADMIN.value: ("Administrator", "Campus-wide operations"),
-        RoleKey.WARDEN.value: ("Warden", "Hostel lifecycle and leave approvals"),
-        RoleKey.DEPARTMENT_HEAD.value: ("Department head", "Departmental queue and approvals"),
-        RoleKey.STAFF.value: ("Staff", "Assigned maintenance work"),
-        RoleKey.SECURITY.value: ("Security", "Gate verification and logs"),
-        RoleKey.HELPDESK_OPERATOR.value: ("Helpdesk operator", "Assisted and kiosk access"),
-        RoleKey.STUDENT.value: ("Student", "Own requests and notices"),
+        RoleKey.STUDENT.value: ("Student", "Own records, requests and notices"),
+        RoleKey.TEACHER.value: ("Teacher", "Subjects, classes and the departmental queue"),
+        RoleKey.MANAGEMENT.value: (
+            "Management",
+            "Runs the institution: hostels, fees, certificates, leave, the gate, announcements, accounts and configuration",
+        ),
     }
     roles: dict[str, Role] = {}
     for key, (name, description) in role_meta.items():
@@ -383,7 +437,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "assign",
                     "name": "Route and assign",
                     "type": WorkflowStepType.ASSIGNMENT.value,
-                    "role": RoleKey.DEPARTMENT_HEAD.value,
+                    "role": RoleKey.TEACHER.value,
                     "sla": 60,
                     "transitions": {"assign": "work", "default": "work"},
                     "instructions": "Assign the least-loaded technician in the target department.",
@@ -392,7 +446,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "work",
                     "name": "Carry out repair",
                     "type": WorkflowStepType.RESOLUTION.value,
-                    "role": RoleKey.STAFF.value,
+                    "role": RoleKey.TEACHER.value,
                     "sla": 1440,
                     "requires_note": True,
                     "transitions": {"resolve": "verify", "default": "verify"},
@@ -417,7 +471,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "approve",
                     "name": "Administrative approval",
                     "type": WorkflowStepType.APPROVAL.value,
-                    "role": RoleKey.ADMIN.value,
+                    "role": RoleKey.MANAGEMENT.value,
                     "sla": 1440,
                     "requires_note": False,
                     "transitions": {"approve": "issue", "reject": "@CANCELLED"},
@@ -427,7 +481,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "issue",
                     "name": "Generate certificate",
                     "type": WorkflowStepType.ACTION.value,
-                    "role": RoleKey.ADMIN.value,
+                    "role": RoleKey.MANAGEMENT.value,
                     "sla": 480,
                     "requires_note": False,
                     "transitions": {"issue": "@CLOSED", "default": "@CLOSED"},
@@ -443,7 +497,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "warden_approval",
                     "name": "Warden approval",
                     "type": WorkflowStepType.APPROVAL.value,
-                    "role": RoleKey.WARDEN.value,
+                    "role": RoleKey.MANAGEMENT.value,
                     "sla": 720,
                     "requires_note": False,
                     "transitions": {"approve": "issue_pass", "reject": "@CANCELLED"},
@@ -453,7 +507,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "issue_pass",
                     "name": "Issue digital gate pass",
                     "type": WorkflowStepType.ACTION.value,
-                    "role": RoleKey.WARDEN.value,
+                    "role": RoleKey.MANAGEMENT.value,
                     "sla": 120,
                     "transitions": {"issue": "@RESOLVED", "default": "@RESOLVED"},
                     "instructions": "A pass is valid only within the approved leave window.",
@@ -468,7 +522,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "answer",
                     "name": "Answer the query",
                     "type": WorkflowStepType.RESOLUTION.value,
-                    "role": RoleKey.STAFF.value,
+                    "role": RoleKey.TEACHER.value,
                     "sla": 1440,
                     "requires_note": True,
                     "transitions": {"resolve": "@CLOSED", "default": "@CLOSED"},
@@ -484,7 +538,7 @@ def seed_workflows(session: Session, campus: Campus) -> dict[str, Workflow]:
                     "key": "review",
                     "name": "Head review",
                     "type": WorkflowStepType.APPROVAL.value,
-                    "role": RoleKey.DEPARTMENT_HEAD.value,
+                    "role": RoleKey.TEACHER.value,
                     "sla": 240,
                     "transitions": {"approve": "@ROUTED", "reject": "@CANCELLED"},
                     "instructions": "Decide whether to re-work or close with a recorded reason.",
@@ -730,7 +784,7 @@ def seed_services(session: Session, campus: Campus, org: dict, workflows: dict[s
             icon=definition.get("icon", "file"),
             default_priority=definition["priority"],
             default_sla_minutes=definition["sla"],
-            allowed_requester_roles=definition.get("roles", ["STUDENT", "STAFF", "SECURITY", "HELPDESK_OPERATOR", "WARDEN", "DEPARTMENT_HEAD", "ADMIN", "SUPER_ADMIN"]),
+            allowed_requester_roles=definition.get("roles", ["STUDENT", "TEACHER", "MANAGEMENT"]),
             form_schema=definition["form"],
             sort_order=index,
         )
@@ -895,7 +949,7 @@ def seed_sla_rules(session: Session, campus: Campus) -> list[SlaRule]:
                 priority=priority,
                 target_minutes=minutes,
                 at_risk_ratio=0.75,
-                escalate_to_role=RoleKey.DEPARTMENT_HEAD.value,
+                escalate_to_role=RoleKey.TEACHER.value,
             )
         )
     for service_key, priority, minutes in [
@@ -916,7 +970,7 @@ def seed_sla_rules(session: Session, campus: Campus) -> list[SlaRule]:
                 priority=priority,
                 target_minutes=minutes,
                 at_risk_ratio=0.75,
-                escalate_to_role=RoleKey.DEPARTMENT_HEAD.value,
+                escalate_to_role=RoleKey.TEACHER.value,
             )
         )
     session.add_all(rows)
@@ -928,7 +982,7 @@ def seed_sla_rules(session: Session, campus: Campus) -> list[SlaRule]:
 
 
 def seed_users(session: Session, campus: Campus, roles: dict[str, Role], org: dict) -> dict:
-    def make_user(email, full_name, role_key, phone=None, language="en"):
+    def make_user(email, full_name, role_key, phone=None, language="en", active=True):
         user = User(
             campus_id=campus.id,
             role_id=roles[role_key].id,
@@ -937,25 +991,37 @@ def seed_users(session: Session, campus: Campus, roles: dict[str, Role], org: di
             password_hash=hash_password(DEMO_PASSWORD),
             phone=phone,
             language=language,
+            is_active=active,
         )
         session.add(user)
         session.flush()
         return user
 
-    admin = make_user("admin@campusrelay.demo", "Registrar Anita Das", RoleKey.ADMIN.value, "+919000000001")
-    super_admin = make_user("superadmin@campusrelay.demo", "Platform Owner", RoleKey.SUPER_ADMIN.value, "+919000000000")
-    warden = make_user("warden@campusrelay.demo", "Warden Rakesh Mohanty", RoleKey.WARDEN.value, "+919000000002")
-    warden2 = make_user("warden.b@campusrelay.demo", "Warden Sunita Patra", RoleKey.WARDEN.value, "+919000000012")
-    maint_head = make_user("maintenance.head@campusrelay.demo", "Maintenance Head Bikash Sahoo", RoleKey.DEPARTMENT_HEAD.value, "+919000000003")
-    security = make_user("security@campusrelay.demo", "Security Guard Prakash Behera", RoleKey.SECURITY.value, "+919000000004")
-    helpdesk = make_user("helpdesk@campusrelay.demo", "Helpdesk Sarmistha Nayak", RoleKey.HELPDESK_OPERATOR.value, "+919000000005")
-    student_user = make_user("student@campusrelay.demo", "Aarav Mishra", RoleKey.STUDENT.value, "+919000000006", language="or")
-    student_user2 = make_user("student2@campusrelay.demo", "Diya Pradhan", RoleKey.STUDENT.value, "+919000000007")
+    # Sign-in credentials, one per role. The staff functions that are pure
+    # permissions (gate security, helpdesk, maintenance head) resolve to the
+    # management and teacher accounts. The hostel warden is a second person on
+    # the *same* management role - a warden and a registrar hold one office with
+    # different views, so they share a role rather than a role each.
+    admin = make_user("admin@campusrelay.demo", "Dr. Anita Das", RoleKey.MANAGEMENT.value, "+919000000001")
+    teacher = make_user("teacher@campusrelay.demo", "Prof. Bikash Sahoo", RoleKey.TEACHER.value, "+919000000003")
+    student_user = make_user("student@campusrelay.demo", "Aarav Mishra", RoleKey.STUDENT.value, "+919000000006")
+    student2_user = make_user("student2@campusrelay.demo", "Diya Pradhan", RoleKey.STUDENT.value, "+919000000007")
+    warden = make_user("warden@campusrelay.demo", "Ms. Sunita Behera", RoleKey.MANAGEMENT.value, "+919000000002")
+    security_user = make_user("security@campusrelay.demo", "Gate Security Desk", RoleKey.MANAGEMENT.value, "+919000000004")
+    helpdesk_user = make_user("helpdesk@campusrelay.demo", "Central Helpdesk", RoleKey.MANAGEMENT.value, "+919000000005")
+
+    # Aliases so the rest of the generator reads naturally: the gate desk and
+    # helpdesk are management duties; the residential warden is its own person.
+    super_admin = admin
+    warden2 = warden
+    maint_head = teacher
+    security = security_user
+    helpdesk = helpdesk_user
 
     org["hostels"]["HOSTEL-A"].warden_user_id = warden.id
     org["hostels"]["HOSTEL-B"].warden_user_id = warden.id
-    org["hostels"]["HOSTEL-C"].warden_user_id = warden2.id
-    org["departments"]["MAINT"].head_user_id = maint_head.id
+    org["hostels"]["HOSTEL-C"].warden_user_id = warden.id
+    org["departments"]["MAINT"].head_user_id = teacher.id
 
     technician_specs = [
         ("technician@campusrelay.demo", "Technician Sanjay Rout", "MAINT", ["plumbing", "water_cooler", "general"], 4),
@@ -965,7 +1031,11 @@ def seed_users(session: Session, campus: Campus, roles: dict[str, Role], org: di
     ]
     staff_rows: dict[str, Staff] = {}
     for email, name, dept_code, skills, capacity in technician_specs:
-        user = make_user(email, name, RoleKey.STAFF.value, "+9190000000" + str(10 + len(staff_rows)))
+        # Active on purpose. These are the people the routing engine hands work
+        # to, so they have to be able to sign in and work it: a case assigned to
+        # an account that cannot be used is work that disappears. Their DEMO
+        # credentials are listed below with the rest of the demo accounts.
+        user = make_user(email, name, RoleKey.TEACHER.value, "+9190000000" + str(10 + len(staff_rows)), active=True)
         staff = Staff(
             campus_id=campus.id,
             user_id=user.id,
@@ -1025,10 +1095,10 @@ def seed_users(session: Session, campus: Campus, roles: dict[str, Role], org: di
     students.append(
         Student(
             campus_id=campus.id,
-            user_id=student_user2.id,
+            user_id=student2_user.id,
             roll_number="ECE2024015",
             registration_number="REG24ECE015",
-            full_name=student_user2.full_name,
+            full_name="Diya Pradhan",
             branch_id=org["branches"]["ECE"].id,
             year_id=org["years"][2].id,
             batch_id=batches[1].id,
@@ -1077,10 +1147,10 @@ def seed_users(session: Session, campus: Campus, roles: dict[str, Role], org: di
         for room in rooms:
             room.occupant_count = len([s for s in students if s.room_id == room.id])
 
-    # Notification preferences for the two sign-in demo students.
+    # Notification preferences for the sign-in demo accounts.
     from app.models.enums import NotificationCategory
 
-    for user in (student_user, student_user2, warden, maint_head):
+    for user in (student_user, teacher, warden, admin):
         for category in [
             NotificationCategory.MESS.value,
             NotificationCategory.ACADEMIC.value,
@@ -1101,14 +1171,15 @@ def seed_users(session: Session, campus: Campus, roles: dict[str, Role], org: di
     return {
         "users": {
             "admin": admin,
-            "super_admin": super_admin,
+            "super_admin": admin,
             "warden": warden,
-            "warden2": warden2,
-            "maint_head": maint_head,
-            "security": security,
-            "helpdesk": helpdesk,
+            "warden2": warden,
+            "maint_head": teacher,
+            "security": admin,
+            "helpdesk": admin,
+            "teacher": teacher,
             "student": student_user,
-            "student2": student_user2,
+            "student2": student_user,
         },
         "maintenance_staff": maintenance_staff,
         "staff_rows": staff_rows,
@@ -1320,15 +1391,15 @@ def seed_cases(session: Session, org: dict, people: dict, services: dict[str, Se
                     step_key=case.current_step_key,
                     sequence=1,
                     approver_role=(
-                        RoleKey.WARDEN.value
-                        if service_key in {"LEAVE_REQUEST", "ROOM_CHANGE", "GATE_PASS"}
-                        else RoleKey.ADMIN.value
+                        RoleKey.MANAGEMENT.value
+                        if service_key in {"LEAVE_REQUEST", "ROOM_CHANGE"}
+                        else RoleKey.MANAGEMENT.value
                     ),
                     state="PENDING",
                     requested_at=approval_time,
                 )
             )
-            events.append(("APPROVAL_REQUESTED", 3, "ROUTED", "WAITING_FOR_APPROVAL", {"approver_role": RoleKey.WARDEN.value if service_key in {"LEAVE_REQUEST", "ROOM_CHANGE"} else RoleKey.ADMIN.value}))
+            events.append(("APPROVAL_REQUESTED", 3, "ROUTED", "WAITING_FOR_APPROVAL", {"approver_role": RoleKey.MANAGEMENT.value if service_key in {"LEAVE_REQUEST", "ROOM_CHANGE"} else RoleKey.MANAGEMENT.value}))
 
         if outcome in {
             "CLOSED",
@@ -1340,14 +1411,14 @@ def seed_cases(session: Session, org: dict, people: dict, services: dict[str, Se
             "CLOSED_DOCUMENT",
         }:
             if outcome in {"CLOSED_DOCUMENT", "CLOSED_GATE_RETURNED"} or service_key in {"BONAFIDE_CERTIFICATE", "DOCUMENT_REQUEST"}:
-                events.append(("APPROVAL_REQUESTED", 5, "ROUTED", "WAITING_FOR_APPROVAL", {"approver_role": RoleKey.ADMIN.value if service_key != "LEAVE_REQUEST" else RoleKey.WARDEN.value}))
+                events.append(("APPROVAL_REQUESTED", 5, "ROUTED", "WAITING_FOR_APPROVAL", {"approver_role": RoleKey.MANAGEMENT.value if service_key != "LEAVE_REQUEST" else RoleKey.MANAGEMENT.value}))
                 session.add(
                     CaseApproval(
                         campus_id=campus.id,
                         case_id=case.id,
                         step_key="approve" if service_key != "LEAVE_REQUEST" else "warden_approval",
                         sequence=1,
-                        approver_role=RoleKey.ADMIN.value if service_key != "LEAVE_REQUEST" else RoleKey.WARDEN.value,
+                        approver_role=RoleKey.MANAGEMENT.value if service_key != "LEAVE_REQUEST" else RoleKey.MANAGEMENT.value,
                         approver_id=admin.id if service_key != "LEAVE_REQUEST" else warden.id,
                         state="APPROVED",
                         requested_at=created_at + timedelta(minutes=5),
@@ -1355,7 +1426,7 @@ def seed_cases(session: Session, org: dict, people: dict, services: dict[str, Se
                         decision_note="Verified enrolment and dues records.",
                     )
                 )
-                events.append(("APPROVED", 6, "WAITING_FOR_APPROVAL", "IN_PROGRESS", {"approver_role": "ADMIN"}))
+                events.append(("APPROVED", 6, "WAITING_FOR_APPROVAL", "IN_PROGRESS", {"approver_role": "MANAGEMENT"}))
             events.append(("STATUS_CHANGED", 7, "ASSIGNED", "IN_PROGRESS", {"step": "work"}))
             events.append(("COMMENT_ADDED", 8, "IN_PROGRESS", "IN_PROGRESS", {"preview": "Reached the location and started work."}))
 
@@ -1426,7 +1497,7 @@ def seed_cases(session: Session, org: dict, people: dict, services: dict[str, Se
                     case_id=case.id,
                     event_type=event_type,
                     actor_id=requester.id if order < 3 else (assigned_staff.user_id if assigned_staff else admin.id),
-                    actor_role=RoleKey.STUDENT.value if order < 3 else (RoleKey.STAFF.value if assigned_staff else RoleKey.ADMIN.value),
+                    actor_role=RoleKey.STUDENT.value if order < 3 else (RoleKey.TEACHER.value if assigned_staff else RoleKey.MANAGEMENT.value),
                     actor_kind="SYSTEM" if order in {1, 2} else "USER",
                     from_status=from_status,
                     to_status=to_status,
@@ -1442,7 +1513,7 @@ def seed_cases(session: Session, org: dict, people: dict, services: dict[str, Se
                 campus_id=campus.id,
                 case_id=case.id,
                 author_id=assigned_staff.user_id if assigned_staff else admin.id,
-                author_role=RoleKey.STAFF.value if assigned_staff else RoleKey.ADMIN.value,
+                author_role=RoleKey.TEACHER.value if assigned_staff else RoleKey.MANAGEMENT.value,
                 body=rng.choice(
                     [
                         "Checked the fixture. Replacement part is available in the store.",
@@ -1719,6 +1790,587 @@ def seed_notices(session: Session, org: dict, people: dict) -> list[Notice]:
 # --- Orchestration --------------------------------------------------------
 
 
+# --- Academics ------------------------------------------------------------
+
+
+def seed_academics(session: Session, org: dict, people: dict) -> dict:
+    """Subjects for the demo student's branch/year, and their attendance history.
+
+    Enough rows that the student attendance screen shows a real percentage and a
+    term of history, without inventing data the screens cannot display.
+    """
+    campus = org["campus"]
+    teacher = people["users"]["teacher"]
+    student = people["students"][0]  # the signed-in student, Aarav Mishra
+
+    subject_specs = [
+        ("Data Structures", "CS301", 4),
+        ("Discrete Mathematics", "MA302", 3),
+        ("Digital Electronics", "EC303", 3),
+    ]
+    subjects: list[Subject] = []
+    for name, code, credits in subject_specs:
+        subject = Subject(
+            campus_id=campus.id,
+            branch_id=student.branch_id,
+            year_id=student.year_id,
+            code=code,
+            name=name,
+            credits=credits,
+            semester=3,
+            faculty_user_id=teacher.id,
+        )
+        session.add(subject)
+        subjects.append(subject)
+    session.flush()
+
+    rng = random.Random(7)
+    today = clock.now().date()
+    records: list[AttendanceRecord] = []
+    for subject in subjects:
+        for offset in range(0, 42):
+            day = today - timedelta(days=offset)
+            if day.weekday() >= 5:  # weekends are not teaching days
+                continue
+            roll = rng.random()
+            status = (
+                AttendanceStatus.ABSENT.value
+                if roll < 0.12
+                else AttendanceStatus.LATE.value
+                if roll < 0.2
+                else AttendanceStatus.PRESENT.value
+            )
+            records.append(
+                AttendanceRecord(
+                    campus_id=campus.id,
+                    subject_id=subject.id,
+                    student_id=student.id,
+                    on_date=day,
+                    slot="P1",
+                    status=status,
+                    marked_by_user_id=teacher.id,
+                )
+            )
+    # Place a few classmates in the same branch and year, so the teacher's
+    # roster is a real class rather than the single demo account.
+    classmates = session.scalars(
+        select(Student).where(Student.campus_id == campus.id, Student.id != student.id).limit(8)
+    ).all()
+    for mate in classmates:
+        mate.branch_id = student.branch_id
+        mate.year_id = student.year_id
+
+    session.add_all(records)
+    session.flush()
+
+    # Marks for the same class, across two assessments per subject.
+    classmates = session.scalars(
+        select(Student).where(
+            Student.campus_id == campus.id,
+            Student.branch_id == student.branch_id,
+            Student.year_id == student.year_id,
+        )
+    ).all()
+    marks: list[Mark] = []
+    for subject in subjects:
+        for assessment, maximum in (("Internal 1", 50), ("Mid-term", 100)):
+            for mate in classmates:
+                obtained = min(maximum, int(maximum * (0.5 + rng.random() * 0.5)))
+                marks.append(
+                    Mark(
+                        campus_id=campus.id,
+                        subject_id=subject.id,
+                        student_id=mate.id,
+                        assessment=assessment,
+                        term="2026-ODD",
+                        max_marks=maximum,
+                        obtained_marks=obtained,
+                        entered_by_user_id=teacher.id,
+                    )
+                )
+    session.add_all(marks)
+    session.flush()
+
+    # A simple weekly timetable: each subject meets three times.
+    plan = [
+        ("MON", "09:00", "09:50", "LH-1"),
+        ("WED", "11:00", "11:50", "LH-2"),
+        ("FRI", "10:00", "10:50", "LH-1"),
+    ]
+    slots: list[TimetableSlot] = []
+    for subject in subjects:
+        for day, start, end, room in plan:
+            slots.append(
+                TimetableSlot(
+                    campus_id=campus.id,
+                    subject_id=subject.id,
+                    day=day,
+                    start_time=time_type.fromisoformat(start),
+                    end_time=time_type.fromisoformat(end),
+                    room=room,
+                )
+            )
+    session.add_all(slots)
+    session.flush()
+
+    # Fee records for the demo student: an overdue balance, a pending term fee,
+    # and a settled one, so every status is visible.
+    fees: list[FeeRecord] = []
+    fee_specs = [
+        ("Semester 5 tuition", 45000, today - timedelta(days=20), 30000),
+        ("Hostel fee", 30000, today + timedelta(days=15), 0),
+        ("Examination fee", 2000, today - timedelta(days=40), 2000),
+    ]
+    for label, amount, due, paid in fee_specs:
+        record = FeeRecord(
+            campus_id=campus.id,
+            student_id=student.id,
+            term="2026-ODD",
+            label=label,
+            amount=amount,
+            due_date=due,
+        )
+        session.add(record)
+        session.flush()
+        if paid:
+            session.add(
+                Payment(
+                    campus_id=campus.id,
+                    fee_record_id=record.id,
+                    amount=paid,
+                    paid_on=today - timedelta(days=10),
+                    method="ONLINE",
+                    reference=f"TXN{record.id:05d}",
+                    recorded_by_user_id=teacher.id,
+                )
+            )
+        fees.append(record)
+    session.flush()
+    return {
+        "subjects": subjects,
+        "attendance": records,
+        "marks": marks,
+        "slots": slots,
+        "fees": fees,
+    }
+
+
+def seed_campus_services(session: Session, org: dict, people: dict, academics: dict) -> dict:
+    """Clearance, library, leave, feedback, activities, career, HRMS and payroll.
+
+    Everything here hangs off the four demo accounts and the demo student's
+    class, so each new screen has something real to render the moment it opens:
+    a pending item to act on and a settled one to look back at.
+    """
+    campus = org["campus"]
+    student = people["students"][0]  # Aarav Mishra, the signed-in student
+    teacher = people["users"]["teacher"]
+    admin = people["users"]["admin"]
+    today = clock.now().date()
+    now = clock.now()
+
+    # --- Clearance ---
+    clearance = [
+        ClearanceRequest(
+            campus_id=campus.id,
+            student_id=student.id,
+            kind=ClearanceKind.NO_DUES.value,
+            state=ClearanceState.PENDING.value,
+            purpose="Semester 5 no-dues certificate",
+            remarks="All library books returned; hostel and lab dues to be verified.",
+            requested_by_user_id=student.user_id,
+        ),
+        ClearanceRequest(
+            campus_id=campus.id,
+            student_id=student.id,
+            kind=ClearanceKind.HOSTEL_VACATE.value,
+            state=ClearanceState.APPROVED.value,
+            purpose="Vacating the hostel room for the winter break",
+            remarks="Room handed over with the inventory checked.",
+            requested_by_user_id=student.user_id,
+            decided_by_user_id=admin.id,
+            decided_at=clock.now() - timedelta(days=12),
+            decision_note="Room inventory cleared. Approved.",
+        ),
+    ]
+    session.add_all(clearance)
+
+    # --- Library ---
+    book_specs = [
+        ("978-0262033848", "Introduction to Algorithms", "Cormen, Leiserson, Rivest", "Computer Science", "CS-A1", 6),
+        ("978-0132350884", "Clean Code", "Robert C. Martin", "Computer Science", "CS-A2", 3),
+        ("978-0134685991", "Effective Java", "Joshua Bloch", "Computer Science", "CS-A3", 2),
+        ("978-0070634244", "Discrete Mathematics", "Rosen", "Mathematics", "MA-B1", 8),
+        ("978-8173711461", "Digital Electronics", "Anand Kumar", "Electronics", "EC-C1", 5),
+        ("978-0199478080", "Engineering Physics", "Gaur & Gupta", "Physics", "PH-D1", 4),
+        ("978-9332585484", "Indian Constitution", "M. Laxmikanth", "Humanities", "HU-E1", 10),
+        ("978-0374533557", "Thinking, Fast and Slow", "Daniel Kahneman", "General", "GN-F1", 2),
+    ]
+    books: list[Book] = []
+    for isbn, title, author, category, shelf, copies in book_specs:
+        book = Book(
+            campus_id=campus.id,
+            isbn=isbn,
+            title=title,
+            author=author,
+            category=category,
+            shelf=shelf,
+            copies_total=copies,
+            copies_available=copies,
+        )
+        session.add(book)
+        books.append(book)
+    session.flush()
+
+    # The demo student holds two books: one current, one overdue (so the fine
+    # is a real number, computed the same way the API computes it).
+    loans = [
+        BookLoan(
+            campus_id=campus.id,
+            book_id=books[0].id,
+            student_id=student.id,
+            issued_on=today - timedelta(days=6),
+            due_on=today + timedelta(days=8),
+            state=BookLoanState.ISSUED.value,
+            issued_by_user_id=teacher.id,
+        ),
+        BookLoan(
+            campus_id=campus.id,
+            book_id=books[1].id,
+            student_id=student.id,
+            issued_on=today - timedelta(days=30),
+            due_on=today - timedelta(days=16),
+            state=BookLoanState.ISSUED.value,
+            issued_by_user_id=teacher.id,
+            note="Reminder sent on the due date.",
+        ),
+        BookLoan(
+            campus_id=campus.id,
+            book_id=books[3].id,
+            student_id=student.id,
+            issued_on=today - timedelta(days=40),
+            due_on=today - timedelta(days=26),
+            returned_on=today - timedelta(days=25),
+            state=BookLoanState.RETURNED.value,
+            issued_by_user_id=teacher.id,
+        ),
+    ]
+    session.add_all(loans)
+    books[0].copies_available -= 1
+    books[1].copies_available -= 1
+
+    # --- Leave ---
+    leave = [
+        LeaveApplication(
+            campus_id=campus.id,
+            student_id=student.id,
+            kind=LeaveKind.CASUAL.value,
+            state=LeaveState.PENDING.value,
+            from_date=today + timedelta(days=4),
+            to_date=today + timedelta(days=7),
+            reason="Family function at home; travelling by the overnight train.",
+            destination="Cuttack",
+            guardian_contact="+919888800001",
+            applied_by_user_id=student.user_id,
+        ),
+        LeaveApplication(
+            campus_id=campus.id,
+            student_id=student.id,
+            kind=LeaveKind.MEDICAL.value,
+            state=LeaveState.APPROVED.value,
+            from_date=today - timedelta(days=20),
+            to_date=today - timedelta(days=18),
+            reason="Viral fever, advised rest by the campus doctor.",
+            destination="Home",
+            guardian_contact="+919888800001",
+            applied_by_user_id=student.user_id,
+            decided_by_user_id=admin.id,
+            decided_at=clock.now() - timedelta(days=21),
+            decision_note="Medical certificate verified.",
+        ),
+    ]
+    session.add_all(leave)
+
+    # --- Feedback ---
+    feedback = [
+        Feedback(
+            campus_id=campus.id,
+            submitted_by_user_id=student.user_id,
+            student_id=student.id,
+            kind=FeedbackKind.MESS.value,
+            subject="Dinner queue is too long on weekdays",
+            message="The queue before 8 pm takes nearly forty minutes. A second counter would help.",
+            rating=2,
+            state=FeedbackState.ACKNOWLEDGED.value,
+            response="A second counter is being trialled from next week.",
+            responded_by_user_id=admin.id,
+            responded_at=clock.now() - timedelta(days=3),
+        ),
+        Feedback(
+            campus_id=campus.id,
+            submitted_by_user_id=student.user_id,
+            student_id=student.id,
+            kind=FeedbackKind.FACULTY.value,
+            subject="Data Structures lab sessions are excellent",
+            message="The weekly lab work is well paced and the doubt sessions are genuinely useful.",
+            rating=5,
+        ),
+        Feedback(
+            campus_id=campus.id,
+            submitted_by_user_id=student.user_id,
+            student_id=student.id,
+            kind=FeedbackKind.FACILITY.value,
+            subject="Library reading room needs more power points",
+            message="Only two sockets on the whole long table, so laptops run out by the afternoon.",
+            rating=3,
+            is_anonymous=True,
+        ),
+    ]
+    session.add_all(feedback)
+
+    # --- Requests for feedback ---
+    # The office asking, which is the only way it gets feedback it did not
+    # happen to receive. One to students, one to faculty, both still open.
+    feedback_requests = [
+        FeedbackRequest(
+            campus_id=campus.id,
+            created_by_user_id=admin.id,
+            subject="How is the new mess menu working out?",
+            message=(
+                "The caterer review is next week. Tell us what is working on the "
+                "new weekly menu and what is not."
+            ),
+            audience=RoleKey.STUDENT.value,
+            state=FeedbackRequestState.OPEN.value,
+        ),
+        FeedbackRequest(
+            campus_id=campus.id,
+            created_by_user_id=admin.id,
+            subject="Lab support and period allocation next semester",
+            message=(
+                "We are reallocating lab assistants and periods. Faculty: what "
+                "would help most next semester?"
+            ),
+            audience=RoleKey.TEACHER.value,
+            state=FeedbackRequestState.OPEN.value,
+        ),
+    ]
+    session.add_all(feedback_requests)
+    session.flush()
+    # The mess complaint on file is the answer to the mess question, so the
+    # office's "1 of 1 answered" is real rather than a seeded number.
+    feedback[0].request_id = feedback_requests[0].id
+
+    # --- Activities ---
+    activities = [
+        Activity(
+            campus_id=campus.id,
+            name="Coding Club - Weekly Hack Night",
+            kind=ActivityKind.TECHNICAL.value,
+            state=ActivityState.OPEN.value,
+            description="Bring a laptop and a problem. Teams formed on the spot.",
+            venue="CSE Lab 1",
+            starts_at=now + timedelta(days=3, hours=2),
+            ends_at=now + timedelta(days=3, hours=5),
+            capacity=40,
+            created_by_user_id=teacher.id,
+        ),
+        Activity(
+            campus_id=campus.id,
+            name="Inter-Branch Football Trials",
+            kind=ActivityKind.SPORT.value,
+            state=ActivityState.OPEN.value,
+            description="Selection trials for the college football squad.",
+            venue="Main Ground",
+            starts_at=now + timedelta(days=6, hours=1),
+            capacity=30,
+            created_by_user_id=admin.id,
+        ),
+        Activity(
+            campus_id=campus.id,
+            name="Drama Society Auditions",
+            kind=ActivityKind.CULTURAL.value,
+            state=ActivityState.OPEN.value,
+            description="Auditions for the annual play. No prior experience required.",
+            venue="Auditorium",
+            starts_at=now + timedelta(days=9),
+            capacity=0,  # no cap: an open club meeting
+            created_by_user_id=admin.id,
+        ),
+        Activity(
+            campus_id=campus.id,
+            name="Blood Donation Camp",
+            kind=ActivityKind.COMMUNITY.value,
+            state=ActivityState.CLOSED.value,
+            description="Annual camp run with the district blood bank.",
+            venue="Health Centre",
+            starts_at=now - timedelta(days=14),
+            capacity=100,
+            created_by_user_id=admin.id,
+        ),
+    ]
+    session.add_all(activities)
+    session.flush()
+    session.add_all(
+        [
+            ActivityRegistration(
+                campus_id=campus.id,
+                activity_id=activities[0].id,
+                student_id=student.id,
+                state=ParticipationState.REGISTERED.value,
+            ),
+            ActivityRegistration(
+                campus_id=campus.id,
+                activity_id=activities[3].id,
+                student_id=student.id,
+                state=ParticipationState.ATTENDED.value,
+            ),
+        ]
+    )
+
+    # --- Career ---
+    jobs = [
+        JobPosting(
+            campus_id=campus.id,
+            company="Tata Consultancy Services",
+            role="Software Engineer Trainee",
+            kind=JobKind.FULL_TIME.value,
+            state=JobState.OPEN.value,
+            description="Full-stack development on an internal payments platform.",
+            location="Bhubaneswar",
+            eligibility="B.Tech CSE/IT, no active backlogs",
+            package_lpa=6.5,
+            deadline=today + timedelta(days=12),
+            created_by_user_id=admin.id,
+        ),
+        JobPosting(
+            campus_id=campus.id,
+            company="Zoho Corporation",
+            role="Summer Intern - Backend",
+            kind=JobKind.INTERNSHIP.value,
+            state=JobState.OPEN.value,
+            description="Twelve-week internship on the platform team.",
+            location="Chennai",
+            eligibility="3rd year, any engineering branch",
+            package_lpa=None,
+            apply_url="https://example.com/zoho-internships",
+            deadline=today + timedelta(days=5),
+            created_by_user_id=admin.id,
+        ),
+        JobPosting(
+            campus_id=campus.id,
+            company="Infosys",
+            role="Systems Engineer",
+            kind=JobKind.FULL_TIME.value,
+            state=JobState.CLOSED.value,
+            description="Campus recruitment drive, closed for this cycle.",
+            location="Pune",
+            package_lpa=5.0,
+            deadline=today - timedelta(days=10),
+            created_by_user_id=admin.id,
+        ),
+    ]
+    session.add_all(jobs)
+    session.flush()
+    session.add(
+        JobApplication(
+            campus_id=campus.id,
+            posting_id=jobs[0].id,
+            student_id=student.id,
+            state=ApplicationState.SHORTLISTED.value,
+            resume_url="https://example.com/resume/aarav-mishra.pdf",
+            cover_note="Interested in the payments platform team.",
+            applied_at=clock.now() - timedelta(days=4),
+        )
+    )
+
+    # --- HRMS: staff leave and payroll ---
+    session.add_all(
+        [
+            StaffLeave(
+                campus_id=campus.id,
+                user_id=teacher.id,
+                kind=LeaveKind.CASUAL.value,
+                state=LeaveState.PENDING.value,
+                from_date=today + timedelta(days=10),
+                to_date=today + timedelta(days=11),
+                reason="Attending a faculty development programme in Bengaluru.",
+            ),
+            StaffLeave(
+                campus_id=campus.id,
+                user_id=admin.id,
+                kind=LeaveKind.EARNED.value,
+                state=LeaveState.APPROVED.value,
+                from_date=today - timedelta(days=8),
+                to_date=today - timedelta(days=7),
+                reason="Personal work.",
+                decided_by_user_id=teacher.id,
+                decided_at=clock.now() - timedelta(days=10),
+                decision_note="Approved.",
+            ),
+        ]
+    )
+
+    month_this = today.strftime("%Y-%m")
+    month_prev = (today.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+    payslips = [
+        Payslip(
+            campus_id=campus.id,
+            user_id=teacher.id,
+            period=month_prev,
+            basic=62000,
+            allowances=14000,
+            deductions=5200,
+            state=PayslipState.PAID.value,
+            paid_on=today.replace(day=1) - timedelta(days=1),
+            reference=f"SAL{month_prev.replace('-', '')}T",
+        ),
+        Payslip(
+            campus_id=campus.id,
+            user_id=teacher.id,
+            period=month_this,
+            basic=62000,
+            allowances=14000,
+            deductions=5200,
+            state=PayslipState.DRAFT.value,
+        ),
+        Payslip(
+            campus_id=campus.id,
+            user_id=admin.id,
+            period=month_prev,
+            basic=88000,
+            allowances=22000,
+            deductions=9500,
+            state=PayslipState.PAID.value,
+            paid_on=today.replace(day=1) - timedelta(days=1),
+            reference=f"SAL{month_prev.replace('-', '')}A",
+        ),
+        Payslip(
+            campus_id=campus.id,
+            user_id=admin.id,
+            period=month_this,
+            basic=88000,
+            allowances=22000,
+            deductions=9500,
+            state=PayslipState.DRAFT.value,
+        ),
+    ]
+    session.add_all(payslips)
+    session.flush()
+
+    return {
+        "clearance": clearance,
+        "books": books,
+        "loans": loans,
+        "leave": leave,
+        "feedback": feedback,
+        "feedback_requests": feedback_requests,
+        "activities": activities,
+        "jobs": jobs,
+        "payslips": payslips,
+    }
+
+
 def reset_and_seed(days_of_history: int = 30) -> dict:
     from app.core.db import session_scope
 
@@ -1742,6 +2394,8 @@ def seed_all(session: Session) -> dict:
     seed_policies(session, org["campus"])
     seed_sla_rules(session, org["campus"])
     people = seed_users(session, org["campus"], roles, org)
+    academics = seed_academics(session, org, people)
+    services_data = seed_campus_services(session, org, people, academics)
 
     cases = seed_cases(session, org, people, services, workflows)
     documents = seed_documents(session, org, people, cases)
@@ -1781,7 +2435,7 @@ def seed_all(session: Session) -> dict:
         AuditLog(
             campus_id=org["campus"].id,
             event_type="SEED_RESET",
-            actor_role=RoleKey.SUPER_ADMIN.value,
+            actor_role=RoleKey.MANAGEMENT.value,
             actor_kind="SYSTEM",
             entity_type="SYSTEM",
             entity_id="seed",
@@ -1792,6 +2446,8 @@ def seed_all(session: Session) -> dict:
                 "documents": len(documents),
                 "gate_passes": len(gate["passes"]),
                 "students": len(people["students"]),
+                "books": len(services_data["books"]),
+                "activities": len(services_data["activities"]),
             },
         )
     )
@@ -1804,6 +2460,24 @@ def seed_all(session: Session) -> dict:
     return {
         "marker": "DEMO DATA",
         "students": count(Student),
+        "subjects": count(Subject),
+        "attendance": count(AttendanceRecord),
+        "marks": count(Mark),
+        "timetable_slots": count(TimetableSlot),
+        "fee_records": count(FeeRecord),
+        "payments": count(Payment),
+        "clearance_requests": count(ClearanceRequest),
+        "books": count(Book),
+        "book_loans": count(BookLoan),
+        "leave_applications": count(LeaveApplication),
+        "feedback": count(Feedback),
+        "feedback_requests": count(FeedbackRequest),
+        "activities": count(Activity),
+        "activity_registrations": count(ActivityRegistration),
+        "job_postings": count(JobPosting),
+        "job_applications": count(JobApplication),
+        "staff_leave": count(StaffLeave),
+        "payslips": count(Payslip),
         "staff": count(Staff),
         "users": count(User),
         "locations": count(Location),

@@ -132,6 +132,7 @@ export function HelpDesk() {
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="Desk station"
         title="Helpdesk desk"
         subtitle="Assisted filing for students without a working device — both names stay on the record"
         actions={<Badge tone="ghost">channel: ASSISTED_DESK</Badge>}

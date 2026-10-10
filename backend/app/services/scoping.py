@@ -19,7 +19,13 @@ WARDEN_SERVICE_KEYS = {"LEAVE_REQUEST", "GATE_PASS", "HOSTEL_COMPLAINT", "MESS_C
 
 
 def _student_of(db, user: User) -> Student | None:
+    """The student profile this account owns, if any."""
     return db.scalar(select(Student).where(Student.user_id == user.id))
+
+
+def linked_student(db, user: User) -> Student | None:
+    """Public form of ``_student_of`` for the academics/finance/service modules."""
+    return _student_of(db, user)
 
 
 def _staff_of(db, user: User) -> Staff | None:
@@ -40,44 +46,24 @@ def case_scope_condition(db, user: User):
     role = user.role_key
     campus = Case.campus_id == user.campus_id
 
-    if role in {RoleKey.SUPER_ADMIN.value, RoleKey.ADMIN.value}:
-        return campus
-
-    if role == RoleKey.HELPDESK_OPERATOR.value:
-        # Front desk needs status visibility for walk-in follow-ups.
-        return campus
-
-    if role == RoleKey.WARDEN.value:
-        student = _student_of(db, user)
-        warden_hostel_ids: list[int] = []
-        if student and student.hostel_id:
-            warden_hostel_ids.append(student.hostel_id)
-        # Hostels this user is warden of.
-        from app.models import Hostel
-
-        warden_hostel_ids += list(
-            db.scalars(select(Hostel.id).where(Hostel.warden_user_id == user.id)).all()
-        )
-        hostel_student_ids = select(Student.id).where(Student.hostel_id.in_(warden_hostel_ids)) if warden_hostel_ids else None
-        predicates = [
-            Case.service_key.in_(WARDEN_SERVICE_KEYS),
-            Case.category.in_(WARDEN_SERVICE_CATEGORIES),
-        ]
-        if hostel_student_ids is not None:
-            predicates.append(Case.requester_student_id.in_(hostel_student_ids))
-        return and_(campus, or_(*predicates))
-
-    if role in {RoleKey.DEPARTMENT_HEAD.value, RoleKey.STAFF.value}:
+    if role == RoleKey.TEACHER.value:
+        # Faculty see the cases assigned to them and their department's queue.
         staff = _staff_of(db, user)
         predicates = [Case.assigned_staff_id == (staff.id if staff else -1)]
         if staff and staff.department_id:
             predicates.append(Case.department_id == staff.department_id)
         return and_(campus, or_(*predicates))
 
-    if role == RoleKey.SECURITY.value:
-        return and_(campus, Case.service_key.in_(SECURITY_SERVICE_KEYS))
+    if role == RoleKey.MANAGEMENT.value:
+        # Management works the whole campus: a hostel complaint, a fee
+        # certificate and a clearance request are all "the college's work" to
+        # the desk that signs them, and it holds CASE_READ_ALL. A warden looking
+        # at hostels rather than a registrar looking at certificates is a
+        # narrower *view* the screens offer, not a narrower role.
+        return campus
 
     if role == RoleKey.STUDENT.value:
+        # A student sees what they raised, plus anything filed for their profile.
         sid = student_id_for(db, user)
         predicates = [Case.requester_id == user.id]
         if sid is not None:
@@ -105,8 +91,10 @@ def assert_can_view_case(db, user: User, case: Case) -> None:
 def default_channel_for_role(role_key: str) -> str:
     from app.models.enums import SourceChannel
 
-    if role_key in {RoleKey.STUDENT.value, RoleKey.STAFF.value, RoleKey.SECURITY.value}:
+    if role_key in {
+        RoleKey.STUDENT.value,
+        RoleKey.TEACHER.value,
+        RoleKey.MANAGEMENT.value,
+    }:
         return SourceChannel.PWA.value
-    if role_key == RoleKey.HELPDESK_OPERATOR.value:
-        return SourceChannel.ASSISTED_DESK.value
     return SourceChannel.WEB_DESKTOP.value

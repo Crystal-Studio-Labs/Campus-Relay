@@ -3,27 +3,97 @@
 
    Everything that components/ui.tsx renders, plus the shared cards, chips and
    overlays. Rules appear once here and are not revised later in the file.
-   The previous stylesheet reached 1,700 lines because it was written in passes
-   that overrode each other; this one is written once.
 
    Contents
-     1. Plates            (.card .panel .metric .state .banner .skeleton)
-     2. Buttons           (.btn)
-     3. Chips and tags    (.badge .tag .chip)
-     4. Forms             (.field .input .select .textarea .checkbox)
-     5. Tables            (.table-wrap table.data)
-     6. Timeline          (.timeline)
-     7. Overlays          (.sheet .modal)
-     8. Tabs              (.tabs .tab)
-     9. Measurements      (.bar .chart .swatch)
-    10. Blocks            (.tint-* .divider .rule-hazard .pill-row .kv)
+     1. Bento grid        (.bento and its spans)
+     2. Plates            (.card .panel .metric .tile .state .banner .skeleton)
+     3. Buttons           (.btn)
+     4. Chips and tags    (.badge .tag .chip)
+     5. Forms             (.field .input .select .textarea .checkbox)
+     6. Tables            (.table-wrap table.data)
+     7. Timeline          (.timeline)
+     8. Overlays          (.sheet .modal)
+     9. Tabs              (.tabs .tab)
+    10. Measurements      (.bar .chart .swatch)
+    11. Blocks            (.tint-* .divider .rule-hazard .pill-row .kv)
    ========================================================================== */
 
-/* ============================= 1. PLATES =============================== */
+/* ============================ 1. BENTO GRID ============================ */
 
-/* A card is a soft raised surface: a white face, a hairline edge and a gentle
-   lift. The content stays the loudest thing on the page; the frame is quiet so
-   a list of cards reads as one calm column rather than a wall of plates. */
+/* The structural unit of every dashboard: a twelve-column field the tiles are
+   laid into. A tile spans the whole field on a phone and its proportioned slice
+   on a desktop, so a large tile genuinely reads as more important than a small
+   one rather than every card being the same rectangle. */
+.bento {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: stretch;
+}
+.bento > * {
+  grid-column: span 12;
+  min-width: 0;
+}
+.bento-tight {
+  gap: var(--sp-3);
+}
+@media (min-width: 760px) {
+  .bento-span-3 {
+    grid-column: span 3;
+  }
+  .bento-span-4 {
+    grid-column: span 4;
+  }
+  .bento-span-5 {
+    grid-column: span 5;
+  }
+  .bento-span-6 {
+    grid-column: span 6;
+  }
+  .bento-span-7 {
+    grid-column: span 7;
+  }
+  .bento-span-8 {
+    grid-column: span 8;
+  }
+  .bento-span-9 {
+    grid-column: span 9;
+  }
+  .bento-span-12 {
+    grid-column: span 12;
+  }
+}
+@media (min-width: 1100px) {
+  .bento-3 {
+    grid-column: span 3;
+  }
+  .bento-4 {
+    grid-column: span 4;
+  }
+  .bento-6 {
+    grid-column: span 6;
+  }
+  .bento-8 {
+    grid-column: span 8;
+  }
+}
+@media (max-width: 759px) {
+  .bento {
+    gap: var(--sp-3);
+  }
+}
+
+/* A tile that only wants to be as tall as its content, even in a stretched
+   grid row - a row of mixed tiles should not leave a tall one padded out. */
+.bento-self-start {
+  align-self: start;
+}
+
+/* ============================= 2. PLATES =============================== */
+
+/* A card is a white surface on the slate page: a hairline edge, a generous
+   radius and one quiet blurred shadow. Content is the loudest thing on screen;
+   the frame stays out of the way. */
 .card {
   display: flex;
   flex-direction: column;
@@ -31,7 +101,7 @@
   border: var(--border-w) solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: var(--sp-4);
+  padding: var(--sp-5);
   min-width: 0;
 }
 
@@ -41,9 +111,9 @@
 
 .card-sunken {
   background: var(--surface-alt);
-  border: var(--border-w) solid var(--line);
+  border: var(--border-w) solid var(--line-soft);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-inset);
+  box-shadow: none;
   padding: var(--sp-4);
 }
 
@@ -52,41 +122,39 @@
   text-align: start;
   color: inherit;
   font: inherit;
-  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
 }
 .card-clickable:hover {
-  transform: translate(-1.5px, -1.5px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: color-mix(in srgb, var(--signal) 35%, var(--line));
 }
 .card-clickable:active {
-  transform: translate(1.5px, 1.5px);
-  box-shadow: 1px 1px 0px var(--shadow-ink, #000000);
+  transform: translateY(0);
+  box-shadow: var(--shadow-sm);
 }
 
-/* A tinted leading edge marks status without shouting. The edge is rounded to
-   match the card so it reads as a soft rail, and `inline-start` puts it on the
-   correct side in a right-to-left layout too. */
+/* A tinted leading rail marks status without shouting. `inline-start` puts it
+   on the correct side in a right-to-left layout too. */
 .card-accent-signal {
-  border-inline-start: 4px solid var(--signal);
+  border-inline-start: 3px solid var(--signal);
 }
 .card-accent-urgent {
-  border-inline-start: 4px solid var(--status-urgent);
+  border-inline-start: 3px solid var(--status-urgent);
 }
 .card-accent-sun {
-  border-inline-start: 4px solid var(--sun);
+  border-inline-start: 3px solid var(--sun);
 }
 .card-accent-mint {
-  border-inline-start: 4px solid var(--status-done);
+  border-inline-start: 3px solid var(--status-done);
 }
-/* A machine-authored or advisory block carries a lilac edge, so it is
-   identifiable across a desk without reading a word. */
 .card-accent-agent {
-  border-inline-start: 4px solid var(--lilac);
+  border-inline-start: 3px solid var(--lilac);
 }
-/* An unread notice keeps a sky edge until it is opened. Declared after the
-   accents so an unread state reads as unread first. */
 .card.is-unread {
-  border-inline-start: 4px solid var(--sky);
+  border-inline-start: 3px solid var(--sky);
 }
 
 /* A card header: title, chips and meta on one line that wraps instead of
@@ -96,13 +164,13 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--sp-2);
-  margin-bottom: var(--sp-2);
+  margin-bottom: var(--sp-3);
 }
 .card-title {
   margin: 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: var(--fs-md);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 .card-meta {
@@ -119,27 +187,24 @@
   flex-wrap: wrap;
   gap: var(--sp-2);
   margin-top: auto;
-  padding-top: var(--sp-3);
+  padding-top: var(--sp-4);
 }
 
-/* --- Case row: the structured list item ---------------------------------
-   A case used to be a pile of badges over four lines of grey text, which is
-   what made the list read as unstructured. Here the hierarchy is explicit:
-   identity + state, then the title, then a labelled meta grid, with the
-   secondary markers held in a quiet side column. */
+/* --- Case row: the structured list item --------------------------------- */
 .case-row {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--sp-3);
-  padding: var(--sp-4);
+  padding: var(--sp-5);
   background: var(--surface);
   border: var(--border-w) solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
   text-align: start;
   cursor: pointer;
-  transition: transform var(--motion-fast) ease-out, box-shadow var(--motion-fast) ease-out,
-    border-color var(--motion-fast) ease-out;
+  transition: transform var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
 }
 @media (min-width: 720px) {
   .case-row {
@@ -148,9 +213,9 @@
   }
 }
 .case-row:hover {
-  transform: translate(-1.5px, -1.5px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--ink);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: color-mix(in srgb, var(--signal) 35%, var(--line));
 }
 .case-row:focus-visible {
   outline: var(--focus-ring);
@@ -164,9 +229,9 @@
 }
 .case-row-title {
   margin: 6px 0 0;
-  font-family: var(--font-mono);
+  font-family: var(--font-ui);
   font-size: var(--fs-md);
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: -0.01em;
 }
 .case-row-meta {
@@ -181,17 +246,15 @@
   min-width: 0;
 }
 .case-meta-label {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 800;
+  font-size: 11px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   color: var(--muted-ink);
 }
 .case-meta-value {
-  font-family: var(--font-mono);
   font-size: var(--fs-sm);
-  font-weight: 700;
+  font-weight: 600;
   color: var(--ink);
 }
 .case-row-side {
@@ -209,7 +272,7 @@
 }
 .case-row-chevron {
   color: var(--muted-ink);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 /* A results strip above a list: how many, and under what filter. */
@@ -220,14 +283,13 @@
   justify-content: space-between;
   gap: var(--sp-2);
   padding: 0 var(--sp-1);
-  font-family: var(--font-mono);
   font-size: var(--fs-xs);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--muted-ink);
 }
 .results-count {
-  font-weight: 800;
+  font-weight: 600;
   color: var(--ink);
 }
 
@@ -249,18 +311,17 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-2) var(--sp-3);
-  padding: var(--sp-3) var(--sp-4);
+  padding: var(--sp-4) var(--sp-5);
   background: var(--panel-head-bg);
   color: var(--panel-head-ink);
-  border-bottom: var(--rule-w) solid var(--line);
+  border-bottom: var(--rule-w) solid var(--line-soft);
   min-height: 0;
 }
 .panel-title {
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   margin: 0;
 }
 .panel-sub {
@@ -269,7 +330,7 @@
   width: 100%;
 }
 .panel-body {
-  padding: var(--sp-4);
+  padding: var(--sp-5);
   flex: 1;
 }
 .panel-body-flush {
@@ -281,22 +342,18 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-2);
-  padding: var(--sp-3);
+  padding: var(--sp-3) var(--sp-5);
   border-top: var(--border-w-thin) solid var(--line-soft);
-  background: var(--surface-alt);
+  background: var(--surface);
 }
 
-/* The signature industrial marking: a diagonal hazard stripe. Reserved for
-   live, urgent or irreversible states so it keeps its meaning. */
+/* A slim accent rail for live, urgent or irreversible states. Reserved so the
+   marking keeps its meaning. */
 .hazard-band {
   height: var(--hazard-band);
   flex: 0 0 auto;
-  background: repeating-linear-gradient(
-    45deg,
-    var(--hazard) 0 8px,
-    var(--hazard-ink) 8px 16px
-  );
-  border-bottom: var(--border-w-thin) solid var(--line);
+  background: linear-gradient(90deg, var(--signal), var(--sun));
+  border-bottom: none;
 }
 
 /* A section heading: a real heading in the flow of the page, sized to scan. */
@@ -304,11 +361,10 @@
   display: flex;
   align-items: center;
   gap: var(--sp-2);
-  font-family: var(--font-mono);
-  font-size: var(--fs-sm);
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  letter-spacing: -0.01em;
   margin-bottom: var(--sp-2);
 }
 
@@ -318,26 +374,23 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--sp-1);
+  gap: var(--sp-2);
   background: var(--surface);
   border: var(--border-w) solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow-sm);
-  padding: var(--sp-3);
+  padding: var(--sp-4) var(--sp-5);
   min-width: 0;
 }
 .metric-label {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: var(--fs-sm);
+  font-weight: 500;
   color: var(--muted-ink);
 }
 .metric-value {
-  font-family: var(--font-mono);
-  font-size: clamp(1.8rem, 4vw, var(--fs-2xl));
-  font-weight: 900;
+  font-family: var(--font-ui);
+  font-size: clamp(1.75rem, 3.4vw, var(--fs-2xl));
+  font-weight: 700;
   line-height: 1.05;
   letter-spacing: var(--tracking-tight);
   font-variant-numeric: tabular-nums;
@@ -348,18 +401,41 @@
   color: var(--muted-ink);
 }
 
+/* --- Bento stat tile -----------------------------------------------------
+   A metric with an icon chip on its top line. The number stays the loudest
+   thing in the tile; the chip gives the row a scan pattern. */
+.metric-tile {
+  gap: var(--sp-2);
+  justify-content: flex-start;
+}
+.metric-tile-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.metric-tile-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-sm);
+}
+
 /* --- Empty / loading / error states ------------------------------------ */
 
 .state {
-  border: var(--border-w) solid var(--line);
+  border: var(--border-w) dashed var(--line);
   border-radius: var(--radius);
-  padding: var(--sp-6);
+  padding: var(--sp-8) var(--sp-6);
   text-align: center;
-  background: var(--surface-alt);
+  background: var(--surface);
   color: var(--ink);
 }
 .state-title {
-  font-weight: 800;
+  font-weight: 600;
   font-size: var(--fs-md);
   margin-bottom: var(--sp-1);
 }
@@ -403,40 +479,49 @@
   align-items: center;
   gap: var(--sp-3);
   border: var(--border-w) solid var(--line);
-  border-radius: var(--radius-sm);
-  padding: var(--sp-3);
+  border-radius: var(--radius);
+  padding: var(--sp-3) var(--sp-4);
   font-size: var(--fs-sm);
   line-height: var(--lh-snug);
-  font-weight: 700;
+  font-weight: 500;
   box-shadow: var(--shadow-sm);
 }
 .banner-offline {
-  background: var(--surface);
+  background: var(--tint-sun);
   color: var(--ink);
-  border-inline-start: 5px solid var(--sun);
+  border-color: color-mix(in srgb, var(--sun) 30%, var(--line));
 }
 .banner-error {
-  background: var(--surface);
+  background: var(--tint-danger);
   color: var(--ink);
-  border-inline-start: 5px solid var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 30%, var(--line));
+}
+/* A warning banner: a rule is about to be broken (attendance under the exam
+   minimum), rather than something having failed. The leading rail is what
+   separates it from the offline banner that shares the same amber. */
+.banner-warn {
+  background: var(--tint-sun);
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--sun) 45%, var(--line));
+  border-inline-start-width: 6px;
+  border-inline-start-color: var(--sun);
 }
 .banner-info {
-  background: var(--surface);
+  background: var(--tint-sky);
   color: var(--ink);
-  border-inline-start: 5px solid var(--signal);
+  border-color: color-mix(in srgb, var(--sky) 28%, var(--line));
 }
 .banner-agent {
-  background: var(--surface);
+  background: var(--tint-lilac);
   color: var(--ink);
-  border-inline-start: 5px solid var(--lilac);
+  border-color: color-mix(in srgb, var(--lilac) 30%, var(--line));
 }
 .banner-demo {
   background: var(--surface-alt);
   color: var(--ink);
-  border-inline-start: 5px solid var(--line);
 }
 
-/* ============================= 2. BUTTONS ============================== */
+/* ============================= 3. BUTTONS ============================== */
 
 .btn {
   display: inline-flex;
@@ -445,36 +530,36 @@
   gap: var(--sp-2);
   min-height: var(--touch-min);
   padding: var(--sp-2) var(--sp-4);
-  font-family: var(--font-mono);
-  font-size: var(--fs-xs);
-  font-weight: 800;
+  font-family: var(--font-ui);
+  font-size: var(--fs-base);
+  font-weight: 600;
   line-height: 1.25;
   text-align: center;
   white-space: normal;
   text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: var(--ink);
   background: var(--surface);
   border: var(--border-w) solid var(--line);
   border-radius: var(--radius-sm);
   box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.12s ease-out;
+  transition: background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
 }
-/* Hover raises the plate; press drives it flat into the page. */
 .btn:hover:not(:disabled):not([aria-disabled='true']) {
-  transform: translate(-1.5px, -1.5px);
+  background: var(--surface-alt);
+  border-color: color-mix(in srgb, var(--signal) 30%, var(--line));
   box-shadow: var(--shadow);
-  border-color: var(--ink);
 }
 .btn:active:not(:disabled):not([aria-disabled='true']) {
-  transform: translate(1px, 1px);
-  box-shadow: 0px 0px 0px;
+  transform: translateY(1px);
+  box-shadow: var(--shadow-sm);
 }
 .btn:disabled,
 .btn[aria-disabled='true'] {
-  opacity: 0.45;
+  opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
   transform: none;
@@ -483,96 +568,153 @@
 .btn-primary {
   background: var(--signal);
   color: var(--on-block);
-  border: var(--border-w) solid var(--shadow-ink);
-  box-shadow: var(--shadow);
+  border-color: var(--signal);
+  box-shadow: 0 1px 2px rgba(79, 70, 229, 0.3);
+}
+.btn-primary:hover:not(:disabled):not([aria-disabled='true']) {
+  background: var(--signal-dark);
+  border-color: var(--signal-dark);
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.28);
 }
 .btn-attention {
   background: var(--sun);
   color: var(--on-block);
-  border: var(--border-w) solid var(--shadow-ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--sun);
+}
+.btn-attention:hover:not(:disabled):not([aria-disabled='true']) {
+  filter: brightness(0.94);
+  border-color: var(--sun);
 }
 .btn-success {
   background: var(--mint);
   color: var(--on-block);
-  border: var(--border-w) solid var(--shadow-ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--mint);
+}
+.btn-success:hover:not(:disabled):not([aria-disabled='true']) {
+  filter: brightness(0.94);
+  border-color: var(--mint);
 }
 .btn-info {
   background: var(--sky);
   color: var(--on-block);
-  border: var(--border-w) solid var(--shadow-ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--sky);
+}
+.btn-info:hover:not(:disabled):not([aria-disabled='true']) {
+  filter: brightness(0.94);
+  border-color: var(--sky);
 }
 .btn-agent {
   background: var(--lilac);
   color: var(--on-block);
-  border: var(--border-w) solid var(--shadow-ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--lilac);
+}
+.btn-agent:hover:not(:disabled):not([aria-disabled='true']) {
+  filter: brightness(0.94);
+  border-color: var(--lilac);
 }
 .btn-danger {
   background: var(--danger);
   color: var(--on-danger);
-  border: var(--border-w) solid var(--shadow-ink);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--danger);
+}
+.btn-danger:hover:not(:disabled):not([aria-disabled='true']) {
+  filter: brightness(0.94);
+  border-color: var(--danger);
 }
 .btn-ghost {
   background: transparent;
   color: var(--ink);
-  border: var(--border-w) solid transparent;
+  border-color: transparent;
   box-shadow: none;
 }
-.btn-ghost:hover:not(:disabled) {
+.btn-ghost:hover:not(:disabled):not([aria-disabled='true']) {
   background: var(--surface-alt);
   border-color: var(--line);
-  box-shadow: var(--shadow-sm);
+  box-shadow: none;
 }
 .btn-block {
   width: 100%;
 }
 .btn-lg {
   min-height: var(--touch-large);
-  font-size: var(--fs-sm);
+  font-size: var(--fs-md);
   padding: var(--sp-3) var(--sp-5);
 }
 .btn-xl {
   min-height: var(--touch-huge);
-  font-size: var(--fs-base);
+  font-size: var(--fs-lg);
   padding: var(--sp-4) var(--sp-6);
-  border-width: var(--border-w-fat);
-  box-shadow: var(--shadow);
+  border-radius: var(--radius);
 }
 .btn-sm {
   min-height: 34px;
   padding: var(--sp-1) var(--sp-3);
-  font-size: 11px;
-  box-shadow: var(--shadow-sm);
+  font-size: var(--fs-sm);
+  border-radius: var(--radius-sm);
+  box-shadow: none;
 }
 .btn-icon {
   min-width: var(--touch-min);
   padding: var(--sp-2);
 }
 
-/* ========================== 3. CHIPS AND TAGS ========================== */
+/* A square, icon-only control: the affordance a top bar uses for its tools. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0;
+  color: var(--ink);
+  background: transparent;
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out), color var(--motion-fast) var(--ease-out);
+}
+.icon-btn:hover {
+  background: var(--surface-alt);
+  border-color: var(--line);
+  color: var(--signal);
+}
+.icon-btn[aria-pressed='true'] {
+  background: var(--tint-signal);
+  border-color: color-mix(in srgb, var(--signal) 30%, var(--line));
+  color: var(--signal);
+}
 
-/* Industrial Brutalism Badges: Sharp, technical, uppercase monospace tags */
+/* ========================== 4. CHIPS AND TAGS ========================== */
+
+/* Status chips: a soft tinted pill with strong same-hue copy and a leading dot
+   where a caller passes one. Colour never carries meaning alone - every chip
+   keeps its word. */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 7px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 800;
-  line-height: 1.35;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border: var(--border-w-thin) solid var(--line);
-  border-radius: var(--radius-sm);
+  padding: 3px 10px;
+  font-family: var(--font-ui);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.4;
+  text-transform: none;
+  letter-spacing: 0;
+  border: var(--border-w) solid transparent;
+  border-radius: var(--radius-pill);
   background: var(--surface-alt);
-  color: var(--ink);
+  color: var(--muted-ink);
   white-space: nowrap;
-  box-shadow: 1px 1px 0px var(--shadow-ink);
+}
+.badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: currentColor;
+  flex: 0 0 auto;
+  opacity: 0.9;
 }
 .badge-block,
 .badge-square {
@@ -580,47 +722,43 @@
 }
 .badge-ghost {
   background: transparent;
+  border-color: var(--line);
   box-shadow: none;
 }
+.badge-ghost::before {
+  display: none;
+}
 .badge-open {
-  background: var(--status-open);
-  color: #ffffff;
-  border-color: var(--status-open);
+  background: var(--tint-sky);
+  color: var(--status-open);
 }
 .badge-progress {
-  background: var(--status-progress);
-  color: var(--on-block);
-  border-color: var(--status-progress);
+  background: var(--tint-sun);
+  color: var(--status-progress);
 }
 .badge-blocked {
-  background: var(--status-blocked);
-  color: #ffffff;
-  border-color: var(--status-blocked);
+  background: var(--tint-lilac);
+  color: var(--status-blocked);
 }
 .badge-done {
-  background: var(--status-done);
-  color: var(--on-block);
-  border-color: var(--status-done);
+  background: var(--tint-mint);
+  color: var(--status-done);
 }
 .badge-dead {
-  background: var(--status-dead);
-  color: #ffffff;
-  border-color: var(--status-dead);
+  background: var(--surface-alt);
+  color: var(--status-dead);
 }
 .badge-urgent {
-  background: var(--status-urgent);
-  color: var(--on-danger);
-  border-color: var(--status-urgent);
+  background: var(--tint-danger);
+  color: var(--status-urgent);
 }
 .badge-warn {
-  background: var(--status-warn);
-  color: var(--on-block);
-  border-color: var(--status-warn);
+  background: var(--tint-sun);
+  color: var(--status-warn);
 }
 .badge-agent {
-  background: var(--lilac);
-  color: #ffffff;
-  border-color: var(--lilac);
+  background: var(--tint-lilac);
+  color: var(--lilac);
 }
 
 /* A tag is a chip you can act on (a filter, a selected target). */
@@ -631,17 +769,24 @@
   padding: var(--sp-1) var(--sp-3);
   min-height: 38px;
   font-size: var(--fs-sm);
-  font-weight: 700;
+  font-weight: 500;
   border: var(--border-w-thin) solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: var(--surface);
   color: var(--ink);
   cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+.tag:hover {
+  background: var(--surface-alt);
 }
 .tag[aria-pressed='true'],
 .tag.is-selected {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--tint-signal);
+  border-color: color-mix(in srgb, var(--signal) 45%, var(--line));
+  color: var(--signal);
+  font-weight: 600;
 }
 
 /* ============================== 4. FORMS ============================== */
@@ -653,10 +798,10 @@
   margin-bottom: var(--sp-3);
 }
 .label {
-  font-size: var(--fs-xs);
-  font-weight: 800;
-  text-transform: var(--label-transform);
-  letter-spacing: var(--label-tracking);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
   color: var(--ink);
 }
 .hint {
@@ -669,24 +814,32 @@
   width: 100%;
   min-height: var(--touch-min);
   padding: var(--sp-2) var(--sp-3);
-  font-family: inherit;
+  font-family: var(--font-ui);
   font-size: var(--fs-md);
   color: var(--ink);
   background: var(--surface);
   border: var(--border-w) solid var(--line);
   border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-inset);
-  transition: border-color var(--motion-fast) ease-out;
+  box-shadow: none;
+  transition: border-color var(--motion-fast) var(--ease-out),
+    box-shadow var(--motion-fast) var(--ease-out);
 }
 .input::placeholder,
 .textarea::placeholder {
   color: var(--muted-ink);
   opacity: 1;
 }
+.input:hover,
+.select:hover,
+.textarea:hover {
+  border-color: color-mix(in srgb, var(--signal) 30%, var(--line));
+}
 .input:focus,
 .select:focus,
 .textarea:focus {
   border-color: var(--signal);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--signal) 18%, transparent);
+  outline: none;
 }
 .textarea {
   min-height: 96px;
@@ -702,23 +855,24 @@
 .field-error {
   color: var(--danger);
   font-size: var(--fs-sm);
-  font-weight: 800;
+  font-weight: 600;
 }
 .checkbox {
-  width: 22px;
-  height: 22px;
+  width: 20px;
+  height: 20px;
   flex: 0 0 auto;
   accent-color: var(--signal);
   border: var(--border-w-thin) solid var(--line);
+  border-radius: 5px;
 }
 fieldset {
   border: var(--border-w-thin) solid var(--line-soft);
   border-radius: var(--radius-sm);
-  padding: var(--sp-3);
+  padding: var(--sp-4);
   margin: 0 0 var(--sp-3);
 }
 legend {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   font-weight: 600;
   color: var(--muted-ink);
   padding: 0 6px;
@@ -747,12 +901,14 @@ table.data th {
   text-align: start;
   font-size: var(--fs-xs);
   font-weight: 600;
-  padding: var(--sp-3);
-  border-bottom: var(--rule-w) solid var(--line);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--border-w-thin) solid var(--line);
   white-space: nowrap;
 }
 table.data td {
-  padding: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
   line-height: var(--lh-snug);
   border-bottom: var(--border-w-thin) solid var(--line-soft);
   vertical-align: top;
@@ -762,7 +918,7 @@ table.data tr:last-child td {
   border-bottom: none;
 }
 table.data tbody tr:hover {
-  background: var(--surface-alt);
+  background: color-mix(in srgb, var(--surface-alt) 60%, transparent);
 }
 
 /* A dense table becomes a stack of labelled records on a phone, because
@@ -790,9 +946,9 @@ table.data tbody tr:hover {
     content: attr(data-label);
     display: block;
     font-size: var(--fs-xs);
-    font-weight: 800;
-    text-transform: var(--label-transform);
-    letter-spacing: var(--label-tracking);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
     color: var(--muted-ink);
   }
 }
@@ -816,20 +972,23 @@ table.data tbody tr:hover {
   position: absolute;
   inset-inline-start: calc(-1 * var(--sp-5) - 5px);
   top: 5px;
-  width: 9px;
-  height: 9px;
+  width: 10px;
+  height: 10px;
   background: var(--surface);
-  border: var(--border-w-thin) solid var(--line);
+  border: 2px solid var(--line);
+  border-radius: var(--radius-pill);
 }
 .timeline li.is-terminal::before {
   background: var(--mint);
+  border-color: var(--mint);
 }
 .timeline li.is-urgent::before {
   background: var(--status-urgent);
+  border-color: var(--status-urgent);
 }
 .timeline .when {
   font-size: var(--fs-xs);
-  font-weight: 700;
+  font-weight: 500;
   color: var(--muted-ink);
 }
 
@@ -842,6 +1001,7 @@ table.data tbody tr:hover {
   background: var(--scrim);
   z-index: 60;
   display: flex;
+  backdrop-filter: blur(2px);
 }
 .sheet-backdrop {
   align-items: flex-end;
@@ -857,27 +1017,29 @@ table.data tbody tr:hover {
   max-height: 88vh;
   overflow: auto;
   background: var(--surface);
-  border-top: var(--border-w-fat) solid var(--line);
+  border-top: none;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: var(--sp-4) var(--sp-4) calc(var(--sp-6) + env(safe-area-inset-bottom));
+  box-shadow: var(--shadow-lg);
+  padding: var(--sp-5) var(--sp-5) calc(var(--sp-6) + env(safe-area-inset-bottom));
 }
 .modal {
   width: 100%;
-  max-width: 640px;
+  max-width: 620px;
   max-height: 88vh;
   overflow: auto;
   background: var(--surface);
   border: var(--border-w) solid var(--line);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
-  padding: var(--sp-5);
+  padding: var(--sp-6);
 }
 .sheet-handle {
-  width: 56px;
-  height: 4px;
-  background: var(--ink);
-  margin: 0 auto var(--sp-3);
-  opacity: 0.4;
+  width: 44px;
+  height: 5px;
+  background: var(--line);
+  border-radius: var(--radius-pill);
+  margin: 0 auto var(--sp-4);
+  opacity: 1;
 }
 @media (min-width: 721px) {
   .sheet-backdrop {
@@ -886,49 +1048,48 @@ table.data tbody tr:hover {
   .sheet {
     max-width: 720px;
     border: var(--border-w) solid var(--line);
-    border-radius: var(--radius);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
   }
 }
 
 /* =============================== 8. TABS ============================== */
 
-/* Tabs: Precision mechanical segmented control with zero pills */
 .tabs {
   display: inline-flex;
-  gap: 3px;
-  padding: 3px;
+  gap: 4px;
+  padding: 4px;
   max-width: 100%;
   overflow-x: auto;
   border: var(--border-w) solid var(--line);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   background: var(--surface-alt);
-  box-shadow: var(--shadow-sm);
-  margin-bottom: var(--sp-4);
+  box-shadow: none;
+  margin-bottom: var(--sp-5);
 }
 .tab {
   flex: 0 0 auto;
   min-height: 36px;
   padding: var(--sp-2) var(--sp-4);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-family: var(--font-ui);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
   white-space: nowrap;
   background: transparent;
   border: var(--border-w-thin) solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   color: var(--muted-ink);
   cursor: pointer;
-  transition: background var(--motion-fast) ease-out, color var(--motion-fast) ease-out;
+  transition: background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
 }
 .tab:hover {
   color: var(--ink);
-  background: var(--surface);
 }
 .tab[aria-selected='true'] {
-  color: var(--ink);
+  color: var(--signal);
   background: var(--surface);
   border-color: var(--line);
   box-shadow: var(--shadow-sm);
@@ -937,33 +1098,37 @@ table.data tbody tr:hover {
 /* ========================== 9. MEASUREMENTS =========================== */
 
 .bar {
-  height: 10px;
-  border: var(--border-w-thin) solid var(--line);
-  border-radius: var(--radius-sm);
+  height: 8px;
+  border: none;
+  border-radius: var(--radius-pill);
   background: var(--surface-alt);
   overflow: hidden;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 .bar > span {
   display: block;
   height: 100%;
+  border-radius: var(--radius-pill);
   background: var(--signal);
 }
 
 .chart {
   display: flex;
   align-items: flex-end;
-  gap: 3px;
-  height: 140px;
-  border-inline-start: var(--border-w-thin) solid var(--line);
+  gap: 4px;
+  height: 150px;
+  border-inline-start: none;
   border-bottom: var(--border-w-thin) solid var(--line);
   padding: 0 var(--sp-1);
 }
 .chart .col {
   flex: 1;
   min-width: 8px;
-  background: var(--sky);
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  background: color-mix(in srgb, var(--signal) 70%, transparent);
+  border-radius: 6px 6px 0 0;
+  transition: background var(--motion-fast) var(--ease-out);
+}
+.chart .col:hover {
+  background: var(--signal);
 }
 .chart .col.is-signal {
   background: var(--signal);
@@ -973,13 +1138,14 @@ table.data tbody tr:hover {
   gap: var(--sp-3);
   flex-wrap: wrap;
   font-size: var(--fs-xs);
-  font-weight: 700;
+  font-weight: 500;
 }
 .swatch {
   display: inline-block;
   width: 12px;
   height: 12px;
-  border: var(--border-w-thin) solid var(--line);
+  border-radius: 4px;
+  border: none;
   margin-inline-end: 5px;
   vertical-align: -1px;
 }
@@ -988,54 +1154,36 @@ table.data tbody tr:hover {
 
 /* A tinted block pins its own copy colour. Without this a colour that stays
    light in both themes inherits the dark theme's pale text and the card reads
-   as an empty box - the exact blank-card bug that was fixed by hand before. */
+   as an empty box. */
 .tint-sun,
 .tint-sun .muted,
 .tint-sun .hint {
-  background: var(--sun);
-  color: var(--on-block);
+  background: var(--tint-sun);
+  color: var(--ink);
 }
 .tint-mint,
 .tint-mint .muted,
 .tint-mint .hint {
-  background: var(--mint);
-  color: var(--on-block);
+  background: var(--tint-mint);
+  color: var(--ink);
 }
 .tint-sky,
 .tint-sky .muted,
 .tint-sky .hint {
-  background: var(--surface);
+  background: var(--tint-sky);
   color: var(--ink);
-  border-inline-start: 4px solid var(--sky);
 }
 .tint-lilac,
 .tint-lilac .muted,
 .tint-lilac .hint {
-  background: var(--lilac);
-  color: var(--on-block);
+  background: var(--tint-lilac);
+  color: var(--ink);
 }
 .tint-signal,
 .tint-signal .muted,
 .tint-signal .hint {
-  background: var(--signal);
-  color: var(--on-block);
-}
-.tint-sun .badge,
-.tint-mint .badge,
-.tint-sky .badge,
-.tint-lilac .badge,
-.tint-signal .badge {
-  background: #fff;
-  color: #14161a;
-  border-color: #14161a;
-}
-.tint-sun .btn,
-.tint-mint .btn,
-.tint-sky .btn,
-.tint-lilac .btn,
-.tint-signal .btn {
-  background: #fff;
-  color: #14161a;
+  background: var(--tint-signal);
+  color: var(--ink);
 }
 
 .pill-row {
@@ -1045,7 +1193,7 @@ table.data tbody tr:hover {
   align-items: center;
 }
 
-/* A structural rule. Heavy, square-ended, and it terminates the block above. */
+/* A structural rule. Quiet, one pixel, and it terminates the block above. */
 .divider {
   height: var(--border-w-thin);
   background: var(--line-soft);
@@ -1054,13 +1202,9 @@ table.data tbody tr:hover {
 }
 .rule-hazard {
   height: var(--hazard-band);
-  background: repeating-linear-gradient(
-    45deg,
-    var(--hazard) 0 8px,
-    var(--hazard-ink) 8px 16px
-  );
-  border-top: var(--border-w-thin) solid var(--line);
-  border-bottom: var(--border-w-thin) solid var(--line);
+  background: linear-gradient(90deg, var(--signal), var(--sun));
+  border: 0;
+  border-radius: var(--radius-pill);
 }
 
 /* Definition lists: label column sized in a range so long labels wrap rather
@@ -1074,7 +1218,7 @@ table.data tbody tr:hover {
   margin: 0;
 }
 .kv dt {
-  font-weight: 600;
+  font-weight: 500;
   font-size: var(--fs-sm);
   color: var(--muted-ink);
 }
@@ -1107,9 +1251,9 @@ th,
 }
 
 /* ==========================================================================
-   REACT MICRO-ANIMATIONS & ENTRANCE TRANSITIONS
+   ENTRANCE & FEEDBACK ANIMATIONS
    ========================================================================== */
-@keyframes brutalistEntrance {
+@keyframes riseIn {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -1123,7 +1267,7 @@ th,
 @keyframes modalScaleIn {
   from {
     opacity: 0;
-    transform: scale(0.96) translateY(6px);
+    transform: scale(0.97) translateY(6px);
   }
   to {
     opacity: 1;
@@ -1142,26 +1286,26 @@ th,
 
 @keyframes beaconPulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--mint) 60%, transparent);
   }
   70% {
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px transparent;
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 
 .modal {
-  animation: modalScaleIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: modalScaleIn 0.18s var(--ease-entrance) both;
 }
 
 .sheet {
-  animation: sheetSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: sheetSlideUp 0.22s var(--ease-entrance) both;
 }
 
 .animate-entrance {
-  animation: brutalistEntrance 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: riseIn 0.25s var(--ease-entrance) both;
 }
 
 .pulse-beacon {
@@ -1177,3 +1321,79 @@ th,
   }
 }
 
+/* ========================== 5b. TIMETABLE GRID ==========================
+
+   A weekly timetable is a grid by nature: days across, periods down. It
+   scrolls sideways inside its own plate rather than squeezing a class into a
+   column too narrow to read. The period column and the header stay put, so a
+   person can always tell which day and which hour a cell belongs to. */
+
+.timetable-wrap {
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  overflow: auto;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+table.timetable {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: var(--fs-sm);
+}
+table.timetable th,
+table.timetable td {
+  border-bottom: var(--border-w-thin) solid var(--line-soft);
+  border-inline-start: var(--border-w-thin) solid var(--line-soft);
+  padding: var(--sp-2) var(--sp-3);
+  text-align: start;
+  vertical-align: top;
+}
+table.timetable thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface-alt);
+  color: var(--muted-ink);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: var(--border-w-thin) solid var(--line);
+}
+table.timetable th.period-col,
+table.timetable td.period-col {
+  border-inline-start: none;
+  white-space: nowrap;
+  width: 1%;
+  background: var(--surface-alt);
+  color: var(--muted-ink);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+}
+table.timetable tbody tr:last-child td {
+  border-bottom: none;
+}
+table.timetable .is-today {
+  background: var(--tint-signal);
+}
+.timetable-cell .cell-code {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: var(--fs-xs);
+  letter-spacing: 0.02em;
+}
+.timetable-cell .cell-name {
+  display: block;
+  line-height: var(--lh-snug);
+}
+.timetable-cell .cell-room {
+  display: block;
+  color: var(--muted-ink);
+  font-size: var(--fs-xs);
+  margin-top: 2px;
+}
+.timetable-gap {
+  color: var(--muted-ink);
+  font-size: var(--fs-xs);
+}

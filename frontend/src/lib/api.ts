@@ -45,6 +45,12 @@ export class ApiError extends Error {
   get isConflict(): boolean {
     return this.status === 409
   }
+
+  /** The server is up but shedding load. Not an outage, and not the
+   *  caller's fault: back off and retry rather than reporting offline. */
+  get isRateLimited(): boolean {
+    return this.status === 429
+  }
 }
 
 function readStorage(key: string): string | null {
@@ -99,14 +105,42 @@ export function currentDeviceMode(): DeviceMode {
 
 export const tokenStore = {
   get: () => readStorage(TOKEN_KEY),
-  set: (token: string) => writeStorage(TOKEN_KEY, token),
+  set: (token: string) => {
+    writeStorage(TOKEN_KEY, token)
+    clearSharedCache()
+  },
   clear: () => {
     try {
       window.localStorage.removeItem(TOKEN_KEY)
     } catch {
       /* ignore */
     }
+    clearSharedCache()
   },
+}
+
+/**
+ * Every screen re-asks a few questions whose answers cannot have changed: is
+ * the server up, who am I, and what is this campus called. Left alone that is
+ * two thirds of all API traffic (measured on the production bundle) and enough
+ * to walk a browser into the server's rate limiter.
+ *
+ * `SHARED_GET_TTL_MS` covers only those paths. Identical GETs are always
+ * coalesced while in flight, which no caller can observe. Signing in or out
+ * clears the cache, so a cached profile can never outlive its session.
+ */
+const SHARED_GET_TTL_MS: Record<string, number> = {
+  '/health': 10_000,
+  '/auth/me': 2_000,
+  '/institution': 15_000,
+}
+
+const inflightGets = new Map<string, Promise<unknown>>()
+const getCache = new Map<string, { at: number; value: unknown }>()
+
+/** Drop cached session-derived reads. Called whenever the token changes. */
+export function clearSharedCache() {
+  getCache.clear()
 }
 
 interface RequestOptions {
@@ -119,7 +153,7 @@ interface RequestOptions {
   signal?: AbortSignal
 }
 
-async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+async function sendRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const headers: Record<string, string> = {
     'X-Source-Channel': currentChannel(),
     'X-Device-Uid': deviceUid(),
@@ -161,14 +195,52 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
 
   if (!response.ok) {
     const error = (payload as any)?.error
+    // Surfaced so a caller can wait exactly as long as the server asked.
+    const header = response.headers.get('retry-after')
+    const retryAfter = header === null ? {} : { retry_after: Number(header) || header }
     throw new ApiError(
       response.status,
       error?.code || 'request_failed',
       error?.message || `Request failed (${response.status}).`,
-      error?.details || {},
+      { ...(error?.details || {}), ...retryAfter },
     )
   }
   return payload as T
+}
+
+/**
+ * The client's single entry point. A GET with no body and no caller-supplied
+ * signal may be shared: coalesced while in flight, and - for the three paths
+ * above - answered from a short-lived cache. Everything else is passed
+ * straight through, untouched.
+ */
+async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
+  const isPlainGet = !options.method || options.method === 'GET'
+  if (!isPlainGet || options.body !== undefined || options.signal) {
+    return sendRequest<T>(path, options)
+  }
+
+  const cached = getCache.get(path)
+  if (cached && Date.now() - cached.at < (SHARED_GET_TTL_MS[path] ?? 0)) {
+    return cached.value as T
+  }
+
+  const pending = inflightGets.get(path)
+  if (pending) return pending as Promise<T>
+
+  const promise = sendRequest<T>(path, options)
+  // Coalescing is safe for any GET: every waiter gets the single response the
+  // server sent, and nothing is retained afterwards.
+  inflightGets.set(path, promise)
+  const done = () => inflightGets.delete(path)
+  promise.then(done, done)
+  if (SHARED_GET_TTL_MS[path]) {
+    promise.then(
+      (value) => getCache.set(path, { at: Date.now(), value }),
+      () => undefined,
+    )
+  }
+  return promise
 }
 
 /** A URL for a raw API resource that is not fetched through the JSON client:
@@ -225,7 +297,9 @@ export const api = {
       await request('/health', { noRetry: true })
       return true
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) return true
+      // 401 means the API answered; 429 means it answered and asked us to
+      // slow down. Neither is an outage.
+      if (error instanceof ApiError && (error.status === 401 || error.status === 429)) return true
       return false
     }
   },

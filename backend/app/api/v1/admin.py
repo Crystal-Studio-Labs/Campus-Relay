@@ -1,4 +1,4 @@
-"""Administrator API: the operational command centre."""
+"""Management API: the operational command centre."""
 
 import io
 
@@ -8,7 +8,14 @@ from sqlalchemy import func, or_, select
 
 from app.api.deps import CurrentUser, DbSession, assert_permission
 from app.api.serializers import case_brief, location_brief, service_brief, student_profile, user_brief, user_profile
-from app.api.v1.schemas import PolicyRequest, SlaRuleRequest, UserCreateRequest, UserUpdateRequest
+from app.api.v1.schemas import (
+    PasswordResetRequest,
+    PolicyRequest,
+    SlaRuleRequest,
+    UserCreateRequest,
+    UserUpdateRequest,
+)
+from app.core.config import settings
 from app.core.errors import ConflictError, NotFoundError, ValidationError
 from app.core.permissions import (
     ANALYTICS_READ,
@@ -422,15 +429,19 @@ def audit_log(
             }
             for entry in rows
         ],
-        "immutability_note": "Audit rows are append-only; the database rejects updates and deletes.",
+        "immutability_note": "Entries here can only be added — the database refuses any change or removal.",
     }
 
 
 @router.get("/admin/audit/case/{case_id}")
 def case_audit(case_id: int, db: DbSession, user: CurrentUser):
     assert_permission(user, AUDIT_READ)
+    # Scoped to the caller's campus. Matching on case_id alone would let an
+    # administrator of one campus read another campus's trail by guessing an id.
     entries = db.scalars(
-        select(AuditLog).where(AuditLog.case_id == case_id).order_by(AuditLog.created_at.asc())
+        select(AuditLog)
+        .where(AuditLog.case_id == case_id, AuditLog.campus_id == user.campus_id)
+        .order_by(AuditLog.created_at.asc())
     ).all()
     return {
         "case_id": case_id,
@@ -465,13 +476,33 @@ def users(
         stmt = stmt.join(Role, Role.id == User.role_id).where(Role.key == role)
     if q:
         pattern = f"%{q}%"
-        stmt = stmt.where(or_(User.full_name.ilike(pattern), User.email.ilike(pattern)))
+        # Roll numbers are how a college actually looks a student up, so the
+        # search covers them as well as the name and the address.
+        stmt = stmt.where(
+            or_(
+                User.full_name.ilike(pattern),
+                User.email.ilike(pattern),
+                User.id.in_(select(Student.user_id).where(Student.roll_number.ilike(pattern))),
+            )
+        )
     total = int(db.scalar(select(func.count()).select_from(stmt.subquery())) or 0)
     rows = db.scalars(stmt.order_by(User.full_name).offset(offset).limit(limit)).all()
-    return {
-        "total": total,
-        "users": [user_brief(u) | {"is_active": u.is_active} for u in rows],
-    }
+
+    def row(entry: User) -> dict:
+        """One directory line: who this is, and which part of the college they
+        belong to. Both relationships are selectin-loaded, so this stays one
+        batched query per table rather than a lookup per person."""
+        payload = user_brief(entry) | {"is_active": entry.is_active}
+        student = entry.student
+        staff = entry.staff
+        payload["roll_number"] = student.roll_number if student else None
+        payload["hostel"] = student.hostel.name if student and student.hostel else None
+        payload["designation"] = staff.designation if staff else None
+        payload["department"] = staff.department.name if staff and staff.department else None
+        payload["employee_code"] = staff.employee_code if staff else None
+        return payload
+
+    return {"total": total, "users": [row(entry) for entry in rows]}
 
 
 @router.post("/admin/users", status_code=201)
@@ -497,7 +528,7 @@ def create_user(payload: UserCreateRequest, db: DbSession, user: CurrentUser):
     db.add(created)
     db.flush()
 
-    if role.key in {RoleKey.STAFF.value, RoleKey.DEPARTMENT_HEAD.value}:
+    if role.key == RoleKey.TEACHER.value:
         db.add(
             Staff(
                 campus_id=user.campus_id,
@@ -568,12 +599,14 @@ def update_user(user_id: int, payload: UserUpdateRequest, db: DbSession, user: C
 
 
 @router.post("/admin/users/{user_id}/reset-password")
-def reset_password(user_id: int, db: DbSession, user: CurrentUser, new_password: str = Query(min_length=8)):
+def reset_password(user_id: int, payload: PasswordResetRequest, db: DbSession, user: CurrentUser):
+    """Set a temporary password. The value travels in the body, never the URL:
+    query strings are written to access logs, proxies and browser history."""
     assert_permission(user, USER_MANAGE)
     target = db.get(User, user_id)
     if target is None or target.campus_id != user.campus_id:
         raise NotFoundError("User not found.")
-    target.password_hash = hash_password(new_password)
+    target.password_hash = hash_password(payload.new_password)
     target.must_change_password = True
     audit.record_audit(
         db,
@@ -717,7 +750,7 @@ def sweep_sla(db: DbSession, user: CurrentUser):
 
 @router.post("/admin/notices/expire")
 def expire_notices(db: DbSession, user: CurrentUser):
-    assert_permission(CONFIG_MANAGE)
+    assert_permission(user, CONFIG_MANAGE)
     return notice_service.expire_due_notices(db, campus_id=user.campus_id)
 
 
@@ -725,6 +758,8 @@ def expire_notices(db: DbSession, user: CurrentUser):
 def time_travel(db: DbSession, user: CurrentUser, minutes: int = Query(ge=1, le=100000)):
     """DEMO TOOL: advance the perceived clock so SLA ageing can be demonstrated
     without waiting hours. Affects this server process only."""
+    if not settings.is_demo_mode:
+        raise NotFoundError("Not found.")
     assert_permission(user, DEMO_RESET)
     from datetime import timedelta
 
@@ -748,6 +783,8 @@ def time_travel(db: DbSession, user: CurrentUser, minutes: int = Query(ge=1, le=
 
 @router.post("/admin/demo/time-reset")
 def time_reset(db: DbSession, user: CurrentUser):
+    if not settings.is_demo_mode:
+        raise NotFoundError("Not found.")
     assert_permission(user, DEMO_RESET)
     from app.services import clock as clock_service
 

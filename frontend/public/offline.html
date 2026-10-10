@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-skin="industrial">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#e9edf7" />
+    <meta name="robots" content="noindex" />
+    <title>Campus Relay — offline</title>
+    <!--
+      The offline fallback.
+
+      Served by the service worker only when a navigation cannot be answered from
+      the precached app shell - a first run with no network, or a precache that
+      has been evicted. It is deliberately standalone: no stylesheet, no module,
+      no font, because the reason it is being shown is that nothing local could
+      be found, so it may not be findable either. The chrome below is the same
+      industrial language as the boot frame in index.html.
+    -->
+    <style>
+      /* Kept in step with the pastel light palette in src/styles/tokens.css:
+         this page is standalone, so its colours cannot come from a variable. */
+      :root {
+        --paper: #e9edf7;
+        --plate: #f4f6fc;
+        --line: #c3cbe0;
+        --ink: #262e4e;
+        --muted: #525d80;
+        --signal: #2f5bd0;
+        --urgent: #cf3535;
+        --shadow: #262e4e;
+      }
+      html[data-theme='dark'] {
+        --paper: #090d14;
+        --plate: #111723;
+        --line: #2e3b52;
+        --ink: #f1f5f9;
+        --muted: #94a3b8;
+        --signal: #3b82f6;
+        --urgent: #ef4444;
+        --shadow: #000000;
+      }
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+      }
+      .wrap {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .plate {
+        position: relative;
+        width: 100%;
+        max-width: 520px;
+        background: var(--plate);
+        border: 2px solid var(--line);
+        box-shadow: 6px 6px 0px var(--shadow);
+        border-radius: 2px;
+        padding: 26px 22px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .corner {
+        position: absolute;
+        font-weight: 900;
+        font-size: 14px;
+        line-height: 1;
+        color: var(--signal);
+      }
+      .tl { top: 6px; left: 8px; }
+      .tr { top: 6px; right: 8px; }
+      .bl { bottom: 6px; left: 8px; }
+      .br { bottom: 6px; right: 8px; }
+      .strip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        border-bottom: 1.5px solid var(--line);
+        padding-bottom: 10px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+      }
+      .beacon {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--urgent);
+        margin-right: 6px;
+        vertical-align: middle;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .emblem {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+        background: var(--signal);
+        border: 2px solid var(--ink);
+        box-shadow: 2px 2px 0px var(--shadow);
+        border-radius: 2px;
+        display: grid;
+        place-items: center;
+        color: #ffffff;
+        font-weight: 900;
+        font-size: 18px;
+      }
+      h1 {
+        font-size: 17px;
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin: 0 0 4px;
+      }
+      .sub {
+        margin: 0;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      p.body {
+        margin: 0;
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+      .facts {
+        display: grid;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--muted);
+        border: 1.5px solid var(--line);
+        border-radius: 2px;
+        padding: 10px 12px;
+      }
+      .facts span strong {
+        color: var(--ink);
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      a.action,
+      button.action {
+        font: inherit;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 11px 16px;
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--ink);
+        border-radius: 2px;
+        box-shadow: 3px 3px 0px var(--shadow);
+        cursor: pointer;
+        text-decoration: none;
+        background: var(--plate);
+        color: var(--ink);
+      }
+      a.action.primary,
+      button.action.primary {
+        background: var(--signal);
+        color: #ffffff;
+      }
+      a.action:active,
+      button.action:active {
+        transform: translate(2px, 2px);
+        box-shadow: 1px 1px 0px var(--shadow);
+      }
+      .fine {
+        margin: 0;
+        font-size: 11px;
+        color: var(--muted);
+        font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      }
+    </style>
+    <script>
+      /* The stored theme, read before first paint, exactly as index.html does. */
+      (function () {
+        try {
+          var stored = localStorage.getItem('campusrelay.theme')
+          var theme = stored === 'dark' ? 'dark' : 'light'
+          document.documentElement.setAttribute('data-theme', theme)
+          document.documentElement.style.colorScheme = theme
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#090d14' : '#e9edf7')
+        } catch (error) {
+          /* private mode: the light paper is the safe default */
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="plate" role="alert">
+        <span class="corner tl">+</span>
+        <span class="corner tr">+</span>
+        <span class="corner bl">+</span>
+        <span class="corner br">+</span>
+
+        <div class="strip">
+          <span><span class="beacon"></span>SYS.NET // NO CARRIER</span>
+          <span style="color: var(--signal)">OFFLINE</span>
+        </div>
+
+        <div class="brand">
+          <div class="emblem">CR</div>
+          <div>
+            <h1>Campus Relay</h1>
+            <p class="sub">Operating Layer for Everyday Operations</p>
+          </div>
+        </div>
+
+        <p class="body">
+          This device has the app, but not the part of it that answers this address yet — the shell for this screen
+          has not been stored locally. Nothing has been lost: anything already submitted is queued on the device
+          and will be sent when the connection returns.
+        </p>
+
+        <div class="facts">
+          <span>Connection: <strong>no network reachable</strong></span>
+          <span>Local work: <strong>kept on this device</strong></span>
+          <span>Next step: <strong>reconnect, then retry</strong></span>
+        </div>
+
+        <div class="actions">
+          <a class="action primary" href="/">Retry</a>
+          <button class="action" type="button" onclick="location.reload()">Reload this screen</button>
+        </div>
+
+        <p class="fine">
+          If this keeps appearing while the network is up, open the app once online: the shell downloads on the
+          first successful load and is served from the device after that.
+        </p>
+      </div>
+    </div>
+  </body>
+</html>

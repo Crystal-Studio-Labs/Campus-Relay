@@ -8,7 +8,7 @@
 # Deploy: push this repository, then in Render choose "New > Blueprint" and
 # point it at the repo. Render reads this file and prompts for the secrets.
 #
-# See docs/DEPLOYMENT.md for the full walkthrough, including the exact
+# See docs/deployment/DEPLOYMENT.md for the full walkthrough, including the exact
 # Supabase connection string shape (?sslmode=require).
 
 services:

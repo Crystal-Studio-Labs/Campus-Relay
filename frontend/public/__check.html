@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+  <head><meta charset="utf-8" /><title>rebuild check</title></head>
+  <body>
+    <pre id="out">starting</pre>
+    <script>
+      const out = document.getElementById('out')
+      const log = (s) => { out.textContent += '\n' + s }
+      const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+      const clean = (s) => (s || '').replace(/\s+/g, ' ').trim()
+
+      // Screens to check per role, with phrases that must be on screen.
+      const PLAN = {
+        student: [
+          ['/timetable', ['My timetable', 'The week', 'Today', 'Periods a week']],
+          ['/attendance', ['My attendance', 'Attendance by subject', 'Recent classes', 'Below 75%']],
+          ['/fees', ['My fees', 'Fee records', 'Payment history', 'Outstanding']],
+        ],
+        teacher: [
+          ['/timetable/teaching', ['Teaching timetable', 'The week', 'Periods a week']],
+          ['/attendance/mark', ['Mark attendance', 'Register']],
+        ],
+        admin: [
+          ['/fees/collection', ['Fee collection', 'Balances', 'Total outstanding']],
+          ['/directory', ['Directory & configuration', 'People with accounts', 'Roll / staff code']],
+        ],
+      }
+
+      const signIn = async (who) => {
+        const res = await fetch('/api/v1/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: `${who}@campusrelay.demo`, password: 'Campus@2026' }),
+        })
+        const session = await res.json()
+        localStorage.setItem('campusrelay.token', session.access_token)
+        localStorage.setItem('campusrelay.user', JSON.stringify(session.profile))
+        return session
+      }
+
+      ;(async () => {
+        try {
+          for (const who of ['student', 'teacher', 'admin']) {
+            localStorage.clear()
+            const session = await signIn(who)
+            const frame = document.createElement('iframe')
+            frame.style.cssText = 'width:1440px;height:1000px;border:0'
+            document.body.appendChild(frame)
+            frame.src = '/'
+            await new Promise((r) => (frame.onload = r))
+            await sleep(2800)
+            const win = frame.contentWindow
+            const doc = frame.contentDocument
+            const navigate = async (path) => {
+              win.history.pushState({}, '', path)
+              win.dispatchEvent(new win.PopStateEvent('popstate'))
+              await sleep(1400)
+            }
+
+            // The sidebar as this role sees it: heading, then its items.
+            const nav = doc.querySelector('nav[data-guide="shell-nav"]')
+            const groups = []
+            if (nav) {
+              let current = null
+              nav.querySelectorAll('.nav-group-label, .nav-link-label').forEach((el) => {
+                const text = clean(el.textContent)
+                if (el.classList.contains('nav-group-label')) {
+                  current = { group: text, items: [] }
+                  groups.push(current)
+                } else if (current) {
+                  current.items.push(text)
+                }
+              })
+            }
+            log(`=== ${who} (${session.profile.role}) — ${groups.length} groups ===`)
+            groups.forEach((g) => log(`  ${g.group}: ${g.items.join(', ')}`))
+
+            for (const [route, expect] of PLAN[who]) {
+              await navigate(route)
+              const body = clean(doc.querySelector('main')?.textContent || doc.body.textContent)
+              const missing = expect.filter((p) => !body.includes(p))
+              const rows = doc.querySelectorAll('main table.data tbody tr').length
+              const gridCells = doc.querySelectorAll('main table.timetable tbody td').length
+              log(
+                `${route} | missing: ${missing.length ? missing.join(' / ') : 'none'} | table rows: ${rows}` +
+                  (route.includes('timetable') ? ` | grid cells: ${gridCells}` : ''),
+              )
+            }
+            frame.remove()
+          }
+          log('DONE')
+        } catch (err) {
+          log('ERROR ' + err)
+        }
+      })()
+    </script>
+  </body>
+</html>

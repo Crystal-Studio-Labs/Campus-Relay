@@ -29,7 +29,26 @@ body,
   min-height: 100%;
   width: 100%;
   max-width: 100vw;
+}
+
+/* Clip wide content horizontally without creating a scroll container.
+
+   `hidden` computes the *other* axis to `auto`, which silently turned `body`
+   and `#root` into scrollers: the page then scrolled inside `body` while the
+   viewport reported no scroll at all, so `position: sticky` on the rail
+   resolved against a box that never moves and the rail drifted up with the
+   document instead of staying welded to the left edge.
+
+   `clip` removes the same pixels from view and creates no scroll box, so the
+   viewport is the scroller again and the rail sticks. The root element's
+   overflow is propagated to the viewport rather than making itself a scroll
+   container, so `html` keeps `hidden`. */
+html {
   overflow-x: hidden;
+}
+body,
+#root {
+  overflow-x: clip;
 }
 
 html {
@@ -76,11 +95,6 @@ textarea {
 
 /* ====================== 2. DOCUMENT + TYPOGRAPHY ======================== */
 
-/* The blueprint grid: the layout's skeleton is visible rather than implied.
-   Engineering paper from the industrial skin - a fine hairline every 28px and
-   a heavier rule every fifth cell. Present on a large monitor, invisible on a
-   phone in sunlight, and never competing with content. The other skins set the
-   grid to zero and get a plain surface. */
 body {
   margin: 0;
   color: var(--ink);
@@ -89,22 +103,20 @@ body {
   line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   background-color: var(--paper);
-  background-image: var(--blueprint-image, none);
-  background-size: var(--blueprint-size, auto);
   /* iOS safe areas for the standalone PWA */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
     env(safe-area-inset-left);
 }
 
-/* Stencilled headings: heavy, tight, squared off. No decorative face loads
-   before first paint, so the shell renders immediately on a slow connection. */
+/* Headings: confident but not shouty. No decorative face loads before first
+   paint, so the shell renders immediately on a slow connection. */
 h1,
 h2,
 h3,
 h4,
 h5 {
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 700;
   line-height: var(--lh-tight);
   letter-spacing: var(--title-tracking);
   text-wrap: balance;
@@ -136,14 +148,14 @@ p {
 
 a {
   color: inherit;
-  font-weight: 700;
+  font-weight: 500;
   text-decoration-thickness: var(--border-w-thin);
   text-underline-offset: 3px;
 }
 
 strong,
 b {
-  font-weight: 800;
+  font-weight: 700;
 }
 
 code,
@@ -161,10 +173,10 @@ hr {
   margin: var(--sp-4) 0;
 }
 
-/* A stencilled label: uppercase, tracked, small, used on plates and headers. */
+/* A label: small and quiet, used on plates and headers. */
 .stencil {
   font-size: var(--fs-xs);
-  font-weight: 800;
+  font-weight: 600;
   text-transform: var(--label-transform);
   letter-spacing: var(--label-tracking);
 }
@@ -184,7 +196,7 @@ hr {
 :focus-visible {
   outline: var(--focus-ring);
   outline-offset: var(--focus-offset);
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 /* Visible only to screen readers. */
@@ -305,8 +317,8 @@ hr {
 }
 .grid-metrics {
   display: grid;
-  gap: var(--sp-3);
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr));
+  gap: var(--sp-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 168px), 1fr));
   align-items: stretch;
 }
 .grid-span-all {
@@ -429,7 +441,7 @@ hr {
   font-size: var(--fs-sm);
 }
 .bold {
-  font-weight: 800;
+  font-weight: 600;
 }
 .nowrap {
   white-space: nowrap;
@@ -473,7 +485,7 @@ body.is-offline .offline-only {
 
 @media print {
   .no-print,
-  .bottom-nav,
+  .nav-scrim,
   .sidebar,
   .topbar,
   .guide-root,

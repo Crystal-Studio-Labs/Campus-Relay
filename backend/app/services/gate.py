@@ -287,7 +287,7 @@ def _close_gate_case(db: Session, *, case: Case, actor: User) -> None:
         campus_id=case.campus_id,
         event_type="GATE_RETURN_VERIFIED",
         actor=actor,
-        actor_role="SECURITY",
+        actor_role="MANAGEMENT",
         to_status=case.status,
         payload={"note": "Gate entry recorded by security"},
     )

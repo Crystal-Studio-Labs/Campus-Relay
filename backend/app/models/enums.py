@@ -9,14 +9,26 @@ from enum import StrEnum
 
 
 class RoleKey(StrEnum):
-    SUPER_ADMIN = "SUPER_ADMIN"
-    ADMIN = "ADMIN"
-    WARDEN = "WARDEN"
-    DEPARTMENT_HEAD = "DEPARTMENT_HEAD"
-    STAFF = "STAFF"
-    SECURITY = "SECURITY"
-    HELPDESK_OPERATOR = "HELPDESK_OPERATOR"
+    """The roles of the college management system.
+
+    Screen access is decided by permissions, data access by scope. Most staff
+    functions (department head, gate security, helpdesk/kiosk operator,
+    maintenance technician) are *permissions* held by one of these roles rather
+    than roles of their own.
+
+    MANAGEMENT is one role, not two. Running the college day to day (hostel and
+    mess, fees and receipts, certificates and other documents, clearance,
+    library, leave, the gate and announcements) and running the deployment
+    (accounts, institution configuration, the service catalogue, data
+    import/export, payroll, demo reset) are the same job at a campus - the
+    registrar and the warden sit in the same office - so they are the same
+    credential. What separates a hostel warden's view from the registrar's is the
+    *scope* the server resolves for the person, never a second role.
+    """
+
     STUDENT = "STUDENT"
+    TEACHER = "TEACHER"
+    MANAGEMENT = "MANAGEMENT"
 
 
 class CaseStatus(StrEnum):
@@ -82,6 +94,130 @@ class ServiceCategory(StrEnum):
     MESS = "MESS"
     SECURITY = "SECURITY"
     OTHER = "OTHER"
+
+
+class AttendanceStatus(StrEnum):
+    """How a student was marked for one subject on one day."""
+
+    PRESENT = "PRESENT"
+    ABSENT = "ABSENT"
+    LATE = "LATE"
+    EXCUSED = "EXCUSED"
+
+
+# --- Campus services: clearance, library, leave, feedback, activities -----
+
+
+class ClearanceState(StrEnum):
+    """Lifecycle of a no-dues / clearance request."""
+
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+
+
+class ClearanceKind(StrEnum):
+    NO_DUES = "NO_DUES"
+    TRANSFER = "TRANSFER"
+    GRADUATION = "GRADUATION"
+    HOSTEL_VACATE = "HOSTEL_VACATE"
+    MIGRATION = "MIGRATION"
+    OTHER = "OTHER"
+
+
+class LeaveState(StrEnum):
+    """Shared by student leave and staff leave."""
+
+    PENDING = "PENDING"
+    APPROVED = "APPROVED"
+    REJECTED = "REJECTED"
+    CANCELLED = "CANCELLED"
+
+
+class LeaveKind(StrEnum):
+    CASUAL = "CASUAL"
+    SICK = "SICK"
+    EARNED = "EARNED"
+    MEDICAL = "MEDICAL"
+    DUTY = "DUTY"
+    OTHER = "OTHER"
+
+
+class BookLoanState(StrEnum):
+    ISSUED = "ISSUED"
+    RETURNED = "RETURNED"
+    LOST = "LOST"
+
+
+class FeedbackKind(StrEnum):
+    ACADEMIC = "ACADEMIC"
+    FACULTY = "FACULTY"
+    FACILITY = "FACILITY"
+    MESS = "MESS"
+    HOSTEL = "HOSTEL"
+    ADMINISTRATION = "ADMINISTRATION"
+    OTHER = "OTHER"
+
+
+class FeedbackState(StrEnum):
+    OPEN = "OPEN"
+    ACKNOWLEDGED = "ACKNOWLEDGED"
+    RESOLVED = "RESOLVED"
+
+
+class FeedbackRequestState(StrEnum):
+    """A request for feedback stays answerable until the office closes it."""
+
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+
+
+class ActivityKind(StrEnum):
+    CLUB = "CLUB"
+    SPORT = "SPORT"
+    CULTURAL = "CULTURAL"
+    TECHNICAL = "TECHNICAL"
+    COMMUNITY = "COMMUNITY"
+
+
+class ActivityState(StrEnum):
+    DRAFT = "DRAFT"
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+    CANCELLED = "CANCELLED"
+
+
+class ParticipationState(StrEnum):
+    REGISTERED = "REGISTERED"
+    WAITLISTED = "WAITLISTED"
+    CANCELLED = "CANCELLED"
+    ATTENDED = "ATTENDED"
+
+
+class JobKind(StrEnum):
+    FULL_TIME = "FULL_TIME"
+    INTERNSHIP = "INTERNSHIP"
+    PART_TIME = "PART_TIME"
+
+
+class JobState(StrEnum):
+    DRAFT = "DRAFT"
+    OPEN = "OPEN"
+    CLOSED = "CLOSED"
+
+
+class ApplicationState(StrEnum):
+    APPLIED = "APPLIED"
+    SHORTLISTED = "SHORTLISTED"
+    INTERVIEW = "INTERVIEW"
+    SELECTED = "SELECTED"
+    REJECTED = "REJECTED"
+    WITHDRAWN = "WITHDRAWN"
+
+
+class PayslipState(StrEnum):
+    DRAFT = "DRAFT"
+    PAID = "PAID"
 
 
 class WorkflowStepType(StrEnum):

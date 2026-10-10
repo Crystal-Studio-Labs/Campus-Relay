@@ -446,7 +446,7 @@ TOOLS: dict[str, Tool] = {
     ),
     "operations_summary": Tool(
         name="operations_summary",
-        description="Operational snapshot: backlog, SLA risk, ageing, workload, recurring issues.",
+        description="Operational snapshot: backlog, deadlines at risk, work age, workload, recurring issues.",
         permissions=(ANALYTICS_READ,),
         handler=tool_operations_summary,
         parameters={"type": "object", "properties": {}},

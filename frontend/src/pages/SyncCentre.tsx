@@ -42,6 +42,7 @@ export function SyncCentrePage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="Offline"
         title="Offline & sync"
         subtitle="The device queue, the server's own record, and where they disagree"
         actions={<Badge tone={sync.online ? 'done' : 'warn'}>{sync.online ? 'Online' : 'Offline'}</Badge>}

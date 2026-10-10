@@ -419,7 +419,7 @@ def publish_notice(
             event_type=AuditEventType.NOTICE_PUBLISHED.value,
             campus_id=notice.campus_id,
             actor=actor,
-            actor_role=(actor.role_key if actor else RoleKey.ADMIN.value),
+            actor_role=(actor.role_key if actor else RoleKey.MANAGEMENT.value),
             entity_type="NOTICE",
             entity_id=notice.id,
             payload={

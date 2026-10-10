@@ -23,7 +23,7 @@
 | File | Description & Contents | Target Audience |
 | :--- | :--- | :--- |
 | [`Problem_Statement_7.pdf`](./Problem_Statement_7.pdf) | Official problem statement brief for **Problem Statement 07 (Fretbox)** issued for BPUT Hackathon 2026. | Jury & Review Committee |
-| [`ppt.txt`](./ppt.txt) | 10-slide master pitch deck generation prompt calibrated for **Gamma AI**, formatted with industrial brutalism visual language, slide content, speaker notes, and verified system facts. | Pitch Team |
+| [`ppt.txt`](./ppt.txt) | 8-slide / 10-minute master pitch deck prompt (Bento Enterprise Light visual language) with per-slide speaker notes, a 4-speaker + 2-technical Q&A run sheet, simple-language rules, and checked system facts. | Pitch Team |
 | [`prompt.txt`](./prompt.txt) | Master architectural specification and build prompt defining the engineering requirements, data models, workflows, offline persistence, and role matrix for Campus Relay. | Core Engineers |
 
 ---

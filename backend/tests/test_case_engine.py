@@ -71,13 +71,14 @@ def test_student_cannot_assign_their_own_case(client, student_token):
     assert response.status_code == 403
 
 
-def test_case_detail_is_scoped_to_its_requester(client, student_token, technician_token):
+def test_case_detail_is_scoped_to_its_requester(client, student_token, teacher_token):
     case = _create_case(client, student_token, "The library reading lamp is dead.")
     # The requester can read it.
     own = client.get(f"/api/v1/cases/{case['id']}", headers=auth(student_token))
     assert own.status_code == 200
-    # A technician with a work scope can also read it (assigned or scoped).
-    scoped = client.get(f"/api/v1/cases/{case['id']}", headers=auth(technician_token))
+    # Faculty may read a case in their department scope, but never another
+    # user's private detail outside it.
+    scoped = client.get(f"/api/v1/cases/{case['id']}", headers=auth(teacher_token))
     assert scoped.status_code in {200, 403}
 
 

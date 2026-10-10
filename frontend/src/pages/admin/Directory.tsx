@@ -1,35 +1,86 @@
-/** Directory & configuration.
+/** People & administration: the directory and the configuration it runs on.
  *
- *  The reference data the rest of the product runs on: people, departments,
- *  hostels and rooms, locations and assets, services, workflows, policies and
- *  service targets. Everything here is real data the engines read.
+ *  Three offices in one screen, because they are read together:
+ *
+ *    People            - who is on campus, what they are, whether they are active
+ *    Places & assets   - departments, hostels, and the reference data those hang off
+ *    Rules & targets   - the services, deadlines, rules and approval steps
+ *
+ *  The previous shape of this page was three tabs of loose cards: a people table
+ *  with no totals and no empty state, an inventory of raw count keys, rules with
+ *  their conditions dumped as JSON, and approval steps printed as one line of
+ *  arrows. Each of those was a list pretending to be a table. Here every section
+ *  is a table or a set of tiles, the search covers roll numbers (how a college
+ *  actually looks a student up), and a search that matches nobody says so
+ *  instead of showing an empty page.
  */
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ApiError, api, qs } from '../../lib/api'
 import { dateTime, duration, relative } from '../../lib/format'
 import { useRemote } from '../../state/hooks'
 import { useSession } from '../../state/session'
 import {
   Badge,
+  Bento,
+  BentoItem,
   Button,
-  Card,
   EmptyState,
+  ErrorState,
   Field,
   KV,
   LoadingState,
-  Metric,
   Modal,
   PageHeader,
   Pagination,
-  SectionTitle,
+  Panel,
   Select,
+  StatTile,
   Tabs,
   TextInput,
   Toolbar,
 } from '../../components/ui'
 
 type Tab = 'people' | 'places' | 'config'
+
+interface DirectoryUser {
+  id: number
+  full_name: string
+  email: string
+  role: string
+  is_active: boolean
+  phone: string | null
+  roll_number: string | null
+  hostel: string | null
+  designation: string | null
+  department: string | null
+  employee_code: string | null
+}
+
+/** A file name for each count the summary endpoint reports, so the inventory
+ *  reads as English rather than as snake_case keys. */
+const COUNT_LABELS: Record<string, string> = {
+  users: 'People with accounts',
+  students: 'Students',
+  staff: 'Staff members',
+  departments: 'Departments',
+  hostels: 'Hostels',
+  rooms: 'Rooms',
+  locations: 'QR locations',
+  assets: 'Tracked assets',
+  services: 'Services',
+  workflows: 'Approval steps',
+  policies: 'Rules',
+  sla_rules: 'Deadline rules',
+  cases: 'Requests logged',
+  documents: 'Documents issued',
+}
+
+const ROLE_WORD: Record<string, string> = {
+  STUDENT: 'Student',
+  TEACHER: 'Teacher',
+  MANAGEMENT: 'Management',
+}
 
 export function DirectoryPage() {
   const { can } = useSession()
@@ -62,18 +113,34 @@ export function DirectoryPage() {
     offset: (page - 1) * pageSize,
   })
 
-  const users = useRemote<{ total: number; users: any[] }>(
+  const users = useRemote<{ total: number; users: DirectoryUser[] }>(
     tab === 'people' && can('user:manage') ? `admin-users${usersQuery}` : null,
-    () => api.get<{ total: number; users: any[] }>(`/admin/users${usersQuery}`),
+    () => api.get<{ total: number; users: DirectoryUser[] }>(`/admin/users${usersQuery}`),
   )
 
-  const config = useRemote<any>(tab === 'config' ? 'config-summary' : null, () => api.get('/admin/config/summary'))
+  // Loaded for the whole page, not just the "Rules & targets" tab: the role
+  // filter on People and the reference data on Places & assets both read it, so
+  // gating it on one tab left those two showing an empty dropdown and a card
+  // stuck on "Loading…".
+  const config = useRemote<any>('config-summary', () => api.get('/admin/config/summary'))
   const departments = useRemote<any>('directory-departments', () => api.get('/admin/departments'))
   const hostels = useRemote<any>('directory-hostels', () => api.get('/admin/hostels'))
   const services = useRemote<any>('admin-services', () => api.get('/admin/services'))
-  const slaRules = useRemote<any>('sla-rules', () => api.get('/sla-rules'))
-  const policies = useRemote<any>('policies', () => api.get('/policies'))
-  const workflows = useRemote<any>('workflows', () => api.get('/workflows'))
+  const deadlineRules = useRemote<any>('sla-rules', () => api.get('/sla-rules'))
+  const rules = useRemote<any>('policies', () => api.get('/policies'))
+  const approvalSteps = useRemote<any>('workflows', () => api.get('/workflows'))
+
+  const counts: Record<string, number> = config.data?.counts ?? {}
+
+  // Services are referenced by key in deadline rules, so resolve key -> name
+  // once for the whole page rather than in each row.
+  const serviceNames = useMemo(() => {
+    const map = new Map<string, string>()
+    ;(services.data?.services ?? []).forEach((row: any) => map.set(row.key, row.name))
+    return map
+  }, [services.data])
+
+  const serviceLabel = (key: string | null | undefined) => (key ? serviceNames.get(key) ?? key : 'Any service')
 
   const createUser = async () => {
     setBusy(true)
@@ -100,12 +167,30 @@ export function DirectoryPage() {
     }
   }
 
+  const toggleActive = async (entry: DirectoryUser) => {
+    setBusy(true)
+    setError(null)
+    try {
+      await api.patch(`/admin/users/${entry.id}`, { is_active: !entry.is_active })
+      setMessage(`${entry.full_name} is now ${entry.is_active ? 'disabled' : 'active'}.`)
+      void users.refresh()
+    } catch (requestError) {
+      setError(requestError instanceof ApiError ? requestError.message : 'Update failed.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const people = users.data?.users ?? []
+  const peopleTotal = users.data?.total ?? people.length
+  const filtered = Boolean(roleFilter) || Boolean(search.trim())
+
   return (
     <div className="stack-lg">
       <PageHeader
-        kicker="People"
+        kicker="People & Administration"
         title="Directory & configuration"
-        subtitle="The people, places and rules the engines actually read"
+        subtitle="The people on campus, the places they work and live in, and the rules the campus runs on."
       />
 
       {message ? <div className="banner banner-info" role="status">{message}</div> : null}
@@ -121,110 +206,179 @@ export function DirectoryPage() {
         onChange={setTab}
       />
 
+      {/* ============================== PEOPLE ============================== */}
       {tab === 'people' ? (
-        <>
-          {!can('user:manage') ? (
-            <EmptyState title="You do not manage users" detail="This section needs the user:manage permission." />
-          ) : (
-            <>
-              <Toolbar
-                actions={
-                  <Button variant="primary" onClick={() => setNewUserOpen(true)}>
-                    ＋ Add a user
-                  </Button>
+        !can('user:manage') ? (
+          <EmptyState
+            title="You do not manage people"
+            detail="This office needs the user:manage permission. Ask a management account to grant it."
+          />
+        ) : (
+          <>
+            <Bento>
+              <BentoItem span={3}>
+                <StatTile
+                  label="People with accounts"
+                  value={counts.users ?? 0}
+                  hint="Can sign in to this campus"
+                  icon="people"
+                  tone="open"
+                />
+              </BentoItem>
+              <BentoItem span={3}>
+                <StatTile label="Students" value={counts.students ?? 0} hint="On the rolls" icon="book" tone="ghost" />
+              </BentoItem>
+              <BentoItem span={3}>
+                <StatTile
+                  label="Staff members"
+                  value={counts.staff ?? 0}
+                  hint="Teaching and non-teaching"
+                  icon="employment"
+                  tone="done"
+                />
+              </BentoItem>
+              <BentoItem span={3}>
+                <StatTile
+                  label="Departments"
+                  value={counts.departments ?? 0}
+                  hint="Work is routed to these"
+                  icon="dashboard"
+                  tone="ghost"
+                />
+              </BentoItem>
+            </Bento>
+
+            <Toolbar
+              actions={
+                <Button variant="primary" onClick={() => setNewUserOpen(true)}>
+                  Add a person
+                </Button>
+              }
+            >
+              <div className="toolbar-field">
+                <label className="sr-only" htmlFor="u-search">
+                  Search by name, email or roll number
+                </label>
+                <TextInput
+                  id="u-search"
+                  value={search}
+                  onChange={(val) => {
+                    setSearch(val)
+                    setPage(1)
+                  }}
+                  placeholder="Search name, email or roll number"
+                />
+              </div>
+              <div className="toolbar-field">
+                <label className="sr-only" htmlFor="u-role">
+                  Filter by role
+                </label>
+                <Select
+                  id="u-role"
+                  value={roleFilter}
+                  onChange={(val) => {
+                    setRoleFilter(val)
+                    setPage(1)
+                  }}
+                  options={[
+                    { value: '', label: 'All roles' },
+                    ...(config.data?.reference_data?.roles ?? []).map((role: any) => ({
+                      value: role.key,
+                      label: ROLE_WORD[role.key] ?? role.name,
+                    })),
+                  ]}
+                />
+              </div>
+            </Toolbar>
+
+            {users.loading && !users.data ? <LoadingState label="Loading people" /> : null}
+            {users.error && !users.data ? (
+              <ErrorState message={users.error} onRetry={() => void users.refresh()} />
+            ) : null}
+
+            {users.data ? (
+              <div className="results-head">
+                <span>
+                  <span className="results-count">{peopleTotal}</span> {peopleTotal === 1 ? 'person' : 'people'}
+                  {roleFilter ? ` · ${ROLE_WORD[roleFilter] ?? roleFilter.toLowerCase()} only` : ''}
+                  {search.trim() ? ` · matching “${search.trim()}”` : ''}
+                </span>
+              </div>
+            ) : null}
+
+            {users.data && people.length === 0 ? (
+              <EmptyState
+                title={filtered ? 'Nobody matches that search' : 'No accounts on this campus yet'}
+                detail={
+                  filtered
+                    ? 'The search covers names, email addresses and roll numbers. Clear it to see the whole directory.'
+                    : 'Add the first account, or import a roster from a CSV, and the directory fills itself.'
                 }
-              >
-                <div className="toolbar-field">
-                  <label className="sr-only" htmlFor="u-search">
-                    Search people
-                  </label>
-                  <TextInput
-                    id="u-search"
-                    value={search}
-                    onChange={(val) => {
-                      setSearch(val)
-                      setPage(1)
-                    }}
-                    placeholder="Search name or email"
-                  />
-                </div>
-                <div className="toolbar-field">
-                  <label className="sr-only" htmlFor="u-role">
-                    Filter by role
-                  </label>
-                  <Select
-                    id="u-role"
-                    value={roleFilter}
-                    onChange={(val) => {
-                      setRoleFilter(val)
-                      setPage(1)
-                    }}
-                    options={[
-                      { value: '', label: 'All roles' },
-                      ...(config.data?.reference_data?.roles ?? []).map((role: any) => ({
-                        value: role.key,
-                        label: role.name,
-                      })),
-                    ]}
-                  />
-                </div>
-              </Toolbar>
+                action={
+                  filtered ? (
+                    <Button
+                      onClick={() => {
+                        setSearch('')
+                        setRoleFilter('')
+                        setPage(1)
+                      }}
+                    >
+                      Clear the search
+                    </Button>
+                  ) : (
+                    <Button variant="primary" onClick={() => setNewUserOpen(true)}>
+                      Add a person
+                    </Button>
+                  )
+                }
+              />
+            ) : null}
 
-              {users.loading && !users.data ? <LoadingState label="Loading people" /> : null}
-
-              {users.data?.users?.length ? (
-                <div className="results-head">
-                  <span>
-                    <span className="results-count">{users.data.total ?? users.data.users.length}</span> people found
-                    {roleFilter ? ' · filtered by role' : ''}
-                    {search.trim() ? ` · matching “${search.trim()}”` : ''}
-                  </span>
-                </div>
-              ) : null}
-
-              {users.data?.users?.length ? (
+            {people.length > 0 ? (
+              <Panel title="Directory" subtitle="Sorted by name. Disabling an account ends its access at once." flush>
                 <div className="table-wrap become-cards">
                   <table className="data">
                     <thead>
                       <tr>
-                        <th>Name</th>
-                        <th>Email</th>
+                        <th>Person</th>
+                        <th>Roll / staff code</th>
                         <th>Role</th>
+                        <th>Belongs to</th>
+                        <th>Contact</th>
                         <th>Status</th>
                         <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {users.data.users.map((entry: any) => (
+                      {people.map((entry) => (
                         <tr key={entry.id}>
-                          <td data-label="Name">{entry.full_name}</td>
-                          <td data-label="Email">
-                            <span className="mono tiny">{entry.email}</span>
+                          <td data-label="Person">
+                            <span className="bold">{entry.full_name}</span>
+                            <div className="mono tiny muted">{entry.email}</div>
+                          </td>
+                          <td data-label="Roll / staff code">
+                            <span className="mono">{entry.roll_number ?? entry.employee_code ?? '—'}</span>
                           </td>
                           <td data-label="Role">
-                            <Badge tone="ghost">{entry.role.replaceAll('_', ' ').toLowerCase()}</Badge>
+                            <Badge tone={entry.role === 'MANAGEMENT' ? 'agent' : entry.role === 'TEACHER' ? 'open' : 'ghost'}>
+                              {ROLE_WORD[entry.role] ?? entry.role.replaceAll('_', ' ').toLowerCase()}
+                            </Badge>
+                          </td>
+                          <td data-label="Belongs to">
+                            {entry.department ?? entry.hostel ?? '—'}
+                            {entry.designation ? <div className="tiny muted">{entry.designation}</div> : null}
+                            {entry.hostel && entry.department ? (
+                              <div className="tiny muted">Resident: {entry.hostel}</div>
+                            ) : null}
+                          </td>
+                          <td data-label="Contact">
+                            <span className="mono tiny">{entry.phone ?? '—'}</span>
                           </td>
                           <td data-label="Status">
                             {entry.is_active ? <Badge tone="done">active</Badge> : <Badge tone="dead">disabled</Badge>}
                           </td>
                           <td data-label="Actions">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              busy={busy}
-                              onClick={async () => {
-                                setBusy(true)
-                                try {
-                                  await api.patch(`/admin/users/${entry.id}`, { is_active: !entry.is_active })
-                                  setMessage(`${entry.full_name} is now ${entry.is_active ? 'disabled' : 'active'}.`)
-                                  void users.refresh()
-                                } catch (requestError) {
-                                  setError(requestError instanceof ApiError ? requestError.message : 'Update failed.')
-                                } finally {
-                                  setBusy(false)
-                                }
-                              }}
-                            >
+                            <Button size="sm" variant="ghost" busy={busy} onClick={() => void toggleActive(entry)}>
                               {entry.is_active ? 'Disable' : 'Enable'}
                             </Button>
                           </td>
@@ -233,195 +387,387 @@ export function DirectoryPage() {
                     </tbody>
                   </table>
                 </div>
-              ) : null}
+              </Panel>
+            ) : null}
 
-              {users.data && (users.data.total ?? users.data.users.length) > 0 ? (
-                <Pagination
-                  page={page}
-                  pageSize={pageSize}
-                  total={users.data.total ?? users.data.users.length}
-                  onChangePage={setPage}
-                  onChangePageSize={setPageSize}
-                  pageSizeOptions={[10, 25, 50, 100]}
-                />
-              ) : null}
-            </>
-          )}
-        </>
+            {peopleTotal > 0 ? (
+              <Pagination
+                page={page}
+                pageSize={pageSize}
+                total={peopleTotal}
+                onChangePage={setPage}
+                onChangePageSize={setPageSize}
+                pageSizeOptions={[10, 25, 50, 100]}
+              />
+            ) : null}
+          </>
+        )
       ) : null}
 
+      {/* ========================== PLACES & ASSETS ========================== */}
       {tab === 'places' ? (
         <>
-          <Card>
-            <SectionTitle>Departments</SectionTitle>
+          <Bento>
+            <BentoItem span={3}>
+              <StatTile label="Departments" value={counts.departments ?? 0} hint="Named work owners" icon="dashboard" tone="ghost" />
+            </BentoItem>
+            <BentoItem span={3}>
+              <StatTile label="Hostels" value={counts.hostels ?? 0} hint={`${counts.rooms ?? 0} rooms`} icon="home" tone="ghost" />
+            </BentoItem>
+            <BentoItem span={3}>
+              <StatTile
+                label="QR locations"
+                value={counts.locations ?? 0}
+                hint="Scanned to raise a request"
+                icon="setup"
+                tone="open"
+              />
+            </BentoItem>
+            <BentoItem span={3}>
+              <StatTile label="Tracked assets" value={counts.assets ?? 0} hint="Attached to locations" icon="list" tone="ghost" />
+            </BentoItem>
+          </Bento>
+
+          <Panel
+            title="Departments"
+            subtitle="Every request is routed to one of these, scored by its time multiplier."
+            flush
+          >
             <div className="table-wrap become-cards">
               <table className="data">
                 <thead>
                   <tr>
-                    <th>Name</th>
+                    <th>Department</th>
                     <th>Code</th>
                     <th>Kind</th>
-                    <th>SLA multiplier</th>
+                    <th>Time multiplier</th>
                     <th>Staff</th>
-                    <th>Open cases</th>
+                    <th>Open requests</th>
                   </tr>
                 </thead>
                 <tbody>
                   {(departments.data?.departments ?? []).map((row: any) => (
                     <tr key={row.id}>
-                      <td data-label="Name">{row.name}</td>
+                      <td data-label="Department">
+                        <span className="bold">{row.name}</span>
+                      </td>
                       <td data-label="Code">
                         <span className="mono">{row.code}</span>
                       </td>
                       <td data-label="Kind">{row.kind}</td>
-                      <td data-label="SLA multiplier">×{row.sla_multiplier}</td>
+                      <td data-label="Time multiplier">
+                        ×{row.sla_multiplier}
+                        <span className="tiny muted"> {row.sla_multiplier > 1 ? '(slower than normal)' : '(normal)'}</span>
+                      </td>
                       <td data-label="Staff">{row.staff_count}</td>
-                      <td data-label="Open cases">{row.open_cases}</td>
+                      <td data-label="Open requests">
+                        {row.open_cases > 0 ? <Badge tone="warn">{row.open_cases}</Badge> : <span className="muted">0</span>}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </Card>
+          </Panel>
 
-          <Card>
-            <SectionTitle>Hostels</SectionTitle>
-            <ul className="list-reset stack" style={{ gap: 8 }}>
-              {(hostels.data?.hostels ?? []).map((hostel: any) => (
-                <li key={hostel.id} className="row-between">
-                  <div>
-                    <div className="bold">
-                      {hostel.name} <span className="mono tiny">{hostel.code}</span>
-                    </div>
-                    <div className="tiny muted">
-                      {hostel.gender ?? 'mixed'} · {hostel.hostellers} hostellers ·{' '}
-                      {hostel.blocks?.map((block: any) => block.name).join(', ') || 'no blocks'}
-                    </div>
-                  </div>
-                  <Badge tone={hostel.open_cases > 3 ? 'warn' : 'ghost'}>{hostel.open_cases} open</Badge>
-                </li>
-              ))}
-            </ul>
-          </Card>
+          <Panel title="Hostels" subtitle="Occupancy and the work outstanding in each." flush>
+            <div className="table-wrap become-cards">
+              <table className="data">
+                <thead>
+                  <tr>
+                    <th>Hostel</th>
+                    <th>Code</th>
+                    <th>Residents</th>
+                    <th>Blocks</th>
+                    <th>Open requests</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(hostels.data?.hostels ?? []).map((hostel: any) => (
+                    <tr key={hostel.id}>
+                      <td data-label="Hostel">
+                        <span className="bold">{hostel.name}</span>
+                        <div className="tiny muted">{hostel.gender ?? 'mixed'}</div>
+                      </td>
+                      <td data-label="Code">
+                        <span className="mono">{hostel.code}</span>
+                      </td>
+                      <td data-label="Residents">{hostel.hostellers}</td>
+                      <td data-label="Blocks">
+                        {hostel.blocks?.length
+                          ? hostel.blocks.map((block: any) => block.name).join(', ')
+                          : 'No blocks defined'}
+                      </td>
+                      <td data-label="Open requests">
+                        {hostel.open_cases > 0 ? (
+                          <Badge tone={hostel.open_cases > 3 ? 'urgent' : 'warn'}>{hostel.open_cases}</Badge>
+                        ) : (
+                          <span className="muted">0</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
 
-          <Card>
-            <SectionTitle>Reference data</SectionTitle>
+          <Panel title="Academic reference data" subtitle="The branches, years and batches everything else hangs off.">
             {config.data ? (
               <KV
                 items={[
-                  { label: 'Branches', value: (config.data.reference_data?.branches ?? []).map((item: any) => item.code).join(', ') },
-                  { label: 'Years', value: (config.data.reference_data?.years ?? []).map((item: any) => item.name).join(', ') },
-                  { label: 'Batches', value: (config.data.reference_data?.batches ?? []).map((item: any) => item.name).join(', ') },
+                  {
+                    label: 'Branches',
+                    value: (config.data.reference_data?.branches ?? []).map((item: any) => item.code).join(', ') || '—',
+                  },
+                  {
+                    label: 'Years',
+                    value: (config.data.reference_data?.years ?? []).map((item: any) => item.name).join(', ') || '—',
+                  },
+                  {
+                    label: 'Batches',
+                    value: (config.data.reference_data?.batches ?? []).map((item: any) => item.name).join(', ') || '—',
+                  },
                 ]}
               />
             ) : (
-              <p className="muted small">Loading…</p>
+              <LoadingState label="Loading reference data" />
             )}
-          </Card>
+          </Panel>
         </>
       ) : null}
 
+      {/* ========================== RULES & TARGETS ========================== */}
       {tab === 'config' ? (
         <>
-          <Card>
-            <SectionTitle>Inventory of configured records</SectionTitle>
-            {config.data?.counts ? (
-              <div className="grid-metrics">
-                {Object.entries(config.data.counts).map(([key, value]) => (
-                  <Metric key={key} label={key.replaceAll('_', ' ')} value={String(value)} />
-                ))}
+          <Bento>
+            <BentoItem span={3}>
+              <StatTile label="Services" value={counts.services ?? 0} hint="What can be requested" icon="cases" tone="open" />
+            </BentoItem>
+            <BentoItem span={3}>
+              <StatTile
+                label="Deadline rules"
+                value={counts.sla_rules ?? 0}
+                hint="Targets per service and urgency"
+                icon="clock"
+                tone="warn"
+              />
+            </BentoItem>
+            <BentoItem span={3}>
+              <StatTile label="Rules" value={counts.policies ?? 0} hint="Eligibility and limits" icon="gate" tone="ghost" />
+            </BentoItem>
+            <BentoItem span={3}>
+              <StatTile
+                label="Approval steps"
+                value={counts.workflows ?? 0}
+                hint="The route a request takes"
+                icon="approvals"
+                tone="ghost"
+              />
+            </BentoItem>
+          </Bento>
+
+          <Panel
+            title="Deadline rules"
+            subtitle="How long each kind of request is given, and who takes it over when it runs late."
+            flush
+          >
+            {(deadlineRules.data?.rules ?? []).length === 0 ? (
+              <div style={{ padding: 'var(--sp-4)' }}>
+                <p className="muted small">No deadline rules configured.</p>
               </div>
             ) : (
-              <p className="muted small">Loading…</p>
+              <div className="table-wrap become-cards">
+                <table className="data">
+                  <thead>
+                    <tr>
+                      <th>Service</th>
+                      <th>Urgency</th>
+                      <th>Target</th>
+                      <th>Flagged at</th>
+                      <th>Who takes over</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(deadlineRules.data?.rules ?? []).map((row: any, index: number) => (
+                      <tr key={`${row.service_key ?? 'all'}-${row.priority}-${index}`}>
+                        <td data-label="Service">{serviceLabel(row.service_key)}</td>
+                        <td data-label="Urgency">
+                          <Badge tone={row.priority === 'URGENT' || row.priority === 'CRITICAL' ? 'urgent' : 'ghost'}>
+                            {String(row.priority).toLowerCase()}
+                          </Badge>
+                        </td>
+                        <td data-label="Target">{duration(row.target_minutes)}</td>
+                        <td data-label="Flagged at">
+                          {Math.round(row.at_risk_ratio * 100)}% of the target used
+                        </td>
+                        <td data-label="Who takes over">
+                          {row.escalate_to_role
+                            ? String(row.escalate_to_role).replaceAll('_', ' ').toLowerCase()
+                            : 'No hand-over'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
-          </Card>
+          </Panel>
 
-          <Card>
-            <SectionTitle right={<Badge tone="ghost">service targets</Badge>}>SLA rules</SectionTitle>
+          <Panel
+            title="Rules"
+            subtitle="Checked before a request is routed. Conditions are collapsed until you ask for them."
+            flush
+          >
+            {(rules.data?.policies ?? []).length === 0 ? (
+              <div style={{ padding: 'var(--sp-4)' }}>
+                <p className="muted small">No rules configured.</p>
+              </div>
+            ) : (
+              <div className="table-wrap become-cards">
+                <table className="data">
+                  <thead>
+                    <tr>
+                      <th>Rule</th>
+                      <th>Effect</th>
+                      <th>Applies to</th>
+                      <th>What it does</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(rules.data?.policies ?? []).map((row: any) => (
+                      <tr key={row.key}>
+                        <td data-label="Rule">
+                          <span className="bold">{row.name}</span>
+                          <div className="mono tiny muted">{row.key}</div>
+                        </td>
+                        <td data-label="Effect">
+                          <Badge tone={row.effect === 'ALLOW' ? 'done' : row.effect === 'DENY' ? 'urgent' : 'warn'}>
+                            {String(row.effect).toLowerCase()}
+                          </Badge>
+                        </td>
+                        <td data-label="Applies to">{serviceLabel(row.service_key)}</td>
+                        <td data-label="What it does">
+                          {row.message}
+                          {row.conditions && Object.keys(row.conditions).length ? (
+                            <details style={{ marginTop: 6 }}>
+                              <summary className="tiny muted" style={{ cursor: 'pointer' }}>
+                                Conditions ({Object.keys(row.conditions).length})
+                              </summary>
+                              <pre className="mono tiny" style={{ whiteSpace: 'pre-wrap', marginTop: 4 }}>
+                                {JSON.stringify(row.conditions, null, 1)}
+                              </pre>
+                            </details>
+                          ) : null}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Panel>
+
+          <Panel
+            title="Approval steps"
+            subtitle="The route a request takes, in order, for each service that needs one."
+          >
+            {(approvalSteps.data?.workflows ?? []).length === 0 ? (
+              <p className="muted small">No approval routes configured.</p>
+            ) : (
+              <ul className="list-reset stack" style={{ gap: 'var(--sp-4)' }}>
+                {(approvalSteps.data?.workflows ?? []).map((row: any) => (
+                  <li key={row.key ?? row.name}>
+                    <div className="row-between wrap" style={{ gap: 'var(--sp-2)' }}>
+                      <span className="bold">{row.name}</span>
+                      <span className="tiny muted">
+                        {(row.steps ?? []).length} step{(row.steps ?? []).length === 1 ? '' : 's'}
+                        {row.service_key ? ` · ${serviceLabel(row.service_key)}` : ''}
+                      </span>
+                    </div>
+                    <div className="row wrap" style={{ gap: 6, marginTop: 8 }}>
+                      {(row.steps ?? []).map((step: any, index: number) => (
+                        <span key={step.key ?? index} className="row" style={{ gap: 6, alignItems: 'center' }}>
+                          <Badge tone="ghost">
+                            {index + 1}. {step.name ?? String(step.key).replaceAll('_', ' ').toLowerCase()}
+                          </Badge>
+                          {index < (row.steps ?? []).length - 1 ? (
+                            <span className="muted tiny" aria-hidden="true">
+                              →
+                            </span>
+                          ) : null}
+                        </span>
+                      ))}
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+
+          <Panel title="Services" subtitle="What the campus accepts requests for, and who may raise each one." flush>
             <div className="table-wrap become-cards">
               <table className="data">
                 <thead>
                   <tr>
                     <th>Service</th>
-                    <th>Urgency</th>
-                    <th>Target</th>
-                    <th>At-risk at</th>
-                    <th>Escalates to</th>
+                    <th>Category</th>
+                    <th>Default target</th>
+                    <th>Who may raise it</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {(slaRules.data?.rules ?? []).map((row: any, index: number) => (
-                    <tr key={index}>
-                      <td data-label="Service">{row.service_key ?? 'all services'}</td>
-                      <td data-label="Urgency">{row.priority}</td>
-                      <td data-label="Target">{duration(row.target_minutes)}</td>
-                      <td data-label="At-risk at">{Math.round(row.at_risk_ratio * 100)}%</td>
-                      <td data-label="Escalates to">{row.escalate_to_role?.replaceAll('_', ' ').toLowerCase()}</td>
+                  {(services.data?.services ?? []).map((row: any) => (
+                    <tr key={row.key}>
+                      <td data-label="Service">
+                        <span className="bold">
+                          {row.icon} {row.name}
+                        </span>
+                        <div className="mono tiny muted">{row.key}</div>
+                      </td>
+                      <td data-label="Category">{row.category}</td>
+                      <td data-label="Default target">{duration(row.default_sla_minutes)}</td>
+                      <td data-label="Who may raise it">
+                        {row.allowed_requester_roles?.length
+                          ? row.allowed_requester_roles
+                              .map((role: string) => ROLE_WORD[role] ?? role.toLowerCase())
+                              .join(', ')
+                          : 'Anyone signed in'}
+                      </td>
+                      <td data-label="Status">
+                        {row.is_active ? <Badge tone="done">active</Badge> : <Badge tone="dead">off</Badge>}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </Card>
+          </Panel>
 
-          <Card>
-            <SectionTitle>Policies</SectionTitle>
-            <ul className="list-reset stack" style={{ gap: 8 }}>
-              {(policies.data?.policies ?? []).map((row: any) => (
-                <li key={row.key}>
-                  <div className="bold small">{row.name}</div>
-                  <div className="tiny muted">
-                    {row.effect} · {row.service_key ?? 'all services'} · {row.message}
-                  </div>
-                  <pre className="mono tiny" style={{ whiteSpace: 'pre-wrap' }}>
-                    {JSON.stringify(row.conditions, null, 1)}
-                  </pre>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card>
-            <SectionTitle>Workflows</SectionTitle>
-            <ul className="list-reset stack" style={{ gap: 8 }}>
-              {(workflows.data?.workflows ?? []).map((row: any) => (
-                <li key={row.key ?? row.name}>
-                  <div className="bold small">{row.name}</div>
-                  <div className="tiny muted">
-                    {(row.steps ?? []).map((step: any) => step.name ?? step.key).join(' → ')}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </Card>
-
-          <Card>
-            <SectionTitle>Services</SectionTitle>
-            <ul className="list-reset stack" style={{ gap: 6 }}>
-              {(services.data?.services ?? []).map((row: any) => (
-                <li key={row.key} className="row-between">
-                  <div>
-                    <span>{row.icon} </span>
-                    <span className="bold">{row.name}</span>
-                    <div className="tiny muted">
-                      {row.category} · default target {duration(row.default_sla_minutes)} ·{' '}
-                      {row.allowed_requester_roles?.length
-                        ? `for ${row.allowed_requester_roles.join(', ')}`
-                        : 'anyone'}
-                    </div>
-                  </div>
-                  <Badge tone={row.is_active ? 'done' : 'dead'}>{row.is_active ? 'active' : 'off'}</Badge>
-                </li>
-              ))}
-            </ul>
-          </Card>
+          <Panel title="Everything configured" subtitle="The rest of the reference data, counted as the engines see it.">
+            <Bento tight>
+              {Object.entries(counts)
+                .filter(([key]) => !['users', 'students', 'staff', 'departments', 'services', 'sla_rules', 'policies', 'workflows'].includes(key))
+                .map(([key, value]) => (
+                  <BentoItem key={key} span={3}>
+                    <StatTile
+                      label={COUNT_LABELS[key] ?? key.replaceAll('_', ' ')}
+                      value={value}
+                      icon="list"
+                      tone="ghost"
+                    />
+                  </BentoItem>
+                ))}
+            </Bento>
+          </Panel>
         </>
       ) : null}
 
       <Modal
         open={newUserOpen}
         onClose={() => setNewUserOpen(false)}
-        title="Add a user"
+        title="Add a person"
         footer={
           <Button
             variant="primary"
@@ -446,12 +792,8 @@ export function DirectoryPage() {
             onChange={(value) => setNewUser({ ...newUser, role: value })}
             options={[
               { value: 'STUDENT', label: 'Student' },
-              { value: 'STAFF', label: 'Staff' },
-              { value: 'DEPARTMENT_HEAD', label: 'Department head' },
-              { value: 'WARDEN', label: 'Warden' },
-              { value: 'SECURITY', label: 'Security' },
-              { value: 'HELPDESK_OPERATOR', label: 'Helpdesk operator' },
-              { value: 'ADMIN', label: 'Administrator' },
+              { value: 'TEACHER', label: 'Teacher' },
+              { value: 'MANAGEMENT', label: 'Management' },
             ]}
           />
         </Field>
@@ -504,7 +846,9 @@ export function DirectoryPage() {
           Accounts created here are real rows in the database, not demo fixtures. Demo data is only produced by the
           seeder.
         </p>
-        <div className="tiny muted">Created at {dateTime(new Date().toISOString())} · {relative(new Date().toISOString())}</div>
+        <div className="tiny muted">
+          Created at {dateTime(new Date().toISOString())} · {relative(new Date().toISOString())}
+        </div>
       </Modal>
     </div>
   )

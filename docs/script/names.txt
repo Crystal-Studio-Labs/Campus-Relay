@@ -1,0 +1,69 @@
+====================================================================
+TEAM ROSTER & PRESENTATION ASSIGNMENTS — CAMPUS RELAY
+Crystal Studio Labs · BPUT Hackathon 2026 (Problem Statement 07)
+====================================================================
+
+MEMBER 1: Shuvransu Sekhar Sahoo (Lead / Anchor)
+• Role: Lead Systems Architect & Orchestration
+• Slides Assigned: Slide 1, Slide 2, Slide 14, Slide 15
+• Topics: 
+  - Slide 1: Title & System Vision (The Resilient Operating Layer)
+  - Slide 2: The Real Campus Crisis (Fragmentation & Dead Zones)
+  - Slide 14: The 60-Minute Rapid Adoption Guarantee
+  - Slide 15: Conclusion, Team Summary & Q&A Launch
+• Script File: docs/script/01_shuvransu.md
+
+--------------------------------------------------------------------
+
+MEMBER 2: Snehal Kumar Moharana
+• Role: Backend Services & Database Engineering
+• Slides Assigned: Slide 3, Slide 4
+• Topics:
+  - Slide 3: Universal Case Engine Architecture (One Engine vs Silos)
+  - Slide 4: Controlled Intelligence (4 Sandboxed AI Agents)
+• Script File: docs/script/02_snehal.md
+
+--------------------------------------------------------------------
+
+MEMBER 3: Manas Kumar Mallick
+• Role: Case Lifecycle Engine & Verification
+• Slides Assigned: Slide 5, Slide 6
+• Topics:
+  - Slide 5: Workflow 1 — Hostel Maintenance & Room QR Diagnostics
+  - Slide 6: The Requester Verification Guard & SLA Sweep Engine
+• Script File: docs/script/03_manas.md
+
+--------------------------------------------------------------------
+
+MEMBER 4: Pruthiraj Lenka
+• Role: Frontend Engineering & Local-First PWA
+• Slides Assigned: Slide 7, Slide 8
+• Topics:
+  - Slide 7: Local-First Offline Resilience (IndexedDB Outbox Sync)
+  - Slide 8: Digital Equity (Corridor Touch Kiosk & Trilingual UI)
+• Script File: docs/script/04_pruthiraj.md
+
+--------------------------------------------------------------------
+
+MEMBER 5: Bibhu Bhusan Giri
+• Role: Perimeter Security & Station Infrastructure
+• Slides Assigned: Slide 9, Slide 10
+• Topics:
+  - Slide 9: Digital Gate Pass & Anti-Passback Curfew Security
+  - Slide 10: Zero-Trust Verifiable Document Engine (ReportLab PDFs)
+• Script File: docs/script/05_bibhu.md
+
+--------------------------------------------------------------------
+
+MEMBER 6: Nandita Das
+• Role: UI Design System, Comms & Technical Specifications
+• Slides Assigned: Slide 11, Slide 12, Slide 13
+• Topics:
+  - Slide 11: Targeted Notice Studio & Delivery Lifecycle
+  - Slide 12: Glassmorphic UI System & Multi-Station Ergonomics
+  - Slide 13: Institutional ROI & NAAC / NIRF Accreditation Excellence
+• Script File: docs/script/06_nandita.md
+
+====================================================================
+TOTAL PRESENTATION TIME: 10 - 12 Minutes (~1.5 to 2 minutes per member)
+====================================================================

@@ -79,7 +79,7 @@ class RoutingAgent:
                 "No available staff matched, so this case needs manual assignment."
             )
         reasoning.append(
-            f"Target of {recommendation.sla_minutes} minutes comes from the SLA rule for "
+            f"The {recommendation.sla_minutes}-minute target comes from the deadline rule for "
             f"{case.service_key} / {case.priority}."
         )
 

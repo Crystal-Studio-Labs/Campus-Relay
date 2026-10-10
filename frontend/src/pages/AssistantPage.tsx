@@ -45,7 +45,7 @@ export function AssistantPage() {
             <SectionTitle>Rules this assistant follows</SectionTitle>
             <ul className="small">
               <li>It never writes to the database on its own — it proposes, you confirm.</li>
-              <li>It cannot bypass permissions, policy checks or the workflow.</li>
+              <li>It cannot bypass permissions, the institution’s rules, or the approval steps.</li>
               <li>Every answer lists the lookups it used, including failed ones.</li>
               <li>If it cannot answer, it says so instead of inventing a case status.</li>
               <li>When no language model is configured, deterministic rules answer instead — the product still works.</li>

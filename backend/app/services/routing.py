@@ -10,10 +10,10 @@ import re
 from dataclasses import dataclass, field
 from datetime import timedelta
 
-from sqlalchemy import func, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.orm import Session
 
-from app.models import Asset, Case, Department, Location, Service, Staff
+from app.models import Asset, Case, Department, Location, Service, Staff, User
 from app.models.enums import CaseStatus, Priority, ServiceCategory
 from app.services import clock
 
@@ -297,7 +297,14 @@ def recommend_department(
 
 
 def staff_workload(db: Session, *, campus_id: int) -> list[dict]:
-    """Open-case load per staff member - the basis for workload-balancing."""
+    """Open-case load per staff member - the basis for workload-balancing.
+
+    Every staff row with a user is reported, including one whose account is
+    switched off. That is deliberate: the administrator's workload view has to
+    show the work that is actually sitting with a person, and a deactivated
+    account still owns whatever it was holding. Assignment is where an inactive
+    account must be excluded, and `recommend_staff` does that.
+    """
     open_statuses = tuple(
         s.value
         for s in CaseStatus
@@ -309,6 +316,10 @@ def staff_workload(db: Session, *, campus_id: int) -> list[dict]:
             CaseStatus.VERIFICATION_REQUIRED,
         }
     )
+    # The status filter belongs in the ON clause, not in WHERE. In WHERE it
+    # silently deleted a staff member from the roster as soon as their every case
+    # had been closed - the person with the most finished work was the one the
+    # workload view stopped showing.
     rows = db.execute(
         select(
             Staff.id,
@@ -316,22 +327,27 @@ def staff_workload(db: Session, *, campus_id: int) -> list[dict]:
             Staff.workload_capacity,
             func.count(Case.id).label("open_cases"),
         )
-        .join(Case, Case.assigned_staff_id == Staff.id, isouter=True)
-        .where(Staff.campus_id == campus_id, Case.status.in_(open_statuses) | Case.id.is_(None))
+        .join(
+            Case,
+            and_(Case.assigned_staff_id == Staff.id, Case.status.in_(open_statuses)),
+            isouter=True,
+        )
+        .where(Staff.campus_id == campus_id)
         .group_by(Staff.id, Staff.department_id, Staff.workload_capacity)
     ).all()
-
-    from app.models import User
 
     result: list[dict] = []
     for staff_id, department_id, capacity, open_cases in rows:
         staff = db.get(Staff, staff_id)
-        if staff is None or staff.user is None or not staff.user.is_active:
+        if staff is None or staff.user is None:
             continue
         result.append(
             {
                 "staff_id": staff_id,
                 "name": staff.user.full_name,
+                "email": staff.user.email,
+                "user_id": staff.user_id,
+                "active": bool(staff.user.is_active),
                 "department_id": department_id,
                 "open_cases": int(open_cases or 0),
                 "capacity": capacity,
@@ -339,15 +355,32 @@ def staff_workload(db: Session, *, campus_id: int) -> list[dict]:
                 "is_available": staff.is_available,
             }
         )
+    # Busiest first is what a supervisor reads, so the default order is the load
+    # order rather than whatever the database happened to return.
+    result.sort(key=lambda row: (-row["open_cases"], row["staff_id"]))
     return result
 
 
 def recommend_staff(
     db: Session, *, campus_id: int, department_id: int | None, category: str | None = None
 ) -> tuple[Staff | None, list[str]]:
-    """Least-loaded available staff member in the target department."""
+    """Least-loaded *signable-in* staff member in the target department.
+
+    Work must never be routed to an account that cannot be used: a case
+    assigned to a switched-off user is invisible in the workload view and can
+    never be started, which is exactly the kind of silent dead end this product
+    exists to remove.
+    """
     explanation: list[str] = []
-    stmt = select(Staff).where(Staff.campus_id == campus_id, Staff.is_available.is_(True))
+    stmt = (
+        select(Staff)
+        .join(User, User.id == Staff.user_id)
+        .where(
+            Staff.campus_id == campus_id,
+            Staff.is_available.is_(True),
+            User.is_active.is_(True),
+        )
+    )
     if department_id:
         stmt = stmt.where(Staff.department_id == department_id)
     candidates = list(db.scalars(stmt).all())

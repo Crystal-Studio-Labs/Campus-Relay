@@ -134,7 +134,7 @@ def case_summary(case_id: int, db: DbSession, user: CurrentUser):
         "case": case_brief(db, case, audience="staff"),
         "summary": (
             f"{case.case_number} - {case.title}. Status {case.status}, priority {case.priority}, "
-            f"SLA {case.sla_state}"
+            f"deadline {case.sla_state.lower().replace('_', ' ')}"
             + (f", due {case.due_at.isoformat()}" if case.due_at else "")
             + f". Open for {round(case.age_minutes)} minutes with {case.reopen_count} reopen(s)."
         ),

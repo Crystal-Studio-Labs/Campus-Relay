@@ -147,8 +147,8 @@ export function CaseDetailPage() {
       {/* The record header and the reference details, side by side on a wide
           screen and stacked on a phone. The facts a clerk reads off first stay
           in the rail; the case itself keeps the wide column. */}
-      <div className="board">
-        <div className="board-8">
+      <div className="stack-lg">
+        <div>
           <Card
             data-guide="case-header"
             accent={data.status === 'ESCALATED' ? 'urgent' : waitingForMe ? 'signal' : undefined}
@@ -160,7 +160,7 @@ export function CaseDetailPage() {
           <SlaBadge state={data.sla_state} dueAt={data.due_at} />
           <ChannelBadge channel={data.source_channel} />
           <OfflineCapturedBadge capturedAt={data.captured_offline_at} />
-          {data.escalation_level > 0 ? <Badge tone="urgent">Escalation L{data.escalation_level}</Badge> : null}
+          {data.escalation_level > 0 ? <Badge tone="urgent">Sent higher up · level {data.escalation_level}</Badge> : null}
           {data.reopen_count > 0 ? <Badge tone="warn">Reopened ×{data.reopen_count}</Badge> : null}
         </div>
         <h1 style={{ marginTop: 8 }}>{data.title}</h1>
@@ -189,7 +189,7 @@ export function CaseDetailPage() {
           </Card>
         </div>
 
-        <div className="board-4">
+        <div>
           <Card>
             <SectionTitle>Case details</SectionTitle>
             <KV
@@ -219,8 +219,8 @@ export function CaseDetailPage() {
       {/* The action zone: what this person must do, and what has been issued or
           is available to them, side by side. On a phone it stacks in the same
           reading order. */}
-      <div className="board">
-        <div className="board-8">
+      <div className="stack-lg">
+        <div>
           {/* --- The single thing this person must do next ----------------- */}
           {waitingForMe ? (
         <Card accent="signal">
@@ -272,7 +272,7 @@ export function CaseDetailPage() {
 
         </div>
 
-        <div className="board-4">
+        <div>
       {data.gate_pass ? (
         <Card accent="mint">
           <SectionTitle right={data.gate_pass.is_currently_valid ? <Badge tone="done">Valid now</Badge> : <Badge tone="dead">Not valid</Badge>}>
@@ -364,7 +364,7 @@ export function CaseDetailPage() {
           ) : null}
           {can('case:escalate') && data.status !== 'ESCALATED' ? (
             <Button variant="danger" onClick={() => setDialog('escalate')}>
-              Escalate
+              Send higher up
             </Button>
           ) : null}
           {can('case:reopen') && ['RESOLVED', 'CLOSED'].includes(data.status) ? (
@@ -386,7 +386,7 @@ export function CaseDetailPage() {
               Issue gate pass
             </Button>
           ) : null}
-          {can('approval:decide') && data.service_key === 'CERTIFICATE_BONAFIDE' && !data.document ? (
+          {can('approval:decide') && data.service_key === 'BONAFIDE_CERTIFICATE' && !data.document ? (
             <Button
               variant="primary"
               busy={busy === 'certificate'}
@@ -410,7 +410,7 @@ export function CaseDetailPage() {
       {/* --- Workflow ------------------------------------------------------ */}
       {data.workflow_steps?.length ? (
         <Card>
-          <SectionTitle>Workflow</SectionTitle>
+          <SectionTitle>Progress</SectionTitle>
           <ol className="list-reset stack" style={{ gap: 6 }}>
             {data.workflow_steps.map((step) => (
               <li key={step.key} className="row" style={{ gap: 8 }}>
@@ -731,7 +731,7 @@ export function CaseDetailPage() {
       <Modal
         open={dialog === 'escalate'}
         onClose={() => setDialog(null)}
-        title="Escalate"
+        title="Send higher up"
         footer={
           <Button
             variant="danger"
@@ -746,16 +746,16 @@ export function CaseDetailPage() {
                 {
                   operation: 'CASE_STATUS',
                   payload: { case_id: data.id, action: 'escalate', reason: noteText },
-                  label: 'Escalate case',
+                  label: 'Send this case higher up',
                 },
               )
             }
           >
-            Escalate and notify
+            Send higher up and notify
           </Button>
         }
       >
-        <Field label="Reason" required hint="Escalation is recorded against your name.">
+        <Field label="Reason" required hint="Sending this higher up is recorded against your name.">
           <TextArea value={noteText} onChange={setNoteText} rows={3} />
         </Field>
       </Modal>
@@ -891,7 +891,7 @@ export function CaseDetailPage() {
           <TextArea value={noteText} onChange={setNoteText} rows={3} />
         </Field>
         {!confirmApprove ? (
-          <p className="small muted">Rejecting stops the workflow and tells the requester why.</p>
+          <p className="small muted">Rejecting stops the process and tells the requester why.</p>
         ) : null}
       </Modal>
     </div>

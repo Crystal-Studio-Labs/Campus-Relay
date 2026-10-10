@@ -262,22 +262,20 @@ flowchart TD
 
 ## 👥 Role-Based Access Control (RBAC) & Pre-configured Demo Accounts
 
-Campus Relay enforces granular Role-Based Access Control on every API endpoint and frontend route, backed by organizational data scoping (e.g., wardens only see their assigned hostels; staff only see assigned tasks).
+Campus Relay enforces granular Role-Based Access Control on every API endpoint and frontend route, backed by organisational data scoping (a hostel warden sees the hostels they run; a teacher sees the classes and the departmental queue they own).
+
+There are **four roles**, and the staff functions that used to be roles of their own - hostel warden, department head, gate security, helpdesk operator, technician - are now *permissions* held by one of them. Management is deliberately a single role: running the campus day to day and running the deployment are the same job at a college, and what narrows a person's view is the scope the server resolves, never a second credential.
 
 > [!NOTE]
 > All demo accounts use the standard password: **`Campus@2026`**
 
 | Role | Account Email | Role Scope & Responsibilities |
 | :--- | :--- | :--- |
-| **Super Admin** | `superadmin@campusrelay.demo` | Full platform governance, tenant configuration, role management. |
-| **Administrator** | `admin@campusrelay.demo` | Operational Command Centre, campus-wide queues, SLA sweeps, audit inspection. |
-| **Hostel Warden** | `warden@campusrelay.demo` | Hostel operations, leave approvals, gate pass authorizations. |
-| **Department Head**| `maintenance.head@campusrelay.demo` | Department queue supervision, workload allocation, technician assignments. |
-| **Staff / Technician**| `technician@campusrelay.demo` | Task execution, status updates (`IN_PROGRESS`, `RESOLVED`), work evidence submission. |
-| **Security Guard** | `security@campusrelay.demo` | Gate desk operation, pass verification, exit/entry logging, live campus headcounts. |
-| **Helpdesk Operator**| `helpdesk@campusrelay.demo` | Assisted service desk, student roll number lookups, proxy case filings. |
-| **Student (Hosteller)**| `student@campusrelay.demo` | Personal dashboard, hostel complaints, leave requests, notice acknowledgments. |
-| **Student (Day Scholar)**| `student2@campusrelay.demo` | Academic queries, certificate requests, campus facility complaints. |
+| **Management** | `admin@campusrelay.demo` | Runs the institution: command centre, hostel and mess, fees, certificates, clearance, library, leave, the gate, notices, plus accounts and configuration. |
+| **Teacher / faculty** | `teacher@campusrelay.demo` | Own subjects and classes, attendance and marks entry, the departmental case queue, approvals in scope. |
+| **Student** | `student@campusrelay.demo` | Personal dashboard, requests and complaints, leave, clearance, library, fees, notices. |
+
+A second management account exists for the residential side: `warden@campusrelay.demo` (Ms. Sunita Behera) holds the **same** role and signs leave, gate passes and hostel operations, which is how a campus actually staffs the post - two people, one office, different views.
 
 ---
 
@@ -354,14 +352,15 @@ flowchart TB
 
 ---
 
-## 🎨 Frontend Design System & Bright Institutional
+## 🎨 Frontend Design System & Bento Enterprise
 
-The shipped interface is **bright institutional**: a calm, modern administration platform that reads as trustworthy to a registrar and familiar to a student.
+The shipped interface is **bento enterprise**: a modern, commercial administration platform — white cards floating on a soft slate page, one confident indigo for action, soft blurred elevation instead of hard plates, sentence-case labels and a consistent Lucide icon family. It reads as trustworthy to a registrar and familiar to a student.
 - **Soft elevation**: white surfaces on a soft blue-grey page, generous radii and quiet shadows instead of hard plates — the content is the loudest thing on screen.
 - **One confident blue for action**, green for done, amber for attention. Colour never carries meaning alone: every status chip also carries its word.
 - **Sentence-case labels** and real headings, sized so a dense queue still scans.
 - **Accessibility & Contrast**: WCAG AA across both themes; `--muted-ink` is a real measured colour, never faded body text.
-- **Two independent axes**: *theme* (light/dark, chosen per person) and *skin* (the design language, chosen per institution). Four skins ship — modern institutional (default), engineering blueprint, government portal and university portal. See [`docs/specifications/THEMES.md`](docs/specifications/THEMES.md).
+- **Two independent axes**: *theme* (light/dark, chosen per person) and *skin* (the design language, chosen per institution). Five skins ship — **bento enterprise (default)**, modern, engineering blueprint, government portal and university portal. See [`docs/specifications/THEMES.md`](docs/specifications/THEMES.md).
+- **Bento grid layout**: dashboards are built from a twelve-column field of proportioned tiles, so a large tile genuinely reads as more important than a small one instead of every card being the same rectangle.
 - **Fixed module navigation**: one information architecture across roles — Overview, Requests, Communication, Security, Insights, People, Stations and System — with items filtered by permission. Breadcrumbs and a quick switcher (`Ctrl`/`Cmd`+`K`) make every screen findable without hunting the sidebar.
 - **Adaptive Layouts**:
   - **Mobile Experience**: Thumb-friendly bottom navigation bar, expandable sheets, compact case cards, tables that become labelled record cards.

@@ -92,6 +92,7 @@ export function NoticesPage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="Announcements"
         title="Notices"
         subtitle="Announcements addressed to you by campus, hostel, branch, year or role"
         actions={<Badge tone="ghost">{list.length} shown</Badge>}

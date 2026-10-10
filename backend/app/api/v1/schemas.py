@@ -63,6 +63,9 @@ class ResolveRequest(BaseModel):
 class VerifyRequest(BaseModel):
     accepted: bool = True
     note: str | None = Field(default=None, max_length=MAX_TEXT)
+    # Required when somebody other than the requester confirms the outcome; it
+    # is written onto the case as the reason for verifying on their behalf.
+    override_reason: str | None = Field(default=None, max_length=MAX_TEXT)
 
 
 class ReopenRequest(BaseModel):
@@ -219,12 +222,22 @@ class UserUpdateRequest(BaseModel):
     role: str | None = None
 
 
+class PasswordResetRequest(BaseModel):
+    """A temporary password set by an administrator.
+
+    Sent in the body rather than the query string: a URL is written to access
+    logs, proxy logs and browser history, and a password must not be.
+    """
+
+    new_password: str = Field(min_length=8, max_length=128)
+
+
 class SlaRuleRequest(BaseModel):
     service_key: str | None = None
     priority: str
     target_minutes: int = Field(gt=0, le=100000)
     at_risk_ratio: float = Field(default=0.75, ge=0.1, le=0.99)
-    escalate_to_role: str = "DEPARTMENT_HEAD"
+    escalate_to_role: str = "TEACHER"
     is_active: bool = True
 
 

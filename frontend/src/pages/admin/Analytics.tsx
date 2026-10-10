@@ -163,14 +163,17 @@ export function AnalyticsPage() {
             )}
           </Card>
 
-          <div className="grid-2">
+          <div className="stack-lg">
             <Card>
               <SectionTitle>By category</SectionTitle>
               <ul className="list-reset stack" style={{ gap: 8 }}>
                 {(data?.by_category ?? []).map((row) => (
-                  <li key={row.service_key}>
+                  <li key={`${row.category}::${row.service_key}`}>
                     <div className="row-between small">
-                      <span>{row.category.replaceAll('_', ' ').toLowerCase()}</span>
+                      <span>
+                        {row.category.replaceAll('_', ' ').toLowerCase()}
+                        <span className="tiny muted"> · {row.service_key.replaceAll('_', ' ').toLowerCase()}</span>
+                      </span>
                       <span className="bold">{row.count}</span>
                     </div>
                     <ProgressBar value={row.count} max={Math.max(1, ...(data?.by_category ?? []).map((item) => item.count))} />
@@ -262,7 +265,7 @@ export function AnalyticsPage() {
       ) : null}
 
       {tab === 'places' ? (
-        <div className="grid-2">
+        <div className="stack-lg">
           <Card>
             <SectionTitle right={<Badge tone="ghost">top locations</Badge>}>Where it keeps happening</SectionTitle>
             {data?.location_hotspots?.length ? (

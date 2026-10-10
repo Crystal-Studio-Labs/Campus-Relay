@@ -315,12 +315,27 @@ def resolve(
 def verify(
     case_id: int, payload: VerifyRequest, db: DbSession, user: CurrentUser, context: RequestContext
 ):
+    """Confirm a resolution. The requester's word, or a recorded override.
+
+    Two things are deliberately separate here. Holding case:verify is what lets
+    an account act at all - a student holds it because verification *is* their
+    act. Whether this particular case may be confirmed by this particular
+    person is decided in the engine, which refuses the desk that did the work
+    and demands a reason from anybody closing a case that belongs to somebody
+    else.
+    """
     assert_permission(user, CASE_VERIFY)
     case = case_engine.case_or_404(db, case_id)
     if case.requester_id not in {None, user.id} and CASE_VERIFY not in user.permission_keys():
         raise PermissionDeniedError("Only the requester can verify this case.")
     case_engine.verify_resolution(
-        db, case=case, actor=user, accepted=payload.accepted, note=payload.note, source_channel=context.source_channel
+        db,
+        case=case,
+        actor=user,
+        accepted=payload.accepted,
+        note=payload.note,
+        source_channel=context.source_channel,
+        override_reason=payload.override_reason,
     )
     return {"case": case_brief(db, case)}
 
@@ -341,7 +356,7 @@ def cancel(case_id: int, payload: CancelRequest, db: DbSession, user: CurrentUse
     assert_permission(user, CASE_CANCEL)
     case = case_engine.case_or_404(db, case_id)
     if case.requester_id != user.id and CASE_READ_ALL not in user.permission_keys():
-        raise PermissionDeniedError("Only the requester or an administrator can cancel this case.")
+        raise PermissionDeniedError("Only the requester or the management role can cancel this case.")
     case_engine.cancel_case(db, case=case, actor=user, reason=payload.reason)
     return {"case": case_brief(db, case)}
 
@@ -447,7 +462,7 @@ def my_approvals(db: DbSession, user: CurrentUser):
         .where(
             CaseApproval.campus_id == user.campus_id,
             CaseApproval.state == "PENDING",
-            CaseApproval.approver_role.in_((user.role_key, RoleKey.ADMIN.value, RoleKey.SUPER_ADMIN.value)),
+            CaseApproval.approver_role.in_((user.role_key, RoleKey.MANAGEMENT.value)),
         )
         .order_by(CaseApproval.requested_at.asc())
     ).all()
@@ -530,7 +545,7 @@ def my_overview(db: DbSession, user: CurrentUser):
             "pending_acknowledgements": len(pending_acks),
             "urgent_notices": urgent_notice_count,
             "assigned_to_me": scoping_staff_id(db, user)
-            if user.role_key in {RoleKey.STAFF.value, RoleKey.DEPARTMENT_HEAD.value}
+            if user.role_key == RoleKey.TEACHER.value
             else None,
         },
         "cases": [case_brief(db, case) for case in open_cases],
@@ -554,10 +569,10 @@ def _needs_attention(db, user, open_cases) -> list[dict]:
         elif case.sla_state in {SlaState.BREACHED.value, SlaState.AT_RISK.value} and case.assigned_staff_id:
             items.append(
                 {
-                    "kind": "SLA",
+                    "kind": "DEADLINE",
                     "case_id": case.id,
                     "case_number": case.case_number,
-                    "label": f"SLA {case.sla_state.lower().replace('_', ' ')}",
+                    "label": f"Deadline {case.sla_state.lower().replace('_', ' ')}",
                 }
             )
     return items[:6]

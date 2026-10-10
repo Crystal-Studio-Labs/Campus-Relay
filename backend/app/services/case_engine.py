@@ -243,7 +243,7 @@ def create_case(db: Session, *, actor: User, draft: CaseDraft) -> CaseResult:
     allowed_roles = set(service.allowed_requester_roles or [])
     acting_on_behalf = draft.on_behalf_student_id is not None
     if acting_on_behalf:
-        allowed_roles = allowed_roles | {RoleKey.HELPDESK_OPERATOR.value, RoleKey.ADMIN.value, RoleKey.SUPER_ADMIN.value, RoleKey.WARDEN.value}
+        allowed_roles = allowed_roles | {RoleKey.MANAGEMENT.value}
     if allowed_roles and actor.role_key not in allowed_roles:
         raise PermissionDeniedError(
             "Your role cannot raise this type of request.",
@@ -673,7 +673,7 @@ def _open_approval(db: Session, case: Case, step) -> None:
         case_id=case.id,
         step_key=step.key,
         sequence=len(approvals),
-        approver_role=step.responsible_role or RoleKey.ADMIN.value,
+        approver_role=step.responsible_role or RoleKey.MANAGEMENT.value,
         state=ApprovalState.PENDING.value,
         requested_at=clock.now(),
     )
@@ -831,7 +831,7 @@ def decide_approval(
     if approval is None:
         raise ConflictError("This case has no pending approval.")
 
-    if actor.role_key not in {approval.approver_role, RoleKey.ADMIN.value, RoleKey.SUPER_ADMIN.value}:
+    if actor.role_key not in {approval.approver_role, RoleKey.MANAGEMENT.value}:
         raise PermissionDeniedError(
             "This approval is not assigned to your role.",
             details={"required_role": approval.approver_role},
@@ -1083,12 +1083,39 @@ def verify_resolution(
     accepted: bool,
     note: str | None = None,
     source_channel: str = SourceChannel.PWA.value,
+    override_reason: str | None = None,
 ) -> Case:
+    """Close a case on the requester's word - or on a recorded override.
+
+    Verification is the requester's act. It used to be enough to *hold*
+    case:verify, which meant the desk that resolved a case could also close it,
+    and the product's central promise - a case cannot be closed by the person
+    who did the work - was quietly untrue. Two rules now hold instead:
+
+    1. The assigned desk can never verify its own work, whatever it holds.
+    2. Anybody else verifying a case that belongs to a requester must say why,
+       and the reason is written into the case trail as an override.
+    """
     if case.status not in {
         CaseStatus.VERIFICATION_REQUIRED.value,
         CaseStatus.RESOLVED.value,
     }:
         raise ConflictError("This case is not awaiting verification.")
+
+    is_requester = case.requester_id is not None and case.requester_id == actor.id
+    if not is_requester:
+        if case.assigned_staff_id is not None:
+            staff = db.scalar(select(Staff).where(Staff.user_id == actor.id))
+            if staff is not None and staff.id == case.assigned_staff_id:
+                raise ConflictError(
+                    "The desk that worked this case cannot verify its own work. "
+                    "The requester confirms the outcome, or a supervisor verifies it with a reason."
+                )
+        if case.requester_id is not None and not (override_reason or "").strip():
+            raise ConflictError(
+                "This case belongs to a requester. To verify it on their behalf, give a reason - "
+                "it is recorded on the case as an override."
+            )
 
     if accepted:
         case.verification_state = VerificationState.VERIFIED.value
@@ -1098,7 +1125,11 @@ def verify_resolution(
             CaseStatus.CLOSED.value,
             actor=actor,
             event_type=AuditEventType.VERIFIED.value,
-            payload={"note": note},
+            payload={
+                "note": note,
+                "verified_by_requester": is_requester,
+                **({} if is_requester else {"override": True, "override_reason": override_reason}),
+            },
             source_channel=source_channel,
         )
         notifications.notify_case_stakeholders(
@@ -1119,7 +1150,11 @@ def verify_resolution(
             CaseStatus.REOPENED.value,
             actor=actor,
             event_type=AuditEventType.REOPENED.value,
-            payload={"note": note or "Requester disputed the resolution"},
+            payload={
+                "note": note or "Requester disputed the resolution",
+                "verified_by_requester": is_requester,
+                **({} if is_requester else {"override": True, "override_reason": override_reason}),
+            },
             source_channel=source_channel,
         )
         notifications.notify_case_stakeholders(
@@ -1198,7 +1233,7 @@ def cancel_case(db: Session, *, case: Case, actor: User, reason: str | None = No
 def escalate_case(
     db: Session, *, case: Case, actor: User, reason: str, escalate_to_role: str | None = None
 ) -> Case:
-    target_role = escalate_to_role or RoleKey.DEPARTMENT_HEAD.value
+    target_role = escalate_to_role or RoleKey.TEACHER.value
     if can_transition(case.status, CaseStatus.ESCALATED.value):
         _transition(
             db,

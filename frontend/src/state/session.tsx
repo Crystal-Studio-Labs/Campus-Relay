@@ -9,8 +9,9 @@ import {
   useState,
   type ReactNode,
 } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { ApiError, api, setChannel, tokenStore } from '../lib/api'
-import { setLanguage } from '../lib/i18n'
+import { setLanguage, currentLanguage } from '../lib/i18n'
 import { syncEngine } from '../lib/sync'
 import type { Profile, RoleKey } from '../lib/types'
 
@@ -28,7 +29,22 @@ interface SessionValue {
 
 const SessionContext = createContext<SessionValue | null>(null)
 
+/** The profile carries a language preference, but it is a *seeded default*, not
+ *  an instruction: re-applying it on every `/auth/me` poll would revert the
+ *  switcher moments after someone touched it, and the old `=== 'or'` test threw
+ *  Hindi away entirely. So it is applied once, at sign-in, only when this device
+ *  has expressed no preference of its own, and only for a language we actually
+ *  ship. English stays the default. */
+function applyProfileLanguage(profileLanguage: string | null | undefined) {
+  if (!profileLanguage) return
+  if (window.localStorage.getItem('campusrelay.language')) return
+  if (profileLanguage !== 'en' && profileLanguage !== 'hi' && profileLanguage !== 'or') return
+  if (currentLanguage() === profileLanguage) return
+  setLanguage(profileLanguage)
+}
+
 export function SessionProvider({ children }: { children: ReactNode }) {
+  const navigate = useNavigate()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [status, setStatus] = useState<SessionValue['status']>('loading')
   const [error, setError] = useState<string | null>(null)
@@ -42,7 +58,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     try {
       const fresh = await api.get<Profile>('/auth/me')
       setProfile(fresh)
-      if (fresh.language) setLanguage(fresh.language === 'or' ? 'or' : 'en')
       setStatus('authenticated')
       setError(null)
       void syncEngine.probe().catch(() => undefined)
@@ -76,7 +91,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     tokenStore.set(response.access_token)
     setChannel('PWA')
     setProfile(response.profile)
-    if (response.profile.language) setLanguage(response.profile.language === 'or' ? 'or' : 'en')
+    applyProfileLanguage(response.profile.language)
     setStatus('authenticated')
     void syncEngine.probe().catch(() => undefined)
     return response.profile
@@ -86,7 +101,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     tokenStore.clear()
     setProfile(null)
     setStatus('anonymous')
-  }, [])
+    // Every sign-out ends at the sign-in screen. The anonymous tree only routes
+    // the catch-all to /login and keeps an explicit route for `/`, so signing
+    // out while sitting on the home page used to strand you on the launch page
+    // - the same "sign out takes me somewhere wrong" bug, one route over.
+    navigate('/login', { replace: true })
+  }, [navigate])
 
   const value = useMemo<SessionValue>(() => {
     const permissions = new Set(profile?.permissions ?? [])

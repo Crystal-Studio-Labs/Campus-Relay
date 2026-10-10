@@ -95,6 +95,7 @@ export function StaffTasks() {
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="My work"
         title="My tasks"
         subtitle={`${profile?.staff?.department ?? 'Unassigned department'} · ${profile?.staff?.open_cases ?? 0} of ${profile?.staff?.workload_capacity ?? '—'} slots used`}
         actions={

@@ -43,6 +43,49 @@ GATE_VERIFY = "gate:verify"
 GATE_OPERATE = "gate:operate"
 GATE_LOG_READ = "gate:log_read"
 
+ATTENDANCE_READ = "attendance:read"
+ATTENDANCE_MARK = "attendance:mark"
+ATTENDANCE_MANAGE = "attendance:manage"
+
+MARKS_READ = "marks:read"
+MARKS_ENTRY = "marks:entry"
+MARKS_MANAGE = "marks:manage"
+
+TIMETABLE_READ = "timetable:read"
+TIMETABLE_MANAGE = "timetable:manage"
+
+FEES_READ = "fees:read"
+FEES_MANAGE = "fees:manage"
+
+CLEARANCE_READ = "clearance:read"
+CLEARANCE_REQUEST = "clearance:request"
+CLEARANCE_DECIDE = "clearance:decide"
+
+LIBRARY_READ = "library:read"
+LIBRARY_MANAGE = "library:manage"
+
+LEAVE_READ = "leave:read"
+LEAVE_REQUEST = "leave:request"
+LEAVE_DECIDE = "leave:decide"
+
+FEEDBACK_SUBMIT = "feedback:submit"
+FEEDBACK_READ = "feedback:read"
+FEEDBACK_MANAGE = "feedback:manage"
+FEEDBACK_REQUEST = "feedback:request"
+
+ACTIVITY_READ = "activity:read"
+ACTIVITY_MANAGE = "activity:manage"
+ACTIVITY_PARTICIPATE = "activity:participate"
+
+CAREER_READ = "career:read"
+CAREER_MANAGE = "career:manage"
+CAREER_APPLY = "career:apply"
+
+HRMS_READ = "hrms:read"
+HRMS_MANAGE = "hrms:manage"
+SALARY_READ = "salary:read"
+SALARY_MANAGE = "salary:manage"
+
 DASHBOARD_VIEW = "dashboard:view"
 ANALYTICS_READ = "analytics:read"
 AUDIT_READ = "audit:read"
@@ -86,15 +129,47 @@ PERMISSION_CATALOGUE: dict[str, tuple[str, str]] = {
     GATE_LOG_READ: ("gate", "Read the gate log"),
     DASHBOARD_VIEW: ("admin", "View the operations dashboard"),
     ANALYTICS_READ: ("admin", "View analytics"),
-    AUDIT_READ: ("admin", "Read the audit trail"),
+    AUDIT_READ: ("admin", "Read the activity log"),
     USER_MANAGE: ("admin", "Manage users and roles"),
-    CONFIG_MANAGE: ("admin", "Manage SLA, policy and service configuration"),
+    CONFIG_MANAGE: ("admin", "Manage deadlines, rules and service configuration"),
     SERVICE_CATALOG_MANAGE: ("admin", "Manage the service catalog"),
     DATA_IMPORT: ("admin", "Import data from CSV"),
     DATA_EXPORT: ("admin", "Export data"),
     AGENT_OPERATE: ("intelligence", "Use operational agents"),
     SYNC_SUBMIT: ("sync", "Replay queued offline operations"),
     DEMO_RESET: ("admin", "Reset demo data"),
+    ATTENDANCE_READ: ("academics", "Read attendance for yourself"),
+    ATTENDANCE_MARK: ("academics", "Mark attendance for a subject you teach"),
+    ATTENDANCE_MANAGE: ("academics", "Manage attendance across the institution"),
+    MARKS_READ: ("academics", "Read marks for yourself"),
+    MARKS_ENTRY: ("academics", "Enter marks for a subject you teach"),
+    MARKS_MANAGE: ("academics", "Manage marks across the institution"),
+    TIMETABLE_READ: ("academics", "Read the timetable"),
+    TIMETABLE_MANAGE: ("academics", "Create or change timetable periods"),
+    FEES_READ: ("finance", "Read your own fee records"),
+    FEES_MANAGE: ("finance", "Create fee records and record payments"),
+    CLEARANCE_READ: ("services", "Read clearance requests for yourself"),
+    CLEARANCE_REQUEST: ("services", "Raise a clearance / no-dues request"),
+    CLEARANCE_DECIDE: ("services", "Approve or reject a clearance request"),
+    LIBRARY_READ: ("services", "Search the library catalogue and read your loans"),
+    LIBRARY_MANAGE: ("services", "Manage the catalogue, issue and return books"),
+    LEAVE_READ: ("services", "Read leave applications for yourself"),
+    LEAVE_REQUEST: ("services", "Apply for leave"),
+    LEAVE_DECIDE: ("services", "Approve or reject a leave application"),
+    FEEDBACK_SUBMIT: ("services", "Submit feedback about the campus"),
+    FEEDBACK_READ: ("services", "Read feedback you submitted"),
+    FEEDBACK_MANAGE: ("services", "Read and respond to all feedback"),
+    FEEDBACK_REQUEST: ("services", "Ask teachers and students for their feedback"),
+    ACTIVITY_READ: ("services", "Browse campus activities"),
+    ACTIVITY_MANAGE: ("services", "Create and manage campus activities"),
+    ACTIVITY_PARTICIPATE: ("services", "Register for a campus activity"),
+    CAREER_READ: ("career", "Read placement postings"),
+    CAREER_MANAGE: ("career", "Publish and manage placement postings"),
+    CAREER_APPLY: ("career", "Apply to a placement posting"),
+    HRMS_READ: ("hrms", "Read your own employment record"),
+    HRMS_MANAGE: ("hrms", "Manage staff records and leave"),
+    SALARY_READ: ("hrms", "Read your own payslips"),
+    SALARY_MANAGE: ("hrms", "Generate and settle payroll"),
 }
 
 _ALL_CASE = {
@@ -138,52 +213,95 @@ _ALL_NOTIFICATION = {
 
 _ALL_GATE = {GATE_VERIFY, GATE_OPERATE, GATE_LOG_READ}
 
+# The campus-services set the management role holds in full.
+#
+# FEEDBACK_SUBMIT is deliberately absent: the office does not give feedback to
+# the people it runs - it reads what they send and asks them for more (see
+# FEEDBACK_REQUEST). A management answer to its own feedback queue is not a
+# conversation, and it would put the institution's own rating in the average it
+# publishes.
+_ALL_SERVICES = {
+    CLEARANCE_READ,
+    CLEARANCE_REQUEST,
+    CLEARANCE_DECIDE,
+    LIBRARY_READ,
+    LIBRARY_MANAGE,
+    LEAVE_READ,
+    LEAVE_REQUEST,
+    LEAVE_DECIDE,
+    FEEDBACK_READ,
+    FEEDBACK_MANAGE,
+    FEEDBACK_REQUEST,
+    ACTIVITY_READ,
+    ACTIVITY_MANAGE,
+    ACTIVITY_PARTICIPATE,
+    CAREER_READ,
+    CAREER_MANAGE,
+    # CAREER_APPLY is deliberately absent: only a student applies to a
+    # posting. The office that publishes postings and moves candidates
+    # through the pipeline must not also be able to apply for them.
+    HRMS_READ,
+    HRMS_MANAGE,
+    SALARY_READ,
+    SALARY_MANAGE,
+}
+
+# What a student may do with campus services. A student reads their own
+# records and raises requests; participation and placements are their own too.
+_READ_ONLY_SERVICES = {
+    CLEARANCE_READ,
+    CLEARANCE_REQUEST,
+    LIBRARY_READ,
+    LEAVE_READ,
+    LEAVE_REQUEST,
+    FEEDBACK_SUBMIT,
+    FEEDBACK_READ,
+    ACTIVITY_READ,
+    CAREER_READ,
+}
+
 ROLE_PERMISSIONS: dict[str, set[str]] = {
-    RoleKey.SUPER_ADMIN.value: (
-        _ALL_CASE | _ALL_ADMIN | _ALL_NOTICE | _ALL_NOTIFICATION | _ALL_GATE | {APPROVAL_DECIDE, SYNC_SUBMIT}
-    ),
-    RoleKey.ADMIN.value: (
+    # Management: runs the institution, day to day and as a deployment. One
+    # role, because the registrar and the hostel warden hold the same office -
+    # see RoleKey. It carries the full operations set, which includes the gate,
+    # kiosk and helpdesk duties that used to be separate staff roles, so those
+    # stations keep working under a single management credential. What a person
+    # may *see* is narrowed by scope, not by a second role.
+    RoleKey.MANAGEMENT.value: (
         _ALL_CASE
         | _ALL_ADMIN
         | _ALL_NOTICE
         | _ALL_NOTIFICATION
         | _ALL_GATE
-        | {APPROVAL_DECIDE, SYNC_SUBMIT}
-    )
-    - {DEMO_RESET},
-    RoleKey.WARDEN.value: {
-        CASE_CREATE,
-        CASE_CREATE_ON_BEHALF,
-        CASE_READ_OWN,
-        CASE_READ_SCOPE,
-        CASE_ASSIGN,
-        CASE_UPDATE_STATUS,
-        CASE_RESOLVE,
-        CASE_VERIFY,
-        CASE_REOPEN,
-        CASE_ESCALATE,
-        CASE_COMMENT,
-        CASE_COMMENT_INTERNAL,
-        CASE_ATTACH,
-        APPROVAL_DECIDE,
-        NOTICE_READ,
-        NOTICE_CREATE,
-        NOTICE_PUBLISH,
-        NOTICE_SHARE,
-        NOTICE_ANALYTICS,
-        NOTIFICATION_READ,
-        NOTIFICATION_SEND,
-        NOTIFICATION_PREFERENCE_MANAGE,
-        GATE_OPERATE,
-        GATE_LOG_READ,
-        GATE_VERIFY,
-        DASHBOARD_VIEW,
-        ANALYTICS_READ,
-        AUDIT_READ,
-        AGENT_OPERATE,
-        SYNC_SUBMIT,
-    },
-    RoleKey.DEPARTMENT_HEAD.value: {
+        # Management runs the institution, not the classroom. ATTENDANCE_MARK
+        # and MARKS_ENTRY are deliberately absent: entering attendance or marks
+        # for a class is the teacher's desk, and letting the office hold those
+        # keys would put the person who audits the register in charge of writing
+        # it. Institution-wide oversight (ATTENDANCE_MANAGE / MARKS_MANAGE) is
+        # kept, because that is a different job from taking the register.
+        | {
+            APPROVAL_DECIDE,
+            SYNC_SUBMIT,
+            ATTENDANCE_READ,
+            ATTENDANCE_MANAGE,
+            MARKS_READ,
+            MARKS_MANAGE,
+            TIMETABLE_READ,
+            TIMETABLE_MANAGE,
+            FEES_READ,
+            FEES_MANAGE,
+        }
+        | _ALL_SERVICES
+    ),
+    # Teacher / faculty: academic staff. Works the department queue, owns the
+    # subjects and classes they teach, and approves student requests in scope.
+    RoleKey.TEACHER.value: {
+        ATTENDANCE_READ,
+        ATTENDANCE_MARK,
+        MARKS_READ,
+        MARKS_ENTRY,
+        TIMETABLE_READ,
+        TIMETABLE_MANAGE,
         CASE_CREATE,
         CASE_READ_OWN,
         CASE_READ_SCOPE,
@@ -205,58 +323,46 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         NOTIFICATION_READ,
         NOTIFICATION_SEND,
         NOTIFICATION_PREFERENCE_MANAGE,
+        # DASHBOARD_VIEW stays because it also backs the shared reference-data
+        # lookups a teacher screen needs (departments, hostels, the staff
+        # workload list on a case). The Command centre *screen* is role-gated to
+        # MANAGEMENT in both navigation and the route guard, so holding the
+        # permission does not open it. AUDIT_READ is deliberately absent:
+        # reading the campus activity log is an administration function, not a
+        # teaching one.
         DASHBOARD_VIEW,
         ANALYTICS_READ,
-        AUDIT_READ,
         AGENT_OPERATE,
         SYNC_SUBMIT,
+        # Campus services: faculty clear students, run activities, manage the
+        # placement cell, and see their own employment record.
+        CLEARANCE_READ,
+        CLEARANCE_DECIDE,
+        LIBRARY_READ,
+        LEAVE_READ,
+        LEAVE_REQUEST,
+        LEAVE_DECIDE,
+        FEEDBACK_SUBMIT,
+        FEEDBACK_READ,
+        FEEDBACK_MANAGE,
+        ACTIVITY_READ,
+        ACTIVITY_MANAGE,
+        ACTIVITY_PARTICIPATE,
+        # Placement cell duty: a teacher publishes postings and moves
+        # candidates. CAREER_READ (the student job board) is deliberately
+        # absent - the board is for students to apply, and a teacher reaches
+        # the postings through the placement desk instead.
+        CAREER_MANAGE,
+        HRMS_READ,
+        SALARY_READ,
     },
-    RoleKey.STAFF.value: {
-        CASE_READ_OWN,
-        CASE_READ_SCOPE,
-        CASE_UPDATE_STATUS,
-        CASE_RESOLVE,
-        CASE_COMMENT,
-        CASE_ATTACH,
-        CASE_ESCALATE,
-        NOTICE_READ,
-        NOTICE_SHARE,
-        NOTIFICATION_READ,
-        NOTIFICATION_PREFERENCE_MANAGE,
-        DASHBOARD_VIEW,
-        SYNC_SUBMIT,
-        AGENT_OPERATE,
-    },
-    RoleKey.SECURITY.value: {
-        CASE_READ_OWN,
-        CASE_READ_SCOPE,
-        CASE_COMMENT,
-        GATE_VERIFY,
-        GATE_OPERATE,
-        GATE_LOG_READ,
-        NOTICE_READ,
-        NOTIFICATION_READ,
-        NOTIFICATION_PREFERENCE_MANAGE,
-        DASHBOARD_VIEW,
-        CASE_CREATE,
-        SYNC_SUBMIT,
-    },
-    RoleKey.HELPDESK_OPERATOR.value: {
-        CASE_CREATE,
-        CASE_CREATE_ON_BEHALF,
-        CASE_READ_OWN,
-        CASE_READ_SCOPE,
-        CASE_UPDATE_STATUS,
-        CASE_COMMENT,
-        CASE_ATTACH,
-        NOTICE_READ,
-        NOTICE_SHARE,
-        NOTIFICATION_READ,
-        NOTIFICATION_PREFERENCE_MANAGE,
-        DASHBOARD_VIEW,
-        SYNC_SUBMIT,
-    },
+    # A student reads their own records and raises their own requests; changes
+    # to campus records are never theirs.
     RoleKey.STUDENT.value: {
+        ATTENDANCE_READ,
+        MARKS_READ,
+        TIMETABLE_READ,
+        FEES_READ,
         CASE_CREATE,
         CASE_READ_OWN,
         CASE_VERIFY,
@@ -269,7 +375,9 @@ ROLE_PERMISSIONS: dict[str, set[str]] = {
         NOTIFICATION_READ,
         NOTIFICATION_PREFERENCE_MANAGE,
         SYNC_SUBMIT,
-    },
+    }
+    | _READ_ONLY_SERVICES
+    | {ACTIVITY_PARTICIPATE, CAREER_APPLY},
 }
 
 

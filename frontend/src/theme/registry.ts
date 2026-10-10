@@ -36,16 +36,17 @@ export interface ThemeOption {
 export const THEME_OPTIONS: ThemeOption[] = [
   {
     id: 'light',
-    symbol: '☀',
+    symbol: 'sun',
     label: 'Light',
-    hint: 'Light theme — dark ink on a soft blue-grey page',
-    themeColor: '#f4f6fb',
+    hint: 'Light theme — dark ink on a clean slate page',
+    /* Mirrors --paper in the light palette. */
+    themeColor: '#f8fafc',
   },
   {
     id: 'dark',
-    symbol: '☾',
+    symbol: 'moon',
     label: 'Dark',
-    hint: 'Dark theme — light ink on a deep navy page',
+    hint: 'Dark theme — light ink on a deep slate page',
     themeColor: '#0b1220',
   },
 ]
@@ -82,6 +83,20 @@ export interface SkinDefinition {
 }
 
 export const SKINS: SkinDefinition[] = [
+  {
+    id: 'bento',
+    name: 'Bento Enterprise',
+    status: 'shipped',
+    summary: 'White cards on a soft slate page, generous radii, quiet blurred elevation, sentence-case labels.',
+    characteristics: [
+      'A twelve-column bento field: proportioned tiles instead of a uniform grid',
+      'Soft blurred elevation and 1px hairlines — depth without hard plates',
+      'One confident indigo for action, tinted pills for status',
+      'Sentence-case labels and Inter throughout, identifiers kept monospace',
+      'Comfortable density for operational tables and forms',
+    ],
+    requestedBy: 'Campus Relay primary design language — modern enterprise SaaS for everyday campus operations.',
+  },
   {
     id: 'industrial',
     name: 'Industrial Brutalism (Blueprint)',
@@ -141,7 +156,7 @@ export const SKINS: SkinDefinition[] = [
   },
 ]
 
-export const DEFAULT_SKIN = 'industrial'
+export const DEFAULT_SKIN = 'bento'
 
 export function isKnownSkin(id: unknown): boolean {
   return SKINS.some((skin) => skin.id === id)

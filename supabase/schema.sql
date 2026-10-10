@@ -77,7 +77,7 @@ CREATE TABLE roles (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	PRIMARY KEY (id), 
-	CONSTRAINT ck_roles_key CHECK (key IN ('SUPER_ADMIN', 'ADMIN', 'WARDEN', 'DEPARTMENT_HEAD', 'STAFF', 'SECURITY', 'HELPDESK_OPERATOR', 'STUDENT')), 
+	CONSTRAINT ck_roles_key CHECK (key IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
 	UNIQUE (key)
 );
 
@@ -95,6 +95,28 @@ CREATE TABLE batches (
 );
 
 CREATE INDEX ix_batches_campus_id ON batches (campus_id);
+
+CREATE TABLE books (
+	campus_id INTEGER NOT NULL, 
+	isbn VARCHAR(24) NOT NULL, 
+	title VARCHAR(200) NOT NULL, 
+	author VARCHAR(160), 
+	category VARCHAR(60), 
+	shelf VARCHAR(40), 
+	copies_total INTEGER NOT NULL, 
+	copies_available INTEGER NOT NULL, 
+	is_active BOOLEAN NOT NULL, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_book_campus_isbn UNIQUE (campus_id, isbn), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_books_campus_id ON books (campus_id);
+
+CREATE INDEX ix_books_title ON books (title);
 
 CREATE TABLE departments (
 	campus_id INTEGER NOT NULL, 
@@ -161,7 +183,7 @@ CREATE TABLE sla_rules (
 	PRIMARY KEY (id), 
 	CONSTRAINT uq_sla_rule_scope UNIQUE (campus_id, service_key, priority), 
 	CONSTRAINT ck_sla_rules_priority CHECK (priority IN ('LOW', 'NORMAL', 'HIGH', 'CRITICAL', 'URGENT')), 
-	CONSTRAINT ck_sla_rules_escalate_role CHECK (escalate_to_role IN ('SUPER_ADMIN', 'ADMIN', 'WARDEN', 'DEPARTMENT_HEAD', 'STAFF', 'SECURITY', 'HELPDESK_OPERATOR', 'STUDENT')), 
+	CONSTRAINT ck_sla_rules_escalate_role CHECK (escalate_to_role IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
 	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE
 );
 
@@ -227,6 +249,31 @@ CREATE TABLE years (
 
 CREATE INDEX ix_years_campus_id ON years (campus_id);
 
+CREATE TABLE activities (
+	campus_id INTEGER NOT NULL, 
+	name VARCHAR(160) NOT NULL, 
+	kind VARCHAR(16) NOT NULL, 
+	state VARCHAR(12) NOT NULL, 
+	description TEXT, 
+	venue VARCHAR(120), 
+	starts_at TIMESTAMP WITH TIME ZONE NOT NULL, 
+	ends_at TIMESTAMP WITH TIME ZONE, 
+	capacity INTEGER NOT NULL, 
+	created_by_user_id INTEGER, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_activities_kind CHECK (kind IN ('CLUB', 'SPORT', 'CULTURAL', 'TECHNICAL', 'COMMUNITY')), 
+	CONSTRAINT ck_activities_state CHECK (state IN ('DRAFT', 'OPEN', 'CLOSED', 'CANCELLED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_activities_campus_id ON activities (campus_id);
+
+CREATE INDEX ix_activities_window ON activities (starts_at, ends_at);
+
 CREATE TABLE branches (
 	campus_id INTEGER NOT NULL, 
 	department_id INTEGER, 
@@ -280,6 +327,33 @@ CREATE TABLE hostels (
 );
 
 CREATE INDEX ix_hostels_campus_id ON hostels (campus_id);
+
+CREATE TABLE job_postings (
+	campus_id INTEGER NOT NULL, 
+	company VARCHAR(160) NOT NULL, 
+	role VARCHAR(160) NOT NULL, 
+	kind VARCHAR(12) NOT NULL, 
+	state VARCHAR(12) NOT NULL, 
+	description TEXT, 
+	location VARCHAR(160), 
+	eligibility VARCHAR(300), 
+	package_lpa NUMERIC(6, 2), 
+	apply_url VARCHAR(400), 
+	deadline DATE, 
+	created_by_user_id INTEGER, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_job_postings_kind CHECK (kind IN ('FULL_TIME', 'INTERNSHIP', 'PART_TIME')), 
+	CONSTRAINT ck_job_postings_state CHECK (state IN ('DRAFT', 'OPEN', 'CLOSED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_job_postings_campus_id ON job_postings (campus_id);
+
+CREATE INDEX ix_jobs_deadline ON job_postings (deadline);
 
 CREATE TABLE notices (
 	campus_id INTEGER NOT NULL, 
@@ -342,6 +416,32 @@ CREATE TABLE notification_preferences (
 
 CREATE INDEX ix_notification_preferences_campus_id ON notification_preferences (campus_id);
 
+CREATE TABLE payslips (
+	campus_id INTEGER NOT NULL, 
+	user_id INTEGER NOT NULL, 
+	period VARCHAR(7) NOT NULL, 
+	basic INTEGER NOT NULL, 
+	allowances INTEGER NOT NULL, 
+	deductions INTEGER NOT NULL, 
+	state VARCHAR(8) NOT NULL, 
+	paid_on DATE, 
+	reference VARCHAR(64), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_payslip_user_period UNIQUE (user_id, period), 
+	CONSTRAINT ck_payslips_state CHECK (state IN ('DRAFT', 'PAID')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_payslips_campus_id ON payslips (campus_id);
+
+CREATE INDEX ix_payslips_period ON payslips (period);
+
+CREATE INDEX ix_payslips_user_id ON payslips (user_id);
+
 CREATE TABLE services (
 	campus_id INTEGER NOT NULL, 
 	workflow_id INTEGER, 
@@ -396,6 +496,36 @@ CREATE INDEX ix_staff_campus_id ON staff (campus_id);
 
 CREATE INDEX ix_staff_department_id ON staff (department_id);
 
+CREATE TABLE staff_leave (
+	campus_id INTEGER NOT NULL, 
+	user_id INTEGER NOT NULL, 
+	kind VARCHAR(16) NOT NULL, 
+	state VARCHAR(16) NOT NULL, 
+	from_date DATE NOT NULL, 
+	to_date DATE NOT NULL, 
+	reason VARCHAR(500) NOT NULL, 
+	decided_by_user_id INTEGER, 
+	decided_at TIMESTAMP WITH TIME ZONE, 
+	decision_note VARCHAR(500), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_staff_leave_kind CHECK (kind IN ('CASUAL', 'SICK', 'EARNED', 'MEDICAL', 'DUTY', 'OTHER')), 
+	CONSTRAINT ck_staff_leave_state CHECK (state IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	FOREIGN KEY(decided_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_staff_leave_campus_id ON staff_leave (campus_id);
+
+CREATE INDEX ix_staff_leave_user ON staff_leave (user_id);
+
+CREATE INDEX ix_staff_leave_user_id ON staff_leave (user_id);
+
+CREATE INDEX ix_staff_leave_window ON staff_leave (from_date, to_date);
+
 CREATE TABLE sync_operations (
 	campus_id INTEGER NOT NULL, 
 	user_id INTEGER NOT NULL, 
@@ -448,7 +578,7 @@ CREATE TABLE workflow_steps (
 	PRIMARY KEY (id), 
 	CONSTRAINT uq_workflow_step_key UNIQUE (workflow_id, key), 
 	CONSTRAINT ck_step_type CHECK (step_type IN ('APPROVAL', 'ASSIGNMENT', 'ACTION', 'RESOLUTION', 'VERIFICATION', 'NOTIFICATION')), 
-	CONSTRAINT ck_workflow_steps_role CHECK (responsible_role IN ('SUPER_ADMIN', 'ADMIN', 'WARDEN', 'DEPARTMENT_HEAD', 'STAFF', 'SECURITY', 'HELPDESK_OPERATOR', 'STUDENT')), 
+	CONSTRAINT ck_workflow_steps_role CHECK (responsible_role IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
 	FOREIGN KEY(workflow_id) REFERENCES workflows (id) ON DELETE CASCADE
 );
 
@@ -540,6 +670,37 @@ CREATE INDEX ix_notice_targets_lookup ON notice_targets (target_type, target_id)
 
 CREATE INDEX ix_notice_targets_notice ON notice_targets (notice_id);
 
+CREATE TABLE subjects (
+	campus_id INTEGER NOT NULL, 
+	branch_id INTEGER, 
+	year_id INTEGER, 
+	code VARCHAR(24) NOT NULL, 
+	name VARCHAR(140) NOT NULL, 
+	credits INTEGER NOT NULL, 
+	semester INTEGER NOT NULL, 
+	faculty_user_id INTEGER, 
+	is_active BOOLEAN NOT NULL, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_subject_campus_code UNIQUE (campus_id, code), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(branch_id) REFERENCES branches (id) ON DELETE SET NULL, 
+	FOREIGN KEY(year_id) REFERENCES years (id) ON DELETE SET NULL, 
+	FOREIGN KEY(faculty_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_subjects_branch_id ON subjects (branch_id);
+
+CREATE INDEX ix_subjects_branch_year ON subjects (branch_id, year_id);
+
+CREATE INDEX ix_subjects_campus_id ON subjects (campus_id);
+
+CREATE INDEX ix_subjects_faculty_user_id ON subjects (faculty_user_id);
+
+CREATE INDEX ix_subjects_year_id ON subjects (year_id);
+
 CREATE TABLE rooms (
 	campus_id INTEGER NOT NULL, 
 	hostel_id INTEGER NOT NULL, 
@@ -563,6 +724,28 @@ CREATE INDEX ix_rooms_block_id ON rooms (block_id);
 CREATE INDEX ix_rooms_campus_id ON rooms (campus_id);
 
 CREATE INDEX ix_rooms_hostel_id ON rooms (hostel_id);
+
+CREATE TABLE timetable_slots (
+	campus_id INTEGER NOT NULL, 
+	subject_id INTEGER NOT NULL, 
+	day VARCHAR(3) NOT NULL, 
+	start_time TIME WITHOUT TIME ZONE NOT NULL, 
+	end_time TIME WITHOUT TIME ZONE NOT NULL, 
+	room VARCHAR(48), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_slot_subject_day_start UNIQUE (subject_id, day, start_time), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(subject_id) REFERENCES subjects (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_slots_day_start ON timetable_slots (day, start_time);
+
+CREATE INDEX ix_timetable_slots_campus_id ON timetable_slots (campus_id);
+
+CREATE INDEX ix_timetable_slots_subject_id ON timetable_slots (subject_id);
 
 CREATE TABLE locations (
 	campus_id INTEGER NOT NULL, 
@@ -608,6 +791,7 @@ CREATE TABLE students (
 	room_id INTEGER, 
 	is_hosteller BOOLEAN NOT NULL, 
 	guardian_phone VARCHAR(24), 
+	guardian_user_id INTEGER, 
 	dues_amount INTEGER NOT NULL, 
 	dues_paid INTEGER NOT NULL, 
 	has_smartphone BOOLEAN NOT NULL, 
@@ -623,10 +807,34 @@ CREATE TABLE students (
 	FOREIGN KEY(year_id) REFERENCES years (id) ON DELETE SET NULL, 
 	FOREIGN KEY(batch_id) REFERENCES batches (id) ON DELETE SET NULL, 
 	FOREIGN KEY(hostel_id) REFERENCES hostels (id) ON DELETE SET NULL, 
-	FOREIGN KEY(room_id) REFERENCES rooms (id) ON DELETE SET NULL
+	FOREIGN KEY(room_id) REFERENCES rooms (id) ON DELETE SET NULL, 
+	FOREIGN KEY(guardian_user_id) REFERENCES users (id) ON DELETE SET NULL
 );
 
 CREATE INDEX ix_students_campus_id ON students (campus_id);
+
+CREATE TABLE activity_registrations (
+	campus_id INTEGER NOT NULL, 
+	activity_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	state VARCHAR(12) NOT NULL, 
+	note VARCHAR(300), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_registration_activity_student UNIQUE (activity_id, student_id), 
+	CONSTRAINT ck_activity_registrations_state CHECK (state IN ('REGISTERED', 'WAITLISTED', 'CANCELLED', 'ATTENDED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(activity_id) REFERENCES activities (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_activity_registrations_activity_id ON activity_registrations (activity_id);
+
+CREATE INDEX ix_activity_registrations_campus_id ON activity_registrations (campus_id);
+
+CREATE INDEX ix_activity_registrations_student_id ON activity_registrations (student_id);
 
 CREATE TABLE assets (
 	campus_id INTEGER NOT NULL, 
@@ -654,6 +862,239 @@ CREATE INDEX ix_assets_campus_id ON assets (campus_id);
 CREATE INDEX ix_assets_campus_location ON assets (campus_id, location_id);
 
 CREATE INDEX ix_assets_location_id ON assets (location_id);
+
+CREATE TABLE attendance_records (
+	campus_id INTEGER NOT NULL, 
+	subject_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	on_date DATE NOT NULL, 
+	slot VARCHAR(12) NOT NULL, 
+	status VARCHAR(16) NOT NULL, 
+	marked_by_user_id INTEGER, 
+	note VARCHAR(240), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_attendance_subject_student_day_slot UNIQUE (subject_id, student_id, on_date, slot), 
+	CONSTRAINT ck_attendance_records_status CHECK (status IN ('PRESENT', 'ABSENT', 'LATE', 'EXCUSED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(subject_id) REFERENCES subjects (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
+	FOREIGN KEY(marked_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_attendance_records_campus_id ON attendance_records (campus_id);
+
+CREATE INDEX ix_attendance_records_student_id ON attendance_records (student_id);
+
+CREATE INDEX ix_attendance_records_subject_id ON attendance_records (subject_id);
+
+CREATE INDEX ix_attendance_student_date ON attendance_records (student_id, on_date);
+
+CREATE TABLE book_loans (
+	campus_id INTEGER NOT NULL, 
+	book_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	issued_on DATE NOT NULL, 
+	due_on DATE NOT NULL, 
+	returned_on DATE, 
+	state VARCHAR(12) NOT NULL, 
+	fine_paid INTEGER NOT NULL, 
+	issued_by_user_id INTEGER, 
+	note VARCHAR(300), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_book_loans_state CHECK (state IN ('ISSUED', 'RETURNED', 'LOST')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(book_id) REFERENCES books (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
+	FOREIGN KEY(issued_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_book_loans_book_id ON book_loans (book_id);
+
+CREATE INDEX ix_book_loans_campus_id ON book_loans (campus_id);
+
+CREATE INDEX ix_book_loans_student_id ON book_loans (student_id);
+
+CREATE INDEX ix_loans_book ON book_loans (book_id);
+
+CREATE INDEX ix_loans_student ON book_loans (student_id);
+
+CREATE TABLE clearance_requests (
+	campus_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	kind VARCHAR(24) NOT NULL, 
+	state VARCHAR(16) NOT NULL, 
+	purpose VARCHAR(200), 
+	remarks VARCHAR(500), 
+	requested_by_user_id INTEGER, 
+	decided_by_user_id INTEGER, 
+	decided_at TIMESTAMP WITH TIME ZONE, 
+	decision_note VARCHAR(500), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_clearance_requests_kind CHECK (kind IN ('NO_DUES', 'TRANSFER', 'GRADUATION', 'HOSTEL_VACATE', 'MIGRATION', 'OTHER')), 
+	CONSTRAINT ck_clearance_requests_state CHECK (state IN ('PENDING', 'APPROVED', 'REJECTED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
+	FOREIGN KEY(requested_by_user_id) REFERENCES users (id) ON DELETE SET NULL, 
+	FOREIGN KEY(decided_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_clearance_requests_campus_id ON clearance_requests (campus_id);
+
+CREATE INDEX ix_clearance_requests_student_id ON clearance_requests (student_id);
+
+CREATE INDEX ix_clearance_state ON clearance_requests (state);
+
+CREATE INDEX ix_clearance_student ON clearance_requests (student_id);
+
+CREATE TABLE fee_records (
+	campus_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	term VARCHAR(24) NOT NULL, 
+	label VARCHAR(80) NOT NULL, 
+	amount INTEGER NOT NULL, 
+	due_date DATE, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_fee_student_term_label UNIQUE (student_id, term, label), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_fee_records_campus_id ON fee_records (campus_id);
+
+CREATE INDEX ix_fee_records_student_id ON fee_records (student_id);
+
+CREATE INDEX ix_fee_student ON fee_records (student_id);
+
+CREATE TABLE feedback (
+	campus_id INTEGER NOT NULL, 
+	submitted_by_user_id INTEGER NOT NULL, 
+	student_id INTEGER, 
+	kind VARCHAR(24) NOT NULL, 
+	subject VARCHAR(160) NOT NULL, 
+	message TEXT NOT NULL, 
+	rating INTEGER NOT NULL, 
+	is_anonymous BOOLEAN NOT NULL, 
+	state VARCHAR(16) NOT NULL, 
+	response TEXT, 
+	responded_by_user_id INTEGER, 
+	responded_at TIMESTAMP WITH TIME ZONE, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_feedback_kind CHECK (kind IN ('ACADEMIC', 'FACULTY', 'FACILITY', 'MESS', 'HOSTEL', 'ADMINISTRATION', 'OTHER')), 
+	CONSTRAINT ck_feedback_state CHECK (state IN ('OPEN', 'ACKNOWLEDGED', 'RESOLVED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(submitted_by_user_id) REFERENCES users (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE SET NULL, 
+	FOREIGN KEY(responded_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_feedback_campus_id ON feedback (campus_id);
+
+CREATE INDEX ix_feedback_state ON feedback (state);
+
+CREATE INDEX ix_feedback_submitted_by_user_id ON feedback (submitted_by_user_id);
+
+CREATE TABLE job_applications (
+	campus_id INTEGER NOT NULL, 
+	posting_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	state VARCHAR(16) NOT NULL, 
+	resume_url VARCHAR(400), 
+	cover_note TEXT, 
+	applied_at TIMESTAMP WITH TIME ZONE, 
+	note VARCHAR(300), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_application_posting_student UNIQUE (posting_id, student_id), 
+	CONSTRAINT ck_job_applications_state CHECK (state IN ('APPLIED', 'SHORTLISTED', 'INTERVIEW', 'SELECTED', 'REJECTED', 'WITHDRAWN')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(posting_id) REFERENCES job_postings (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_job_applications_campus_id ON job_applications (campus_id);
+
+CREATE INDEX ix_job_applications_posting_id ON job_applications (posting_id);
+
+CREATE INDEX ix_job_applications_student_id ON job_applications (student_id);
+
+CREATE TABLE leave_applications (
+	campus_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	kind VARCHAR(16) NOT NULL, 
+	state VARCHAR(16) NOT NULL, 
+	from_date DATE NOT NULL, 
+	to_date DATE NOT NULL, 
+	reason VARCHAR(500) NOT NULL, 
+	destination VARCHAR(160), 
+	guardian_contact VARCHAR(24), 
+	applied_by_user_id INTEGER, 
+	decided_by_user_id INTEGER, 
+	decided_at TIMESTAMP WITH TIME ZONE, 
+	decision_note VARCHAR(500), 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_leave_applications_kind CHECK (kind IN ('CASUAL', 'SICK', 'EARNED', 'MEDICAL', 'DUTY', 'OTHER')), 
+	CONSTRAINT ck_leave_applications_state CHECK (state IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
+	FOREIGN KEY(applied_by_user_id) REFERENCES users (id) ON DELETE SET NULL, 
+	FOREIGN KEY(decided_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_leave_applications_campus_id ON leave_applications (campus_id);
+
+CREATE INDEX ix_leave_applications_student_id ON leave_applications (student_id);
+
+CREATE INDEX ix_leave_student ON leave_applications (student_id);
+
+CREATE INDEX ix_leave_window ON leave_applications (from_date, to_date);
+
+CREATE TABLE marks (
+	campus_id INTEGER NOT NULL, 
+	subject_id INTEGER NOT NULL, 
+	student_id INTEGER NOT NULL, 
+	assessment VARCHAR(60) NOT NULL, 
+	term VARCHAR(24) NOT NULL, 
+	max_marks INTEGER NOT NULL, 
+	obtained_marks INTEGER NOT NULL, 
+	entered_by_user_id INTEGER, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT uq_mark_subject_student_assessment UNIQUE (subject_id, student_id, assessment, term), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(subject_id) REFERENCES subjects (id) ON DELETE CASCADE, 
+	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE CASCADE, 
+	FOREIGN KEY(entered_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_marks_campus_id ON marks (campus_id);
+
+CREATE INDEX ix_marks_student ON marks (student_id);
+
+CREATE INDEX ix_marks_student_id ON marks (student_id);
+
+CREATE INDEX ix_marks_subject_id ON marks (subject_id);
 
 CREATE TABLE cases (
 	campus_id INTEGER NOT NULL, 
@@ -745,6 +1186,29 @@ CREATE INDEX ix_cases_service ON cases (campus_id, service_key, created_at);
 
 CREATE INDEX ix_cases_service_key ON cases (service_key);
 
+CREATE TABLE payments (
+	campus_id INTEGER NOT NULL, 
+	fee_record_id INTEGER NOT NULL, 
+	amount INTEGER NOT NULL, 
+	paid_on DATE NOT NULL, 
+	method VARCHAR(24) NOT NULL, 
+	reference VARCHAR(64), 
+	recorded_by_user_id INTEGER, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(fee_record_id) REFERENCES fee_records (id) ON DELETE CASCADE, 
+	FOREIGN KEY(recorded_by_user_id) REFERENCES users (id) ON DELETE SET NULL
+);
+
+CREATE INDEX ix_payment_record ON payments (fee_record_id);
+
+CREATE INDEX ix_payments_campus_id ON payments (campus_id);
+
+CREATE INDEX ix_payments_fee_record_id ON payments (fee_record_id);
+
 CREATE TABLE audit_logs (
 	campus_id INTEGER, 
 	event_type VARCHAR(40) NOT NULL, 
@@ -792,7 +1256,7 @@ CREATE TABLE case_approvals (
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	PRIMARY KEY (id), 
 	CONSTRAINT ck_state CHECK (state IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED')), 
-	CONSTRAINT ck_case_approvals_role CHECK (approver_role IN ('SUPER_ADMIN', 'ADMIN', 'WARDEN', 'DEPARTMENT_HEAD', 'STAFF', 'SECURITY', 'HELPDESK_OPERATOR', 'STUDENT')), 
+	CONSTRAINT ck_case_approvals_role CHECK (approver_role IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
 	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
 	FOREIGN KEY(case_id) REFERENCES cases (id) ON DELETE CASCADE, 
 	FOREIGN KEY(approver_id) REFERENCES users (id) ON DELETE SET NULL

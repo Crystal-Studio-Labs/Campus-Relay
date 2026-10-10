@@ -67,7 +67,7 @@ export const STATUS_LABELS: Record<CaseStatus, string> = {
   IN_PROGRESS: 'In progress',
   WAITING_FOR_USER: 'Waiting for you',
   WAITING_FOR_APPROVAL: 'Awaiting approval',
-  ESCALATED: 'Escalated',
+  ESCALATED: 'Sent higher up',
   RESOLVED: 'Resolved',
   VERIFICATION_REQUIRED: 'Needs verification',
   CLOSED: 'Closed',
@@ -118,7 +118,7 @@ export function slaTone(sla: SlaState): Tone {
 export function slaLabel(sla: SlaState): string {
   switch (sla) {
     case 'BREACHED':
-      return 'Breached'
+      return 'Past deadline'
     case 'AT_RISK':
       return 'At risk'
     case 'MET':
@@ -164,7 +164,7 @@ export function eventLabel(eventType: string): string {
     CASE_CLASSIFIED: 'Classified',
     CASE_ROUTED: 'Routed to department',
     CASE_ASSIGNED: 'Assigned',
-    CASE_ESCALATED: 'Escalated',
+    CASE_ESCALATED: 'Sent higher up',
     APPROVAL_REQUESTED: 'Approval requested',
     APPROVED: 'Approved',
     REJECTED: 'Rejected',
@@ -174,8 +174,8 @@ export function eventLabel(eventType: string): string {
     RESOLVED: 'Resolved',
     VERIFIED: 'Verified by requester',
     REOPENED: 'Reopened',
-    SLA_BREACHED: 'SLA breached',
-    SLA_AT_RISK: 'SLA at risk',
+    SLA_BREACHED: 'Past its deadline',
+    SLA_AT_RISK: 'Deadline approaching',
     NOTIFICATION_SENT: 'Notification sent',
     NOTIFICATION_READ: 'Notification read',
     NOTICE_PUBLISHED: 'Notice published',

@@ -133,7 +133,7 @@ export function KioskShell({ children, onReset }: { children: ReactNode; onReset
           type="button"
           className="kiosk-admin-lock-btn"
           onClick={() => setShowSupervisorModal(true)}
-          title="Restricted Administrator / Supervisor Station Management"
+          title="Restricted — management role only"
         >
           <span aria-hidden="true">🔒</span>
           <span>STATION SECURED · SUPERVISOR ACCESS</span>

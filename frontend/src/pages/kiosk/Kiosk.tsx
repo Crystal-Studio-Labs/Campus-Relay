@@ -170,7 +170,7 @@ export function KioskPage() {
                 </span>
               </div>
               <div className="mono tiny bold hide-mobile" style={{ color: 'var(--mint)' }}>
-                ● MESH.ONLINE · ZERO-RESIDUAL STORAGE
+                ● ONLINE · NOTHING LEFT ON THIS TABLET
               </div>
             </div>
 

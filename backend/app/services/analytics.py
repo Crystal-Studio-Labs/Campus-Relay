@@ -1,4 +1,4 @@
-"""Administrator analytics.
+"""Management analytics.
 
 Every number here is computed from rows in Postgres. Nothing is estimated,
 sampled or invented: if there is no data, the value is zero or null and the UI
@@ -317,8 +317,10 @@ def staff_workload_detail(db: Session, *, campus_id: int) -> list[dict]:
     for row in rows:
         staff = db.get(Staff, row["staff_id"])
         row["designation"] = staff.designation if staff else None
+        row["skills"] = list(staff.skills or []) if staff else []
         department = db.get(Department, row["department_id"]) if row["department_id"] else None
         row["department"] = department.name if department else None
+        row["department_code"] = department.code if department else None
         overdue = db.scalar(
             select(func.count(Case.id)).where(
                 Case.assigned_staff_id == row["staff_id"],

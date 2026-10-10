@@ -24,14 +24,17 @@ import { usePolling, useRemote, useSyncState } from '../../state/hooks'
 import type { AgentBriefing, DashboardPayload } from '../../lib/types'
 import {
   Badge,
+  Bento,
+  BentoItem,
   Button,
   Card,
   EmptyState,
-  Metric,
   PageHeader,
   Pagination,
   ProgressBar,
+  SectionHeading,
   SectionTitle,
+  StatTile,
   Tabs,
   TextInput,
 } from '../../components/ui'
@@ -140,19 +143,67 @@ export function CommandCentre() {
 
       {/* ---- Level 2: key metrics --------------------------------------- */}
       <section className="page-section">
-        <SectionTitle>Today at a glance</SectionTitle>
-        <div className="grid-metrics" data-guide="admin-metrics">
-          <Metric label="Open cases" value={dashboard?.open_cases ?? 0} hint={`${dashboard?.new_today ?? 0} new today`} onClick={() => navigate('/queue')} />
-          <Metric label="Breached" value={breached} hint="Past the target" tone="urgent" onClick={() => navigate('/queue?sla_state=BREACHED')} />
-          <Metric label="At risk" value={atRisk} hint="Last quarter of the target" tone="warn" onClick={() => navigate('/queue?sla_state=AT_RISK')} />
-          <Metric label="Unassigned" value={unassigned} hint="Nobody owns these yet" onClick={() => navigate('/queue?unassigned=1')} />
-          <Metric label="Resolved today" value={dashboard?.resolved_today ?? 0} tone="done" />
-          <Metric
-            label="Median resolution"
-            value={dashboard?.average_resolution_minutes ? duration(dashboard.average_resolution_minutes) : '—'}
-            hint="Across every service"
-          />
-        </div>
+        <SectionHeading icon="insights">Today at a glance</SectionHeading>
+        <Bento>
+          <BentoItem span={4}>
+            <StatTile
+              label="Open cases"
+              value={dashboard?.open_cases ?? 0}
+              hint={`${dashboard?.new_today ?? 0} new today`}
+              icon="cases"
+              tone="open"
+              onClick={() => navigate('/queue')}
+            />
+          </BentoItem>
+          <BentoItem span={4}>
+            <StatTile
+              label="Breached"
+              value={breached}
+              hint="Past the service target"
+              icon="warning"
+              tone="urgent"
+              onClick={() => navigate('/queue?sla_state=BREACHED')}
+            />
+          </BentoItem>
+          <BentoItem span={4}>
+            <StatTile
+              label="At risk"
+              value={atRisk}
+              hint="Last quarter of the target"
+              icon="clock"
+              tone="warn"
+              onClick={() => navigate('/queue?sla_state=AT_RISK')}
+            />
+          </BentoItem>
+          <BentoItem span={4}>
+            <StatTile
+              label="Unassigned"
+              value={unassigned}
+              hint="Nobody owns these yet"
+              icon="people"
+              tone="ghost"
+              onClick={() => navigate('/queue?unassigned=1')}
+            />
+          </BentoItem>
+          <BentoItem span={4}>
+            <StatTile
+              label="Resolved today"
+              value={dashboard?.resolved_today ?? 0}
+              hint="Closed since midnight"
+              icon="check"
+              tone="done"
+            />
+          </BentoItem>
+          <BentoItem span={4}>
+            <StatTile
+              label="Median resolution"
+              value={dashboard?.average_resolution_minutes ? duration(dashboard.average_resolution_minutes) : '—'}
+              hint="Across every service"
+              icon="trending"
+              tone="ghost"
+            />
+          </BentoItem>
+        </Bento>
       </section>
 
       {/* ---- Level 3: what needs a person now --------------------------- */}
@@ -170,19 +221,25 @@ export function CommandCentre() {
             detail="Every open case is assigned, inside target, and not sitting in an approval or verification step."
           />
         ) : (
-          <div className="grid-2">
+          <Bento>
             {needsAction.map((item) => (
-              <Card key={item.key} className="card-clickable" onClick={() => navigate(item.to)}>
-                <div className="row-between">
-                  <div>
-                    <div className="bold">{item.label}</div>
-                    <div className="small muted">Open the list and work it down.</div>
+              <BentoItem span={6} key={item.key}>
+                <Card
+                  className="card-clickable"
+                  accent={item.tone === 'urgent' ? 'urgent' : item.tone === 'warn' ? 'sun' : item.tone === 'progress' ? 'sun' : 'signal'}
+                  onClick={() => navigate(item.to)}
+                >
+                  <div className="row-between">
+                    <div>
+                      <div className="bold">{item.label}</div>
+                      <div className="small muted">Open the list and work it down.</div>
+                    </div>
+                    <Badge tone={item.tone}>{item.count}</Badge>
                   </div>
-                  <Badge tone={item.tone}>{item.count}</Badge>
-                </div>
-              </Card>
+                </Card>
+              </BentoItem>
             ))}
-          </div>
+          </Bento>
         )}
       </section>
 
@@ -198,10 +255,9 @@ export function CommandCentre() {
       />
 
       {tab === 'overview' ? (
-        <>
-          <div className="grid-2">
-            <Card>
-              <SectionTitle>SLA compliance</SectionTitle>
+        <div className="stack-lg">
+          <Card>
+            <SectionTitle>Deadlines met</SectionTitle>
               {sla ? (
                 <>
                   <div className="metric-value">{percent(sla.compliance_rate)}</div>
@@ -215,27 +271,28 @@ export function CommandCentre() {
                     <li>Still open past target: {sla.open_past_target}</li>
                   </ul>
                 </>
-              ) : (
-                <EmptyState title="Not enough data yet" detail="Compliance needs resolved cases inside the window." />
-              )}
-            </Card>
+            ) : (
+              <EmptyState title="Not enough data yet" detail="Compliance needs resolved cases inside the window." />
+            )}
+          </Card>
 
-            <Card>
-              <SectionTitle>Where cases come from</SectionTitle>
+          <Card>
+            <SectionTitle>Where cases come from</SectionTitle>
               <ul className="list-reset stack" style={{ gap: 6 }}>
                 {(dashboard?.by_category ?? []).slice(0, 8).map((row) => (
-                  <li key={row.service_key} className="row-between">
-                    <span>{row.category.replaceAll('_', ' ').toLowerCase()}</span>
+                  <li key={`${row.category}::${row.service_key}`} className="row-between">
+                    <span>
+                      {row.category.replaceAll('_', ' ').toLowerCase()}
+                      <span className="tiny muted"> · {row.service_key.replaceAll('_', ' ').toLowerCase()}</span>
+                    </span>
                     <span className="bold">{row.count}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>
+                </li>
+              ))}
+            </ul>
+          </Card>
 
-          <div className="grid-2">
-            <Card>
-              <SectionTitle>Ageing</SectionTitle>
+          <Card>
+            <SectionTitle>Ageing</SectionTitle>
               <ul className="list-reset stack" style={{ gap: 6 }}>
                 {(dashboard?.ageing ?? []).map((bucket) => (
                   <li key={bucket.label}>
@@ -249,23 +306,22 @@ export function CommandCentre() {
                       tone="status-warn"
                     />
                   </li>
-                ))}
-              </ul>
-            </Card>
+              ))}
+            </ul>
+          </Card>
 
-            <Card>
-              <SectionTitle>Status mix</SectionTitle>
+          <Card>
+            <SectionTitle>Status mix</SectionTitle>
               <ul className="list-reset stack" style={{ gap: 6 }}>
                 {(dashboard?.by_status ?? []).map((row) => (
                   <li key={row.key} className="row-between">
                     <span>{row.key.replaceAll('_', ' ').toLowerCase()}</span>
-                    <span className="bold">{row.count}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </div>
-        </>
+                  <span className="bold">{row.count}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </div>
       ) : null}
 
       {tab === 'teams' ? (
@@ -491,7 +547,7 @@ export function CommandCentre() {
           Directory & config
         </Button>
         <Button variant="ghost" onClick={() => navigate('/audit')}>
-          Audit trail
+          Activity log
         </Button>
       </div>
     </div>

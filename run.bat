@@ -229,15 +229,10 @@ echo   [PRE-CONFIGURED DEMO ACCOUNTS]  Password for all: Campus@2026
 echo   --------------------------------------------------------------------------
 echo   Role               Account Email                       Access Scope
 echo   --------------------------------------------------------------------------
-echo   Super Admin        superadmin@campusrelay.demo         Full System Governance
-echo   Administrator      admin@campusrelay.demo              Command Centre / SLA / Audit
-echo   Hostel Warden      warden@campusrelay.demo             Leave Approvals / Hostel
-echo   Maintenance Head   maintenance.head@campusrelay.demo   Dept Routing / Overdue
-echo   Technician         technician@campusrelay.demo         Staff Task Execution
-echo   Security Guard     security@campusrelay.demo           Pass Verification / Gate Logs
-echo   Helpdesk Operator  helpdesk@campusrelay.demo           Assisted Desk / Kiosk
-echo   Student (Hostel)   student@campusrelay.demo            Hostel Complaints / Passes
-echo   Student (Day)      student2@campusrelay.demo           Day Scholar Workflows
+echo   Management         admin@campusrelay.demo              Whole institution / SLA / audit
+echo   Management         warden@campusrelay.demo             Residential side: hostel / leave / gate
+echo   Teacher            teacher@campusrelay.demo            Own classes / attendance / marks
+echo   Student            student@campusrelay.demo            Requests / leave / fees / notices
 echo   --------------------------------------------------------------------------
 echo.
 echo   [CONTROLLER ACTIONS]

@@ -170,7 +170,7 @@ def _raise_breach(db: Session, case: Case) -> None:
         case_id=case.id,
         campus_id=case.campus_id,
         event_type=AuditEventType.SLA_BREACHED.value,
-        actor_role=RoleKey.ADMIN.value,
+        actor_role=RoleKey.MANAGEMENT.value,
         payload={"due_at": case.due_at.isoformat() if case.due_at else None},
     )
     case.escalation_level = max(case.escalation_level, 1)
@@ -191,7 +191,7 @@ def _raise_at_risk(db: Session, case: Case, *, actor: User | None = None) -> Non
         db,
         case=case,
         category="SLA_ALERT",
-        title=f"SLA at risk: {case.case_number}",
+        title=f"Deadline approaching: {case.case_number}",
         body=f"{case.title} is approaching its resolution target.",
         priority=Priority.HIGH.value,
         dedupe_key=f"sla-at-risk:{case.id}",

@@ -111,23 +111,27 @@ export function NotificationsPage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        guide="notifications-head"
+        kicker="Announcements · alerts"
         title="Alerts"
         subtitle="Things addressed to you about your own cases, approvals and notices"
         actions={data?.unread ? <Badge tone="open">{data.unread} unread</Badge> : null}
       />
 
-      <Tabs
-        tabs={[
-          { id: 'all', label: 'All', count: data?.total },
-          { id: 'unread', label: 'Unread', count: data?.unread },
-          { id: 'preferences', label: 'Preferences' },
-        ]}
-        active={tab}
-        onChange={(t) => {
-          setTab(t)
-          setPage(1)
-        }}
-      />
+      <div data-guide="notifications-tabs">
+        <Tabs
+          tabs={[
+            { id: 'all', label: 'All', count: data?.total },
+            { id: 'unread', label: 'Unread', count: data?.unread },
+            { id: 'preferences', label: 'Preferences' },
+          ]}
+          active={tab}
+          onChange={(t) => {
+            setTab(t)
+            setPage(1)
+          }}
+        />
+      </div>
 
       {message ? <div className="banner banner-info">{message}</div> : null}
 
@@ -162,7 +166,7 @@ export function NotificationsPage() {
               detail="Alerts appear here when your cases change, approvals are needed, or something urgent is published."
             />
           ) : null}
-          <ul className="list-reset stack">
+          <ul className="list-reset stack" data-guide="notifications-list">
             {data?.notifications.map((item) => (
               <NotificationRow
                 key={item.id}

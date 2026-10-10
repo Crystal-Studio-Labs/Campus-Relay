@@ -132,6 +132,10 @@ class Settings(BaseSettings):
 
     # --- Rate limiting (in-process, best effort) ---
     rate_limit_per_minute: int = 240
+    # Hard ceiling on a single request body, checked from Content-Length before
+    # the body is read. Comfortably above the 5 MB media upload and the 2 MB CSV
+    # import cap, so it only ever refuses something abusive.
+    max_request_bytes: int = 12 * 1024 * 1024
 
     @property
     def sqlalchemy_url(self) -> str:

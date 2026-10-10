@@ -1,6 +1,6 @@
 """Agent authorisation, requester scoping, and SLA computation."""
 
-from tests.conftest import _login, auth
+from tests.conftest import auth
 
 
 def _service_key(client, token):
@@ -67,8 +67,27 @@ def test_agent_capabilities_are_described(client, admin_token):
 # --- Tenant / requester scoping ------------------------------------------
 
 
-def test_a_student_cannot_read_another_students_case(client, student_token):
-    other_token = _login(client, "student2@campusrelay.demo")
+def test_a_student_cannot_read_another_students_case(client, student_token, admin_token):
+    # The demo seeds one student account, so the second identity is created the
+    # way a real institution would: an administrator adds a student.
+    created = client.post(
+        "/api/v1/admin/users",
+        headers=auth(admin_token),
+        json={
+            "email": "second.student@campusrelay.demo",
+            "full_name": "Second Student",
+            "role": "STUDENT",
+            "password": "Temp@12345",
+            "student_roll_number": "TMP2ND001",
+        },
+    )
+    assert created.status_code == 201, created.text
+    login = client.post(
+        "/api/v1/auth/login",
+        json={"email": "second.student@campusrelay.demo", "password": "Temp@12345"},
+    )
+    assert login.status_code == 200, login.text
+    other_token = login.json()["access_token"]
     other_case = _create_case(client, other_token, "Day-scholar: the bus gate is congested.")
 
     response = client.get(f"/api/v1/cases/{other_case['id']}", headers=auth(student_token))

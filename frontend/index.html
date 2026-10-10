@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-skin="industrial">
+<html lang="en" data-skin="bento">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -7,6 +7,7 @@
       content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=5"
     />
     <meta name="theme-color" content="#f8fafc" />
+    <meta name="color-scheme" content="light dark" />
     <meta
       name="description"
       content="A resilient operating layer for everyday campus operations: one case engine, an auditable trail, and an interface that keeps working when the network does not."
@@ -20,6 +21,7 @@
     <!-- Open Graph / Facebook / LinkedIn / WhatsApp -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Campus Relay" />
+    <meta property="og:url" content="https://campusrelay.org/" />
     <meta property="og:title" content="Campus Relay — Resilient Campus Operations Platform" />
     <meta property="og:description" content="A resilient operating layer for everyday campus operations: universal case engine, cryptographic gate passes, offline-first sync, and auditable trails." />
     <meta property="og:image" content="/social-preview.png" />
@@ -34,9 +36,11 @@
     <meta name="twitter:image" content="/social-preview.png" />
 
     <!-- Apple & PWA Metadata -->
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="Campus Relay" />
+    <meta name="application-name" content="Campus Relay" />
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
@@ -53,6 +57,7 @@
         "applicationCategory": "EducationalApplication",
         "operatingSystem": "All (Web / PWA)",
         "description": "A resilient operating layer for everyday campus operations: universal case engine, cryptographic gate passes, offline-first sync, and auditable trails.",
+        "url": "https://campusrelay.org/",
         "creator": {
           "@type": "Organization",
           "name": "Crystal Studio Labs"
@@ -80,8 +85,8 @@
          script has to run before any stylesheet or module has loaded. */
       (function () {
         var root = document.documentElement
-        var SHIPPED_SKIN = 'industrial'
-        var PAPER = { light: '#f8fafc', dark: '#090d14' }
+        var SHIPPED_SKIN = 'bento'
+        var PAPER = { light: '#f8fafc', dark: '#0b1220' }
         try {
           var storedTheme = localStorage.getItem('campusrelay.theme')
           var theme = storedTheme === 'dark' ? 'dark' : 'light'
@@ -114,33 +119,34 @@
     </script>
     <style>
       /* ==========================================================================
-         INDUSTRIAL BRUTALIST PRE-BOOT SPLASH SCREEN
+         PRE-BOOT SCREEN
+         A skeleton of the shell that is about to render, in the product's own
+         light palette. It paints before any stylesheet loads, so its colours
+         cannot come from a variable - they mirror tokens.css by hand. Dark is
+         handled explicitly.
          ========================================================================== */
       :root {
-        --boot-bg: #f8fafc;
+        --boot-paper: #f8fafc;
         --boot-surface: #ffffff;
-        --boot-line: #cbd5e1;
+        --boot-line: #e2e8f0;
         --boot-ink: #0f172a;
         --boot-muted: #64748b;
-        --boot-signal: #1d4ed8;
-        --boot-mint: #16a34a;
-        --boot-shadow: #0f172a;
+        --boot-signal: #4f46e5;
       }
       html[data-theme='dark'] {
-        --boot-bg: #090d14;
-        --boot-surface: #111723;
-        --boot-line: #2e3b52;
+        --boot-paper: #0b1220;
+        --boot-surface: #111827;
+        --boot-line: #263349;
         --boot-ink: #f1f5f9;
         --boot-muted: #94a3b8;
-        --boot-signal: #3b82f6;
-        --boot-mint: #10b981;
-        --boot-shadow: #000000;
+        --boot-signal: #6366f1;
       }
-      html, body {
+      html,
+      body {
         margin: 0;
-        background: var(--boot-bg);
+        background: var(--boot-paper);
         color: var(--boot-ink);
-        font-family: ui-monospace, 'SFMono-Regular', 'JetBrains Mono', Menlo, monospace;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
         height: 100%;
       }
       #boot {
@@ -148,182 +154,105 @@
         min-height: 100dvh;
         display: grid;
         place-items: center;
-        padding: 20px;
+        padding: 24px;
         box-sizing: border-box;
-        background-image: 
-          linear-gradient(to right, var(--boot-line) 1px, transparent 1px),
-          linear-gradient(to bottom, var(--boot-line) 1px, transparent 1px);
-        background-size: 32px 32px;
       }
-      #boot-chassis {
-        position: relative;
+      .boot-card {
         width: 100%;
-        max-width: 480px;
+        max-width: 380px;
         background: var(--boot-surface);
-        border: 2px solid var(--boot-line);
-        box-shadow: 6px 6px 0px var(--boot-shadow);
-        border-radius: 2px;
-        padding: 28px 24px;
+        border: 1px solid var(--boot-line);
+        border-radius: 20px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        padding: 32px 28px;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
+        align-items: center;
         gap: 18px;
         animation: boot-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       }
       @keyframes boot-in {
-        from { opacity: 0; transform: scale(0.97) translateY(6px); }
-        to { opacity: 1; transform: scale(1) translateY(0); }
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: none; }
       }
-      .boot-corner {
-        position: absolute;
-        font-weight: 900;
-        font-size: 14px;
-        line-height: 1;
-        color: var(--boot-signal);
-        user-select: none;
-      }
-      .boot-tl { top: 6px; left: 8px; }
-      .boot-tr { top: 6px; right: 8px; }
-      .boot-bl { bottom: 6px; left: 8px; }
-      .boot-br { bottom: 6px; right: 8px; }
-
-      .boot-header-strip {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1.5px solid var(--boot-line);
-        padding-bottom: 10px;
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-      }
-      .boot-beacon-dot {
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--boot-mint);
-        margin-right: 6px;
-        box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
-        animation: boot-pulse 1.4s infinite;
-      }
-      @keyframes boot-pulse {
-        0% { transform: scale(0.9); opacity: 0.7; }
-        50% { transform: scale(1.15); opacity: 1; }
-        100% { transform: scale(0.9); opacity: 0.7; }
-      }
-
-      .boot-brand {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-      .boot-emblem {
-        width: 44px;
-        height: 44px;
+      .boot-mark {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         background: var(--boot-signal);
-        border: 2px solid var(--boot-ink);
-        box-shadow: 2px 2px 0px var(--boot-shadow);
-        border-radius: 2px;
+        color: #fff;
         display: grid;
         place-items: center;
-        color: #ffffff;
-        font-weight: 900;
-        font-size: 18px;
-        letter-spacing: 0.04em;
-        flex-shrink: 0;
+        font-weight: 700;
+        font-size: 19px;
+        letter-spacing: 0.02em;
       }
       .boot-title {
-        font-size: 18px;
-        font-weight: 900;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--boot-ink);
-        margin: 0 0 4px;
-      }
-      .boot-tagline {
-        font-size: 11px;
+        font-size: 17px;
         font-weight: 700;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        color: var(--boot-muted);
+        letter-spacing: -0.01em;
         margin: 0;
       }
-
-      .boot-progress-wrap {
+      .boot-tagline {
+        font-size: 13px;
+        color: var(--boot-muted);
+        margin: 4px 0 0;
+        text-align: center;
+      }
+      .boot-brand {
+        text-align: center;
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        align-items: center;
+        gap: 12px;
       }
-      .boot-bar {
+      .boot-track {
         width: 100%;
-        height: 8px;
-        background: var(--boot-bg);
-        border: 1.5px solid var(--boot-line);
-        border-radius: 2px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--boot-line);
         overflow: hidden;
         position: relative;
       }
-      .boot-bar-fill {
+      .boot-track span {
         position: absolute;
         top: 0;
         left: 0;
         height: 100%;
-        width: 55%;
+        width: 40%;
+        border-radius: 999px;
         background: var(--boot-signal);
-        animation: boot-slide 1.5s infinite ease-in-out;
+        animation: boot-slide 1.4s infinite ease-in-out;
       }
       @keyframes boot-slide {
-        0% { left: -40%; width: 40%; }
-        50% { left: 30%; width: 50%; }
-        100% { left: 100%; width: 30%; }
+        0% { left: -40%; }
+        100% { left: 100%; }
       }
-
       .boot-status {
-        font-size: 11px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+        font-size: 12px;
         color: var(--boot-muted);
-        display: flex;
-        justify-content: space-between;
+        text-align: center;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .boot-card { animation: none; }
+        .boot-track span { animation: none; left: 0; width: 100%; }
       }
     </style>
   </head>
   <body>
     <div id="root">
       <div id="boot">
-        <div id="boot-chassis">
-          <span class="boot-corner boot-tl">+</span>
-          <span class="boot-corner boot-tr">+</span>
-          <span class="boot-corner boot-bl">+</span>
-          <span class="boot-corner boot-br">+</span>
-
-          <div class="boot-header-strip">
-            <div>
-              <span class="boot-beacon-dot"></span>
-              <span>SYS.BOOT // PROTOCOL ONLINE</span>
-            </div>
-            <span style="color: var(--boot-signal)">v2.6 MESH</span>
-          </div>
-
+        <div class="boot-card">
           <div class="boot-brand">
-            <div class="boot-emblem">CR</div>
+            <div class="boot-mark">CR</div>
             <div>
-              <div class="boot-title">Campus Relay</div>
-              <p class="boot-tagline">Operating Layer for Everyday Operations</p>
+              <h1 class="boot-title">Campus Relay</h1>
+              <p class="boot-tagline">A resilient operating layer for everyday campus operations</p>
             </div>
           </div>
-
-          <div class="boot-progress-wrap">
-            <div class="boot-bar">
-              <div class="boot-bar-fill"></div>
-            </div>
-            <div class="boot-status">
-              <span>[CORE] INITIALIZING STORAGE...</span>
-              <span>ESTABLISHING LINK</span>
-            </div>
-          </div>
+          <div class="boot-track"><span></span></div>
+          <div class="boot-status">Loading your campus…</div>
         </div>
       </div>
     </div>

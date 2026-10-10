@@ -71,6 +71,20 @@ export function ReportPage() {
     [services, serviceKey],
   )
 
+  // "Where" is modelled twice: a required `location` field in the form
+  // schema, and a first-class `location_code` on the case. The API only
+  // accepts the latter, so the two are kept in step here.
+  const locationFieldName = useMemo(
+    () => (service?.form_schema || []).find((field) => field.type === 'location')?.name ?? null,
+    [service],
+  )
+
+  /** A code from the scanner, or one typed into the field - whichever the
+   *  person supplied. This is what the case is filed against. */
+  const effectiveLocation = (
+    locationCode || (locationFieldName ? String(values[locationFieldName] ?? '') : '')
+  ).trim()
+
   // Draft recovery: a half-written complaint must survive a phone restart.
   useEffect(() => {
     if (draftLoaded.current) return
@@ -104,7 +118,7 @@ export function ReportPage() {
       const result = await api.post<IntakeAnalysis>('/agents/intake', {
         text: description,
         service_key: serviceKey ?? undefined,
-        location_code: locationCode || undefined,
+        location_code: effectiveLocation || undefined,
       })
       setAnalysis(result)
       if (!serviceKey && result.service_key) setServiceKey(result.service_key)
@@ -125,9 +139,15 @@ export function ReportPage() {
   const missing = useMemo(() => {
     if (!service) return []
     return (service.form_schema || [])
-      .filter((field) => field.required && !String(values[field.name] ?? '').trim())
+      .filter((field) => {
+        if (!field.required) return false
+        // A scanned code answers the location field: it is what the case
+        // carries, and the server validates it the same way.
+        if (field.type === 'location' && locationCode.trim()) return false
+        return !String(values[field.name] ?? '').trim()
+      })
       .map((field) => field.label)
-  }, [service, values])
+  }, [service, values, locationCode])
 
   const canSubmit =
     Boolean(service) && description.trim().length >= 8 && missing.length === 0
@@ -142,7 +162,7 @@ export function ReportPage() {
       description,
       title: title || undefined,
       priority,
-      location_code: locationCode || undefined,
+      location_code: effectiveLocation || undefined,
       state_payload: values,
       language: currentLanguage(),
       client_ref: key,
@@ -385,14 +405,32 @@ export function ReportPage() {
                 {showScanner ? 'Hide scanner' : 'Scan the label'}
               </Button>
               {locationCode ? (
-                <Button variant="ghost" onClick={() => setLocationCode('')}>
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setLocationCode('')
+                    if (locationFieldName) {
+                      setValues((current) => ({ ...current, [locationFieldName]: '' }))
+                    }
+                  }}
+                >
                   Clear
                 </Button>
               ) : null}
             </div>
             {showScanner ? (
               <div style={{ marginTop: 12 }}>
-                <ScanTarget onCode={(code) => { setLocationCode(code); setShowScanner(false) }} />
+                <ScanTarget
+                  onCode={(code) => {
+                    setLocationCode(code)
+                    // Mirror it into the required field so the form shows the
+                    // same location it will file against.
+                    if (locationFieldName) {
+                      setValues((current) => ({ ...current, [locationFieldName]: code }))
+                    }
+                    setShowScanner(false)
+                  }}
+                />
               </div>
             ) : null}
           </Card>

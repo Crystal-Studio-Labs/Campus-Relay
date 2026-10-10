@@ -2,7 +2,7 @@
  *
  *  Sorted by how long the requester has been waiting, not by when it arrived.
  *  The decision shows what it is actually approving: a certificate blocked by
- *  dues, a leave request that needs a warden, a purchase over a threshold.
+ *  dues, a leave request, a purchase over a threshold.
  *
  *  Each row follows the same shape as every other list in the product: identity
  *  and state on top, the title, then a labelled grid of what the decision is
@@ -67,7 +67,7 @@ export function ApprovalsPage() {
     setErrorMessage(null)
     try {
       await api.post(`/cases/${dialog.row.case.id}/approval`, { approve: dialog.approve, note: note || undefined })
-      setMessage(dialog.approve ? 'Approved — the workflow has moved on.' : 'Rejected — the requester has been told why.')
+      setMessage(dialog.approve ? 'Approved — the next step has already been taken.' : 'Rejected — the requester has been told why.')
       setDialog(null)
       setNote('')
       await refresh()
@@ -86,6 +86,7 @@ export function ApprovalsPage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        guide="approvals-head"
         kicker="Requests"
         title="Approvals"
         subtitle="Longest wait first — the person at the top has been waiting the longest"
@@ -124,12 +125,15 @@ export function ApprovalsPage() {
         </div>
       )}
 
-      <ul className="list-reset stack">
+      <ul className="list-reset stack" data-guide="approvals-list">
         {rows.slice((page - 1) * pageSize, page * pageSize).map((row) => {
           const slow = row.waiting_minutes > SLOW_AFTER_MINUTES
           return (
             <li key={row.approval_id}>
-              <Card as="li" accent={slow ? 'urgent' : 'sun'}>
+              {/* A plain div, not as="li": the wrapper above is already the list
+                  item, and an <li> inside an <li> is invalid HTML that React
+                  reports as a validateDOMNesting warning on every render. */}
+              <Card accent={slow ? 'urgent' : 'sun'}>
                 <div className="case-row-head">
                   <span className="ident small muted">{row.case.case_number}</span>
                   <CaseStatusBadge status={row.case.status} />

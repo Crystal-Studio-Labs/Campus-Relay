@@ -14,12 +14,15 @@
 
 import { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { DEVICE_PRESETS, FEATURE_MATRIX, TOURS } from '../lib/tours'
+import { DEVICE_PRESETS, FEATURE_MATRIX, GUIDE_ROLES, toursForRole, type Tour } from '../lib/tours'
 import { THEME_OPTIONS, useTheme, type TextChoice } from '../state/theme'
 import { useGuide } from '../state/guide'
 import { useInstitution } from '../state/institution'
+import { useSession } from '../state/session'
+import { useLanguage } from '../lib/i18n'
 import { DESIGN_ROADMAP, SKINS, roadmapCount } from '../theme/registry'
-import { Badge, Button, Card, Field, PageHeader, SectionTitle, Select, Tabs } from '../components/ui'
+import { Badge, Button, Card, EmptyState, Field, PageHeader, SectionTitle, Select, Tabs } from '../components/ui'
+import { Icon } from '../components/Icon'
 
 type Tab = 'tours' | 'support' | 'devices' | 'themes'
 
@@ -47,12 +50,22 @@ export function GuidePage() {
   )
   const guide = useGuide()
   const theme = useTheme()
+  const { profile } = useSession()
+  const { t } = useLanguage()
+
+  // Tours are written for students and teachers. A staffed desk gets an
+  // explanation here rather than an empty list.
+  const tours = toursForRole(profile?.role)
+  const guideAllowed = (GUIDE_ROLES as readonly string[]).includes(profile?.role ?? '')
+  const tourGroups = new Map<string, Tour[]>()
+  tours.forEach((tour) => tourGroups.set(tour.audience, [...(tourGroups.get(tour.audience) ?? []), tour]))
 
   return (
     <div className="stack-lg">
       <PageHeader
+        kicker="Guide"
         title="Guide & devices"
-        subtitle="Walk through any role's screens, see what works on which device, and preview the running app at real viewport sizes"
+        subtitle="Walk through the student and teacher screens step by step, see what works on which device, and preview the running app at real viewport sizes"
       />
 
       {/* --- Display settings: the fix for unreadable text ------------------ */}
@@ -79,8 +92,8 @@ export function GuidePage() {
                   disabled={!theme.canChooseTheme}
                   onClick={() => theme.setTheme(option.id)}
                 >
-                  <span aria-hidden="true">
-                    {option.symbol} {option.label}
+                  <span aria-hidden="true" className="row" style={{ alignItems: 'center', gap: 6 }}>
+                    <Icon name={option.symbol} size={16} /> {option.label}
                   </span>
                 </button>
               ))}
@@ -106,10 +119,10 @@ export function GuidePage() {
           <Field label="Guided tours" hint="Off by default. The choice is remembered on this device.">
             <div className="switcher" role="group" aria-label="Guided tours">
               <button type="button" aria-pressed={!guide.enabled} onClick={() => guide.setEnabled(false)}>
-                Off
+                {t('guide.off')}
               </button>
               <button type="button" aria-pressed={guide.enabled} onClick={() => guide.setEnabled(true)}>
-                On
+                {t('guide.on')}
               </button>
             </div>
           </Field>
@@ -123,7 +136,7 @@ export function GuidePage() {
 
       <Tabs
         tabs={[
-          { id: 'tours', label: 'Tours', count: TOURS.length },
+          { id: 'tours', label: t('guide.toursTitle'), count: tours.length },
           { id: 'support', label: 'Feature support' },
           { id: 'devices', label: 'Device preview' },
           { id: 'themes', label: 'Themes & roadmap', count: roadmapCount().total },
@@ -137,68 +150,93 @@ export function GuidePage() {
 
       {tab === 'tours' ? (
         <>
-          {!guide.enabled ? (
-            <div className="banner banner-info">
-              <span className="grow">
-                Guided tours are switched off. Turn them on to see the spotlight walkthroughs.
-              </span>
-              <Button size="sm" variant="primary" onClick={() => guide.setEnabled(true)}>
-                Turn tours on
-              </Button>
-            </div>
-          ) : null}
-          {guide.tour ? (
-            <div className="banner banner-agent">
-              <span className="grow">
-                Running: {guide.tour.name} — step {guide.stepIndex + 1} of {guide.stepCount}
-                {guide.skipped.length ? ` (${guide.skipped.length} step(s) skipped: not on this screen)` : ''}
-              </span>
-              <Button size="sm" variant="ghost" onClick={guide.stop}>
-                Stop
-              </Button>
-            </div>
-          ) : null}
+          {!guideAllowed ? (
+            <EmptyState title="Guided tours are for students and teachers" detail={t('guide.roleNote')} />
+          ) : (
+            <>
+              {!guide.enabled ? (
+                <div className="banner banner-info">
+                  <span className="grow">{t('guide.offBanner')}</span>
+                  <Button size="sm" variant="primary" onClick={() => guide.setEnabled(true)}>
+                    {t('guide.turnOn')}
+                  </Button>
+                </div>
+              ) : null}
+              {guide.tour ? (
+                <div className="banner banner-agent">
+                  <span className="grow">
+                    {t('guide.running')}: {guide.tour.name} — {guide.stepIndex + 1} / {guide.stepCount}
+                    {guide.skipped.length ? ` (+${guide.skipped.length} ${t('guide.stepCount')})` : ''}
+                  </span>
+                  <Button size="sm" variant="ghost" onClick={guide.stop}>
+                    {t('guide.stop')}
+                  </Button>
+                </div>
+              ) : null}
 
-          <div className="card-columns">
-            {TOURS.map((tour) => (
-              <Card key={tour.id} as="article">
-                <div className="card-head">
-                  <Badge tone="agent">{tour.audience}</Badge>
-                  {guide.completed.includes(tour.id) ? <Badge tone="done">completed</Badge> : null}
+              {[...tourGroups.entries()].map(([audience, group]) => (
+                <div key={audience} className="stack">
+                  <SectionTitle right={<Badge tone="ghost">{group.length}</Badge>}>
+                    {t('guide.audience')} {audience}
+                  </SectionTitle>
+                  <div className="card-columns">
+                    {group.map((tour) => (
+                      <Card key={tour.id} as="article">
+                        <div className="card-head">
+                          <Badge tone="agent">{tour.audience}</Badge>
+                          {guide.completed.includes(tour.id) ? (
+                            <Badge tone="done">{t('guide.completed')}</Badge>
+                          ) : null}
+                        </div>
+                        <h3 className="card-title">{tour.name}</h3>
+                        <p className="small muted">{tour.summary}</p>
+                        <div className="small muted">
+                          {tour.steps.length} {t('guide.stepCount')}
+                        </div>
+                        <div className="card-actions">
+                          <Button
+                            variant="agent"
+                            onClick={() => {
+                              guide.setEnabled(true)
+                              navigate(tour.route)
+                              // Let the screen mount before the first spotlight is placed.
+                              window.setTimeout(() => guide.start(tour.id), 350)
+                            }}
+                          >
+                            {t('guide.startTour')}
+                          </Button>
+                          <Button variant="ghost" onClick={() => navigate(tour.route)}>
+                            {t('guide.openScreen')}
+                          </Button>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
                 </div>
-                <h3 className="card-title">{tour.name}</h3>
-                <p className="small muted">{tour.summary}</p>
-                <div className="small muted">{tour.steps.length} steps</div>
-                <div className="card-actions">
-                  <Button
-                    variant="agent"
-                    onClick={() => {
-                      guide.setEnabled(true)
-                      navigate(tour.route)
-                      // Let the screen mount before the first spotlight is placed.
-                      window.setTimeout(() => guide.start(tour.id), 350)
-                    }}
-                  >
-                    Start tour
-                  </Button>
-                  <Button variant="ghost" onClick={() => navigate(tour.route)}>
-                    Open screen
-                  </Button>
-                </div>
+              ))}
+
+              <Card className="card-flat">
+                <SectionTitle>{t('guide.howItBehaves')}</SectionTitle>
+                <ul className="small">
+                  <li>Off until you switch it on, and remembered per device.</li>
+                  <li>
+                    A tour can cross screens: when the next step lives somewhere else, the guide opens that screen
+                    before pointing at anything.
+                  </li>
+                  <li>
+                    A step that does not exist for your role or device is dropped, never stalled on - so the tour
+                    always finishes.
+                  </li>
+                  <li>
+                    On a phone the tip becomes a bottom sheet, so the card never covers the thing it is describing.
+                  </li>
+                  <li>Arrow keys move between steps, Escape exits at any point.</li>
+                  <li>The dimmed area stays inert — only the tip card takes clicks, so you can never be trapped.</li>
+                  <li>Nothing is sent to the server: the guide is local, and it writes no case data.</li>
+                </ul>
               </Card>
-            ))}
-          </div>
-
-          <Card className="card-flat">
-            <SectionTitle>How the guide behaves</SectionTitle>
-            <ul className="small">
-              <li>Off until you switch it on, and remembered per device.</li>
-              <li>Steps whose element is not on the current screen are skipped, never stalled on.</li>
-              <li>Arrow keys move between steps, Escape exits at any point.</li>
-              <li>The dimmed area stays inert — only the tip card takes clicks, so you can never be trapped.</li>
-              <li>Nothing is sent to the server: the guide is local, and it writes no case data.</li>
-            </ul>
-          </Card>
+            </>
+          )}
         </>
       ) : null}
 
@@ -244,8 +282,8 @@ export function GuidePage() {
               <SectionTitle>Same product, different experiences</SectionTitle>
               <ul className="small">
                 <li>
-                  <strong>Student (phone):</strong> bottom tabs, one primary action per screen, requests filable with no
-                  signal.
+                  <strong>Student (phone):</strong> slide-out navigation, one primary action per screen, requests filable
+                  with no signal.
                 </li>
                 <li>
                   <strong>Staff (phone):</strong> their own queue ordered by what will breach first; start and finish
@@ -256,7 +294,7 @@ export function GuidePage() {
                   verification refused rather than guessed.
                 </li>
                 <li>
-                  <strong>Admin (desktop):</strong> sidebar, dense tables, bulk escalation, analytics, audit trail.
+                  <strong>Admin (desktop):</strong> sidebar, dense tables, bulk hand-off, analytics, activity log.
                 </li>
                 <li>
                   <strong>Kiosk (shared tablet):</strong> no navigation, giant targets, idle reset so the next student
@@ -273,14 +311,14 @@ export function GuidePage() {
               <SectionTitle>Where the layout switches</SectionTitle>
               <ul className="small">
                 <li>
-                  <strong>≤ 720px:</strong> mobile shell — bottom navigation, single column, filter grids stack, dense
-                  tables become cards rather than sideways scrolls.
+                  <strong>≤ 720px:</strong> mobile shell — slide-out navigation, single column, filter grids stack,
+                  dense tables become cards rather than sideways scrolls.
                 </li>
                 <li>
                   <strong>721–1024px:</strong> tablet — sidebar appears, card grids go two-up, forms get two columns.
                 </li>
                 <li>
-                  <strong>1025–1440px:</strong> desktop — the admin queue and audit trail are designed for this width.
+                  <strong>1025–1440px:</strong> desktop — the admin queue and activity log are designed for this width.
                 </li>
                 <li>
                   <strong>&gt; 1440px:</strong> workstation — three-column card grid and a wider page container.

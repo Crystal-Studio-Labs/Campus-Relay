@@ -118,10 +118,10 @@ def main() -> int:
         return 2
 
     check("student signed in", student_profile.get("role") == "STUDENT", student_profile.get("full_name", ""))
-    check("warden signed in", warden_profile.get("role") == "WARDEN")
-    check("admin signed in", admin_profile.get("role") == "ADMIN")
-    check("staff signed in", technician_profile.get("role") == "STAFF")
-    check("security signed in", security_profile.get("role") == "SECURITY")
+    check("warden signed in", warden_profile.get("role") == "MANAGEMENT")
+    check("admin signed in", admin_profile.get("role") == "MANAGEMENT")
+    check("staff signed in", technician_profile.get("role") == "TEACHER")
+    check("security signed in", security_profile.get("role") == "MANAGEMENT")
 
     step("Catalog and QR context")
     services = expect_ok(student.get("/api/v1/services"), "services listed")

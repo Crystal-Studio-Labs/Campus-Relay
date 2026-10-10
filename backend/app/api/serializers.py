@@ -153,6 +153,12 @@ def case_brief(db: Session, case: Case, *, audience: str = "full") -> dict:
         "resolved_at": case.resolved_at,
         "closed_at": case.closed_at,
         "age_minutes": round(case.age_minutes, 1),
+        # How long the case took from filing to resolution, and null while it is
+        # still open. Age keeps growing, this does not: a resolution report is
+        # about this number.
+        "resolution_minutes": (
+            round(case.resolution_minutes, 1) if case.resolution_minutes is not None else None
+        ),
         "escalation_level": case.escalation_level,
         "reopen_count": case.reopen_count,
         "verification_state": case.verification_state,

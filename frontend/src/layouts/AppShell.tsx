@@ -17,7 +17,7 @@
 
 import { Fragment, useEffect, useMemo, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { LANGUAGES, currentLanguage, setLanguage, t, type LanguageCode } from '../lib/i18n'
+import { LANGUAGES, currentLanguage, setLanguage, useLanguage, type LanguageCode } from '../lib/i18n'
 import { currentChannel, currentDeviceMode, setChannel } from '../lib/api'
 import { relative } from '../lib/format'
 import { buildNav, dedupeNav, flattenNav, resolveBreadcrumb, COMMAND_CENTRE_ROLES } from '../lib/navigation'
@@ -25,8 +25,10 @@ import { useSession, useViewport } from '../state/session'
 import { useSyncState } from '../state/hooks'
 import { useInstitution } from '../state/institution'
 import { THEME_OPTIONS, useTheme } from '../state/theme'
-import { shippedSkins, skinMeta, type ThemeId } from '../theme/registry'
+import { type ThemeId } from '../theme/registry'
 import { Badge, Button, Modal, Select } from '../components/ui'
+import { Icon } from '../components/Icon'
+import { InstallApp } from '../components/InstallApp'
 import { GuideControls } from '../components/Guide'
 import { ConnectivityBar, SyncCentreSheet } from '../components/OfflineBar'
 import { CommandPalette } from '../components/CommandPalette'
@@ -37,6 +39,10 @@ export { COMMAND_CENTRE_ROLES }
 
 export function AppShell() {
   const { profile, logout, can } = useSession()
+  // Reactive translator: the navigation, breadcrumb and phone bar all resolve
+  // their label keys through this, so switching language redraws the whole shell
+  // rather than only the screens that happen to re-mount.
+  const { t } = useLanguage()
   const { viewport } = useViewport()
   const sync = useSyncState()
   const navigate = useNavigate()
@@ -45,10 +51,21 @@ export function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [syncOpen, setSyncOpen] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
+  /** The phone's rail is a drawer, so it needs to know whether it is open. */
+  const [navOpen, setNavOpen] = useState(false)
+  /** Desktop rail: collapse to icons. Remembered per device, because it is a
+   *  preference about the screen, not about the person. */
+  const [railCollapsed, setRailCollapsed] = useState(
+    () => localStorage.getItem('campusrelay.rail') === 'collapsed',
+  )
 
   useEffect(() => {
     setChannel('PWA')
   }, [])
+
+  useEffect(() => {
+    localStorage.setItem('campusrelay.rail', railCollapsed ? 'collapsed' : 'expanded')
+  }, [railCollapsed])
 
   // The architecture lives in one module; the shell renders it. Institution
   // module switches and the person's permissions both filter it here.
@@ -56,14 +73,8 @@ export function AppShell() {
     () => dedupeNav(buildNav(can, profile?.role ?? null, institution.config.features)),
     [can, profile?.role, institution.config.features],
   )
-  const items = groups.flatMap((group) => group.items)
   const breadcrumb = resolveBreadcrumb(location.pathname, groups)
   const isMobile = viewport === 'mobile'
-  // The most-used items are pinned to the phone's bottom bar, so the guide and
-  // sync pages do not steal a slot from Home, Cases or Notices.
-  const bottomBar = items
-    .filter((item) => ['/', '/report', '/cases', '/notices', '/notifications', '/tasks', '/gate'].includes(item.to))
-    .slice(0, 5)
 
   const totalQueued = sync.pending + sync.retrying
 
@@ -75,97 +86,222 @@ export function AppShell() {
         event.preventDefault()
         setPaletteOpen(true)
       }
+      // Escape is the other half of "open": a drawer you cannot dismiss from the
+      // keyboard is a trap for anyone not reaching for the screen.
+      if (event.key === 'Escape') setNavOpen(false)
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
+  // The drawer must not outlive the navigation it opened for: changing screen
+  // closes it, so tapping a link never strands you behind the scrim.
+  useEffect(() => {
+    setNavOpen(false)
+  }, [location.pathname])
+
+  // One rail body, two mounts. The phone used to get a five-item bottom bar
+  // instead of this list, which meant most of the application - desks, settings,
+  // profile - was simply unreachable on a handset. Sharing one body is what
+  // stops the two layouts from drifting into different products.
+  const railBody = (
+    <>
+      <BrandPlate />
+      {groups.map((group) => (
+        <Fragment key={group.id}>
+          <div className="nav-group-label">{t(group.labelKey)}</div>
+          {group.items.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === '/'}
+              className="nav-link"
+              title={t(item.labelKey)}
+            >
+              <span className="nav-link-icon" aria-hidden="true">
+                <Icon name={item.icon} size={18} />
+              </span>
+              <span className="nav-link-label truncate">{t(item.labelKey)}</span>
+            </NavLink>
+          ))}
+        </Fragment>
+      ))}
+      <div className="nav-foot">
+        <div className="rail-user">
+          <span className="rail-avatar" aria-hidden="true">
+            {initials(profile?.full_name)}
+          </span>
+          <span className="rail-user-text">
+            <span className="rail-user-name truncate">{profile?.full_name}</span>
+            <span className="rail-user-role truncate">
+              {profile?.role.replaceAll('_', ' ').toLowerCase()}
+            </span>
+          </span>
+        </div>
+        <div className="rail-actions">
+          <button type="button" className="icon-btn" onClick={() => setSyncOpen(true)} title={t('shell.sync')}>
+            <Icon name={sync.online ? 'wifi' : 'wifiOff'} size={18} label={t('shell.sync')} />
+          </button>
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={() => navigate('/notifications')}
+            title={t('shell.alerts')}
+          >
+            <Icon name="bell" size={18} label={t('shell.alerts')} />
+          </button>
+          <div className="rail-install">
+            <InstallApp size="sm" />
+          </div>
+          <button type="button" className="icon-btn rail-logout" onClick={logout} title={t('nav.logout')}>
+            <Icon name="logout" size={18} label={t('nav.logout')} />
+          </button>
+        </div>
+      </div>
+    </>
+  )
+
   return (
     <div className="shell">
       <a className="skip-link" href="#main">
-        Skip to content
+        {t('shell.skipToContent')}
       </a>
 
       {!isMobile ? (
-        <nav className="sidebar no-print" aria-label="Main">
-          <BrandPlate />
-          {groups.map((group) => (
-            <Fragment key={group.label}>
-              <div className="nav-group-label">{group.label}</div>
-              {group.items.map((item) => (
-                <NavLink key={item.to} to={item.to} end={item.to === '/'} className="nav-link">
-                  <span aria-hidden="true">{item.icon}</span>
-                  <span className="truncate">{item.label}</span>
-                </NavLink>
-              ))}
-            </Fragment>
-          ))}
-          <hr className="divider" />
-          <div className="small muted" style={{ padding: `0 var(--sp-2)` }}>
-            {profile?.full_name}
-            <br />
-            {profile?.role.replaceAll('_', ' ').toLowerCase()}
-          </div>
-          <div className="stack" style={{ marginTop: 'var(--sp-3)', gap: 'var(--sp-2)', padding: '0 var(--sp-2)' }}>
-            <Button size="sm" variant="ghost" onClick={() => setSyncOpen(true)}>
-              Sync: {sync.online ? 'online' : 'offline'} ({totalQueued})
-            </Button>
-            <Button size="sm" variant="default" onClick={() => navigate('/notifications')}>
-              Alerts
-            </Button>
-            <Button size="sm" variant="danger" onClick={logout}>
-              {t('nav.logout')}
-            </Button>
-          </div>
+        <nav
+          className={`sidebar no-print${railCollapsed ? ' is-collapsed' : ''}`}
+          aria-label={t('shell.mainNav')}
+          data-guide="shell-nav"
+        >
+          {railBody}
         </nav>
+      ) : null}
+
+      {/* Phone: the same rail, as a drawer. Rendered only while open so no link
+          inside it can be tabbed to while the drawer is off-screen. */}
+      {isMobile && navOpen ? (
+        <div className="nav-drawer-root">
+          <div className="nav-scrim" onClick={() => setNavOpen(false)} />
+          <nav id="mobile-nav-drawer" className="sidebar nav-drawer no-print" aria-label={t('shell.mainNav')}>
+            <div className="nav-drawer-head">
+              <span className="nav-drawer-title">{t('shell.mainNav')}</span>
+              <button
+                type="button"
+                className="icon-btn"
+                onClick={() => setNavOpen(false)}
+                aria-label={t('shell.closeMenu')}
+                title={t('shell.closeMenu')}
+              >
+                <Icon name="close" size={18} />
+              </button>
+            </div>
+            {railBody}
+          </nav>
+        </div>
       ) : null}
 
       <div className="app-main">
         <header className="topbar no-print">
           {isMobile ? (
-            <div className="grow">
-              <BrandPlate />
-            </div>
+            <>
+              <button
+                type="button"
+                className="jump jump-compact nav-toggle"
+                data-guide="shell-nav-toggle"
+                onClick={() => setNavOpen(true)}
+                aria-label={t('shell.openMenu')}
+                aria-expanded={navOpen}
+                // The drawer only exists while it is open, so the id must not be
+                // referenced before it exists in the accessibility tree.
+                aria-controls={navOpen ? 'mobile-nav-drawer' : undefined}
+                title={t('shell.openMenu')}
+              >
+                <Icon name="menu" size={18} />
+              </button>
+              <div className="grow">
+                <BrandPlate />
+              </div>
+            </>
           ) : (
             <div className="grow row" style={{ gap: 'var(--sp-2)' }}>
+              <button
+                type="button"
+                className="icon-btn rail-toggle"
+                onClick={() => setRailCollapsed((value) => !value)}
+                aria-pressed={railCollapsed}
+                aria-label={t('shell.mainNav')}
+                title={t('shell.mainNav')}
+              >
+                <Icon name="menu" size={18} />
+              </button>
               <Badge tone={sync.online ? 'done' : 'warn'} className={sync.online ? 'pulse-beacon' : ''}>
-                {sync.online ? 'Online' : 'Offline'}
+                {sync.online ? t('shell.online') : t('shell.offline')}
               </Badge>
-              {totalQueued > 0 ? <Badge tone="open">{totalQueued} queued</Badge> : null}
+              {totalQueued > 0 ? <Badge tone="open">{totalQueued} {t('shell.queued')}</Badge> : null}
               {sync.conflicts + sync.requiresAction > 0 ? (
-                <Badge tone="urgent">{sync.conflicts + sync.requiresAction} need attention</Badge>
+                <Badge tone="urgent">{sync.conflicts + sync.requiresAction} {t('shell.needAttention')}</Badge>
               ) : null}
               <span className="small muted nowrap">
-                Last sync {sync.lastFlushAt ? relative(sync.lastFlushAt) : sync.online ? 'just now' : '—'}
+                {t('shell.lastSync')} {sync.lastFlushAt ? relative(sync.lastFlushAt) : sync.online ? t('shell.justNow') : '—'}
               </span>
             </div>
           )}
-          {!isMobile ? (
-            <button type="button" className="jump" onClick={() => setPaletteOpen(true)}>
-              <span aria-hidden="true">⌕</span>
-              <span className="jump-label">Jump to…</span>
+          {/* The quick switcher is the fastest way around the app with one
+              hand, so a phone gets it too - as a glyph, since there is no
+              keyboard to press there. */}
+          {isMobile ? (
+            <button
+              type="button"
+              className="icon-btn"
+              data-guide="shell-search"
+              onClick={() => setPaletteOpen(true)}
+              aria-label={t('shell.jumpToScreen')}
+              title={t('shell.jumpToScreen')}
+            >
+              <Icon name="search" size={18} />
+            </button>
+          ) : (
+            <button type="button" className="jump" data-guide="shell-search" onClick={() => setPaletteOpen(true)}>
+              <Icon name="search" size={16} />
+              <span className="jump-label">{t('shell.jumpTo')}</span>
               <kbd className="jump-kbd">Ctrl K</kbd>
             </button>
-          ) : null}
+          )}
           {!isMobile ? <GuideControls compact /> : null}
           <ThemeSwitcher />
           <LanguagePicker />
-          <Button variant="ghost" size="sm" onClick={() => setMenuOpen(true)} ariaLabel="Account menu">
-            {profile?.full_name?.split(' ')[0] ?? 'Account'}
-          </Button>
+          <button
+            type="button"
+            className="account-btn"
+            onClick={() => setMenuOpen(true)}
+            aria-label={t('shell.accountMenu')}
+            title={t('shell.accountMenu')}
+            data-guide="shell-account"
+          >
+            <span className="account-avatar" aria-hidden="true">
+              {initials(profile?.full_name)}
+            </span>
+            <span className="account-text">
+              <span className="account-name truncate">{profile?.full_name?.split(' ')[0] ?? 'Account'}</span>
+              <span className="account-role truncate">
+                {profile?.role.replaceAll('_', ' ').toLowerCase()}
+              </span>
+            </span>
+            <Icon name="expand" size={15} />
+          </button>
         </header>
 
         {/* The station strip: which institution, which campus, which station and
             which channel this screen belongs to. Stated once, for every screen. */}
-        <div className="station-strip no-print">
+        <div className="station-strip no-print" data-guide="shell-context">
           <span>
             <strong>{institution.config.identity.name}</strong>
           </span>
           <span>{profile?.campus?.name ?? '—'}</span>
           <span>{institution.config.academics.term_label}</span>
           <span>{profile?.role.replaceAll('_', ' ').toLowerCase()}</span>
-          <span>Channel {currentChannel()}</span>
-          <span>{currentDeviceMode() === 'personal' ? 'Personal device' : `${currentDeviceMode()} station`}</span>
+          <span>{t('shell.channel')} {currentChannel()}</span>
+          <span>{currentDeviceMode() === 'personal' ? t('shell.personalDevice') : `${currentDeviceMode()} ${t('shell.station')}`}</span>
         </div>
 
         <ConnectivityBar />
@@ -173,13 +309,13 @@ export function AppShell() {
         {/* Breadcrumb: which module and screen this is, on every page, so the
             answer to "where am I?" never depends on the sidebar being visible. */}
         {breadcrumb ? (
-          <nav className="breadcrumb no-print" aria-label="Breadcrumb">
-            <span className="breadcrumb-group">{breadcrumb.group}</span>
+          <nav className="breadcrumb no-print" aria-label={t('shell.breadcrumb')}>
+            <span className="breadcrumb-group">{t(breadcrumb.groupKey)}</span>
             <span className="breadcrumb-sep" aria-hidden="true">
               /
             </span>
             <span className="breadcrumb-current" aria-current="page">
-              {breadcrumb.label}
+              {t(breadcrumb.labelKey)}
             </span>
           </nav>
         ) : null}
@@ -193,18 +329,6 @@ export function AppShell() {
           </div>
         </main>
 
-        {isMobile ? (
-          <nav className="bottom-nav no-print" aria-label="Main">
-            {bottomBar.map((item) => (
-              <NavLink key={item.to} to={item.to} end={item.to === '/'}>
-                <span aria-hidden="true" className="dot">
-                  {item.icon}
-                </span>
-                <span>{item.label.split(' ')[0]}</span>
-              </NavLink>
-            ))}
-          </nav>
-        ) : null}
       </div>
 
       <SyncCentreSheet open={syncOpen} onClose={() => setSyncOpen(false)} />
@@ -219,31 +343,11 @@ export function AppShell() {
         }}
       />
 
-      <Modal open={menuOpen} onClose={() => setMenuOpen(false)} title="Your account">
+      <Modal open={menuOpen} onClose={() => setMenuOpen(false)} title={t('shell.yourAccount')}>
         <div className="stack">
-          <div>
-            <div className="label">Reading</div>
-            <ThemeSwitcher block />
-            <DisplayControls />
-            <div style={{ marginTop: 'var(--sp-2)' }}>
-              <GuideControls />
-            </div>
-          </div>
-          {can('config:manage') ? (
-            <>
-              <hr className="divider" />
-              <div>
-                <div className="label">Design language</div>
-                <SkinPicker />
-                <p className="hint" style={{ marginTop: 'var(--sp-2)' }}>
-                  A preview on this device only. The institution default is set in the institution
-                  configuration; the full list, including the skins planned for other colleges, is on
-                  the Institution setup screen.
-                </p>
-              </div>
-            </>
-          ) : null}
-          <hr className="divider" />
+          {/* Identity leads. This is the only place in the product that shows the
+              address behind the session, so it belongs at the top rather than
+              four settings blocks in. */}
           <div>
             <div className="bold">{profile?.full_name}</div>
             <div className="small muted">{profile?.email}</div>
@@ -251,15 +355,52 @@ export function AppShell() {
               {profile?.role.replaceAll('_', ' ').toLowerCase()} · {profile?.campus?.name}
             </div>
           </div>
+
           <hr className="divider" />
-          <div className="row-between">
-            <span>Connected</span>
-            <Badge tone={sync.online ? 'done' : 'warn'}>{sync.online ? 'Online' : 'Offline'}</Badge>
+
+          {/* Reading controls only. The theme switch is deliberately not here:
+              it sits in the top bar at every width, and a second copy was the
+              duplicate that made this menu read as a junk drawer. The same is
+              true of the design-language preview, which now lives only on the
+              Institution setup screen it links to. */}
+          <div>
+            <div className="label">{t('shell.reading')}</div>
+            <DisplayControls />
+            {/* Desktop keeps a compact copy of the guide switch in its top bar;
+                on a phone there is nowhere else to reach it. */}
+            {isMobile ? (
+              <div style={{ marginTop: 'var(--sp-2)' }}>
+                {/* Starting a tour closes this panel, so the spotlight is not
+                    hidden behind the sheet that launched it. */}
+                <GuideControls onStart={() => setMenuOpen(false)} />
+              </div>
+            ) : null}
           </div>
-          <div className="row-between">
-            <span>Queued changes</span>
-            <span className="bold">{totalQueued}</span>
+
+          <hr className="divider" />
+
+          <div>
+            <div className="label">{t('shell.thisDevice')}</div>
+            <InstallApp size="sm" installedLabel={t('shell.installedOnDevice')} />
+            {/* The desktop top bar already states connection and queue, so
+                repeating them here would be the same duplication in another
+                costume. A phone's top bar carries neither, so it gets them. */}
+            {isMobile ? (
+              <div className="stack" style={{ gap: 'var(--sp-1)', marginTop: 'var(--sp-2)' }}>
+                <div className="row-between">
+                  <span>{t('shell.connected')}</span>
+                  <Badge tone={sync.online ? 'done' : 'warn'}>
+                    {sync.online ? t('shell.online') : t('shell.offline')}
+                  </Badge>
+                </div>
+                <div className="row-between">
+                  <span>{t('shell.queuedChanges')}</span>
+                  <span className="bold">{totalQueued}</span>
+                </div>
+              </div>
+            ) : null}
           </div>
+
           <button type="button" className="btn btn-danger" onClick={logout}>
             {t('nav.logout')}
           </button>
@@ -267,6 +408,18 @@ export function AppShell() {
       </Modal>
     </div>
   )
+}
+
+/** Up to two initials from a name, for an avatar. Falls back to a neutral mark
+ *  so an unloaded profile never renders an empty circle. */
+function initials(name?: string): string {
+  if (!name) return '··'
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '··'
+  return parts
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? '')
+    .join('')
 }
 
 /** The brand plate. It carries the institution's monogram and short name from
@@ -293,14 +446,16 @@ function BrandPlate() {
  *  reason, rather than hidden - a missing control is a mystery, a locked one is
  *  an explanation. */
 function ThemeSwitcher({ block }: { block?: boolean }) {
+  const { t } = useLanguage()
   const { theme, setTheme, canChooseTheme } = useTheme()
   return (
     <div
       className="switcher"
       role="group"
-      aria-label="Theme"
+      data-guide="shell-theme"
+      aria-label={t('shell.theme')}
       style={block ? { width: '100%' } : undefined}
-      title={canChooseTheme ? undefined : 'Your institution has fixed the theme for all devices.'}
+      title={canChooseTheme ? undefined : t('shell.themeLocked')}
     >
       {THEME_OPTIONS.map((option) => (
         <button
@@ -312,7 +467,7 @@ function ThemeSwitcher({ block }: { block?: boolean }) {
           disabled={!canChooseTheme}
           onClick={() => setTheme(option.id as ThemeId)}
         >
-          <span aria-hidden="true">{option.symbol}</span>
+          <Icon name={option.symbol} size={17} />
         </button>
       ))}
     </div>
@@ -323,68 +478,52 @@ function ThemeSwitcher({ block }: { block?: boolean }) {
  *  accessibility choices that belong to the person reading the screen, kept
  *  next to the theme rather than buried in a browser setting. */
 function DisplayControls() {
+  const { t } = useLanguage()
   const { text, setText, density, setDensity, contrast, setContrast } = useTheme()
   return (
     <div className="stack" style={{ gap: 'var(--sp-2)', marginTop: 'var(--sp-3)' }}>
       <div className="row wrap" style={{ gap: 'var(--sp-2)' }}>
-        <Badge tone="ghost">Text</Badge>
+        <Badge tone="ghost">{t('shell.textSize')}</Badge>
         <Button size="sm" variant={text === 'normal' ? 'primary' : 'ghost'} onClick={() => setText('normal')}>
-          Normal
+          {t('shell.normal')}
         </Button>
         <Button size="sm" variant={text === 'large' ? 'primary' : 'ghost'} onClick={() => setText('large')}>
-          Large
+          {t('shell.large')}
         </Button>
       </div>
       <div className="row wrap" style={{ gap: 'var(--sp-2)' }}>
-        <Badge tone="ghost">Spacing</Badge>
+        <Badge tone="ghost">{t('shell.spacing')}</Badge>
         <Button
           size="sm"
           variant={density === 'comfortable' ? 'primary' : 'ghost'}
           onClick={() => setDensity('comfortable')}
-        >          Comfortable
+        >          {t('shell.comfortable')}
         </Button>
-        <Button size="sm" variant={density === 'compact' ? 'primary' : 'ghost'} onClick={() => setDensity('compact')}>
-          Compact
+        <Button size="sm" variant={density === 'compact' ? 'primary' : 'ghost'} onClick={() => setDensity('compact')}>          {t('shell.compact')}
         </Button>
       </div>
       <div className="row wrap" style={{ gap: 'var(--sp-2)' }}>
-        <Badge tone="ghost">Contrast</Badge>
+        <Badge tone="ghost">{t('shell.contrast')}</Badge>
         <Button
           size="sm"
           variant={contrast === 'normal' ? 'primary' : 'ghost'}
-          onClick={() => setContrast('normal')}
-        >
-          Standard
+          onClick={() => setContrast('normal')}>          {t('shell.standard')}
         </Button>
-        <Button size="sm" variant={contrast === 'high' ? 'primary' : 'ghost'} onClick={() => setContrast('high')}>
-          High
+        <Button size="sm" variant={contrast === 'high' ? 'primary' : 'ghost'} onClick={() => setContrast('high')}>          {t('shell.high')}
         </Button>
       </div>
     </div>
   )
 }
 
-/** Design-language preview. Only the skins that are actually implemented are
- *  offered; the planned ones are listed on the setup screen instead, because a
- *  switch that does nothing is worse than no switch. */
-function SkinPicker() {
-  const { skin, setSkin } = useTheme()
-  const institution = useInstitution()
-  return (
-    <div className="stack" style={{ gap: 'var(--sp-1)' }}>
-      <Select
-        value={skin}
-        options={shippedSkins().map((entry) => ({ value: entry.id, label: entry.name }))}
-        onChange={setSkin}
-        id="skin-picker"
-      />
-      <p className="hint">{skinMeta(skin)?.summary ?? institution.config.appearance.skin}</p>
-    </div>
-  )
-}
+/** Design-language preview. Retired from the account menu: it duplicated the
+ *  Institution setup screen, which is where the full list - including the skins
+ *  still only planned - lives. A switch that previews one token block on one
+ *  device did not earn a place in a menu people open to sign out. */
 
 function LanguagePicker() {
   const institution = useInstitution()
+  const { t } = useLanguage()
   const [language, setLocal] = useState<LanguageCode>(currentLanguage())
   // Only the languages the institution offers are selectable, in the order the
   // configuration lists them.
@@ -395,7 +534,7 @@ function LanguagePicker() {
   }))
   if (options.length <= 1) return null
   return (
-    <div className="no-print" style={{ minWidth: 132 }}>
+    <div className="no-print" style={{ minWidth: 132 }} data-guide="shell-language">
       <label className="sr-only" htmlFor="language-picker">
         {t('language.label')}
       </label>

@@ -92,7 +92,7 @@ def get_institution_full(db: DbSession, user: CurrentUser):
             },
             {
                 "path": "academics.timezone",
-                "label": "Timezone for deadlines and SLAs",
+                "label": "Timezone for deadlines",
                 "group": "Academics",
                 "current": config["academics"]["timezone"],
             },

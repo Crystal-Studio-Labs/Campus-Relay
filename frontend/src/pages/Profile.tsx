@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ApiError, api, currentChannel } from '../lib/api'
-import { LANGUAGES, currentLanguage, setLanguage, translationCoverage, type LanguageCode } from '../lib/i18n'
+import { LANGUAGES, currentLanguage, setLanguage, translationCoverage, useLanguage, type LanguageCode } from '../lib/i18n'
 import { dateTime } from '../lib/format'
 import { useRemote, useSyncState } from '../state/hooks'
 import { useSession } from '../state/session'
@@ -19,6 +19,9 @@ import { SyncCentreSheet } from '../components/OfflineBar'
 export function ProfilePage() {
   const navigate = useNavigate()
   const { profile, logout, can, refresh } = useSession()
+  // Reactive: the coverage list below is prose, so it has to follow the language
+  // switch rather than freeze at the language this bundle booted with.
+  const { t } = useLanguage()
   const sync = useSyncState()
   const [syncOpen, setSyncOpen] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -36,13 +39,15 @@ export function ProfilePage() {
   return (
     <div className="stack-lg">
       <PageHeader
+        guide="profile-head"
+        kicker="Account"
         title="Profile"
         subtitle="Your account, your device, and what this deployment really has configured"
       />
 
       {message ? <div className="banner banner-info">{message}</div> : null}
 
-      <Card>
+      <Card data-guide="profile-account">
         <SectionTitle right={<Badge tone="ghost">{profile?.role.replaceAll('_', ' ').toLowerCase()}</Badge>}>
           Account
         </SectionTitle>
@@ -101,8 +106,8 @@ export function ProfilePage() {
         </Card>
       ) : null}
 
-      <Card>
-        <SectionTitle>Language</SectionTitle>
+      <Card data-guide="profile-language">
+        <SectionTitle>{t('profile.languageSection')}</SectionTitle>
         <Select
           value={language}
           onChange={async (value) => {
@@ -111,10 +116,10 @@ export function ProfilePage() {
             setLocal(next)
             try {
               await api.patch(`/admin/users/${profile?.id}`, { language: next })
-              setMessage('Language preference saved on your account.')
+              setMessage(t('profile.langSaved'))
               void refresh()
             } catch {
-              setMessage('Saved on this device only — the server could not be reached.')
+              setMessage(t('profile.langSavedLocal'))
             }
           }}
           options={LANGUAGES.map((item) => ({ value: item.code, label: `${item.native} (${item.label})` }))}
@@ -122,14 +127,17 @@ export function ProfilePage() {
         <ul className="list-reset small" style={{ marginTop: 8 }}>
           {translationCoverage().map((row) => (
             <li key={row.language}>
-              {row.language.toUpperCase()}: {row.translated}/{row.total} interface strings translated
-              {row.language === 'or' ? ' — the rest fall back to English rather than showing a blank' : ''}
+              {row.language.toUpperCase()}: {row.translated}/{row.total} {t('profile.coverageLine')}
+              {/* Only claim a fallback while one actually exists - the catalogues
+                  are expected to stay complete, and a stale warning is worse than
+                  none. */}
+              {row.translated < row.total ? ` — ${row.total - row.translated} ${t('profile.coverageFallback')}` : ''}
             </li>
           ))}
         </ul>
       </Card>
 
-      <Card>
+      <Card data-guide="profile-sync">
         <SectionTitle>Offline & sync</SectionTitle>
         <KV
           items={[
@@ -243,7 +251,7 @@ export function ProfilePage() {
                 setBusy(true)
                 try {
                   await api.post('/admin/demo/time-travel', { days: 5 })
-                  setMessage('Clock moved forward 5 days — SLA states and escalations should now reflect that.')
+                  setMessage('Clock moved forward 5 days — deadlines and late flags should now reflect that.')
                   void refresh()
                 } catch (requestError) {
                   setMessage(requestError instanceof ApiError ? requestError.message : 'Time travel failed.')

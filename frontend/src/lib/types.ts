@@ -1,15 +1,7 @@
 /** Shared API types. Kept intentionally close to the server serialisers so a
  *  field rename shows up as a type error rather than a silent `undefined`. */
 
-export type RoleKey =
-  | 'SUPER_ADMIN'
-  | 'ADMIN'
-  | 'WARDEN'
-  | 'DEPARTMENT_HEAD'
-  | 'STAFF'
-  | 'SECURITY'
-  | 'HELPDESK_OPERATOR'
-  | 'STUDENT'
+export type RoleKey = 'STUDENT' | 'TEACHER' | 'MANAGEMENT'
 
 export type CaseStatus =
   | 'DRAFT'
