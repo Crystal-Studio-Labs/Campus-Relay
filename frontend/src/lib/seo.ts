@@ -30,6 +30,12 @@ export function setPageMeta({
   // 2. Meta Description
   const metaDesc = description || subtitle || 'A resilient operating layer for everyday campus operations: universal case engine, cryptographic gate passes, offline sync, and auditable trails.'
 
+  // 3. Resolve absolute image URL for preview crawlers (WhatsApp, Telegram, Twitter, LinkedIn)
+  const baseOrigin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : 'https://campusrelay.org'
+  const absoluteImage = image.startsWith('http')
+    ? image
+    : `${baseOrigin}${image.startsWith('/') ? image : `/${image}`}`
+
   const updateMeta = (key: string, value: string, attr: 'name' | 'property' = 'name') => {
     let el = document.querySelector(`meta[${attr}="${key}"]`)
     if (!el) {
@@ -44,15 +50,18 @@ export function setPageMeta({
   updateMeta('og:title', cleanTitle, 'property')
   updateMeta('og:description', metaDesc, 'property')
   updateMeta('og:type', ogType, 'property')
-  updateMeta('og:image', image, 'property')
+  updateMeta('og:image', absoluteImage, 'property')
+  updateMeta('og:image:secure_url', absoluteImage, 'property')
+  updateMeta('og:image:alt', 'Campus Relay — A Resilient Operating Layer for Everyday Campus Operations', 'property')
   updateMeta('twitter:card', 'summary_large_image')
   updateMeta('twitter:title', cleanTitle)
   updateMeta('twitter:description', metaDesc)
-  updateMeta('twitter:image', image)
+  updateMeta('twitter:image', absoluteImage)
+  updateMeta('twitter:image:alt', 'Campus Relay — A Resilient Operating Layer for Everyday Campus Operations')
 
-  // 3. Canonical Link + og:url (kept in step, so a shared deep link previews
+  // 4. Canonical Link + og:url + twitter:url (kept in step, so a shared deep link previews
   // the screen it actually points at rather than the home page).
-  const href = canonicalUrl || window.location.href
+  const href = canonicalUrl || (typeof window !== 'undefined' ? window.location.href : 'https://campusrelay.org/')
   let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null
   if (!link) {
     link = document.createElement('link')
@@ -61,6 +70,7 @@ export function setPageMeta({
   }
   link.href = href
   updateMeta('og:url', href, 'property')
+  updateMeta('twitter:url', href)
 }
 
 /** React hook that synchronizes page title and SEO meta graphs upon mount/update */
