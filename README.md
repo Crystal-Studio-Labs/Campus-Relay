@@ -10,17 +10,23 @@
 </p>
 
 <p align="center">
-  <!-- Repository Stats & Community Badges -->
+  <!-- Tier 1: Accreditation, Studio & Project Readiness -->
   <a href="https://bput.ac.in"><img src="https://img.shields.io/badge/BPUT_Hackathon-2026_PS07-1E3A8A.svg?style=for-the-badge&logo=target&logoColor=white" alt="BPUT Hackathon" /></a>
   <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/badge/Studio-Crystal_Studio_Labs-111827.svg?style=for-the-badge&logo=github&logoColor=white" alt="Crystal Studio Labs" /></a>
   <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-10b981.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/stargazers"><img src="https://img.shields.io/github/stars/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/network/members"><img src="https://img.shields.io/github/forks/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=0284c7" alt="GitHub Forks" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/last-commit/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=git&color=2563eb" alt="Last Commit" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/badge/Status-Production_Ready-059669.svg?style=for-the-badge&logo=checkmarx&logoColor=white" alt="Production Ready" /></a>
 </p>
 
 <p align="center">
-  <!-- Core Operational Architecture Badges -->
+  <!-- Tier 2: Community & Repository Activity -->
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/stargazers"><img src="https://img.shields.io/github/stars/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/network/members"><img src="https://img.shields.io/github/forks/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=0284c7" alt="GitHub Forks" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/last-commit/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=git&color=2563eb" alt="Last Commit" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/github/repo-size/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=6366f1" alt="Repo Size" /></a>
+</p>
+
+<p align="center">
+  <!-- Tier 3: Core Resilient Architecture Pillars -->
   <a href="#offline-first-architecture--synchronization"><img src="https://img.shields.io/badge/Architecture-Offline--First_PWA-10B981.svg?style=for-the-badge&logo=pwa&logoColor=white" alt="Offline First" /></a>
   <a href="#role-based-access-control-rbac--pre-configured-demo-accounts"><img src="https://img.shields.io/badge/Security-Zero--Trust_RBAC-F59E0B.svg?style=for-the-badge&logo=auth0&logoColor=white" alt="Security" /></a>
   <a href="#architectural-philosophy"><img src="https://img.shields.io/badge/Audit-Append--Only_Ledger-DC2626.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="Audit" /></a>
