@@ -132,7 +132,7 @@ With core operational infrastructure proven, institutions introduce secondary se
 
 ## 🔄 Rollback & Recovery Strategy
 
-- **Additive Schema Migrations**: All Alembic migrations are backward-compatible. In production, redeploying containers executes non-destructive upgrades (`alembic upgrade head`).
+- **Additive Schema Migrations**: All Alembic migrations are backward-compatible. In production, redeploying containers executes non-destructive upgrades via `python -m scripts.migrate`, which upgrades a managed database, stamps the head revision for a schema built by `supabase/schema.sql`, and builds from the models on an empty database.
 - **Seed Guardrails**: Production containers execute `backend/scripts/bootstrap.py`, which only seeds sample data if the database is completely empty. Active institutional databases are never overwritten.
 - **Point-in-Time Database Snapshots**: Standard PostgreSQL pg_dump backups allow instantaneous restoration to any prior operational state.
 

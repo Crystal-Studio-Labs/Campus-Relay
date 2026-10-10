@@ -54,12 +54,12 @@ flowchart LR
 
 ## 2. Apply Database Schema
 
-Choose one of two verified approaches:
+Choose one of two verified approaches (both end with the database stamped at the head revision, so a later Render deploy is a clean no-op):
 
 ### Option A: Execute the Generated Schema (Recommended for Fresh Projects)
 Open **Supabase Dashboard → SQL Editor → New query**, paste the entire contents of [`supabase/schema.sql`](../../supabase/schema.sql), and click **Run**.
 This automatically creates:
-- All 42 relational tables, check constraints, foreign keys, and indexes.
+- All 60 relational tables, check constraints, foreign keys, and indexes.
 - The append-only immutability trigger function and its four table triggers.
 - Row-Level Security (RLS) enabled across every table with zero public leak.
 - The private `campus-relay-media` storage bucket.
@@ -71,12 +71,12 @@ This automatically creates:
 > python -m scripts.export_supabase_schema
 > ```
 
-### Option B: Alembic Automatic Migration
+### Option B: Build From the Models
 ```bash
 cd backend
-alembic upgrade head
+python -m scripts.migrate
 ```
-This executes migrations sequentially. If choosing Option B, manually execute the storage bucket creation lines from `supabase/schema.sql` to configure file upload storage.
+On an empty database this creates the schema from the SQLAlchemy models (the same metadata that generates `supabase/schema.sql`), installs the append-only guards, and stamps the head revision. If choosing Option B, manually execute the storage bucket creation lines from `supabase/schema.sql` to configure file upload storage. (A bare `alembic upgrade head` is not equivalent: the hand-written migration chain predates several models and would leave the database missing tables the API needs.)
 
 ---
 

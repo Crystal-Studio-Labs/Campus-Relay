@@ -151,8 +151,8 @@ erDiagram
 # Navigate to the backend directory
 cd backend
 
-# Apply pending schema migrations to head
-alembic upgrade head
+# Apply pending schema migrations to head (safe on every deployment)
+python -m scripts.migrate
 
 # Generate a new auto-detected migration
 alembic revision --autogenerate -m "Add new column or table"
@@ -162,7 +162,7 @@ alembic current
 ```
 
 > [!TIP]
-> Both Docker container startups (`backend/Dockerfile`) and Render deployments (`render.yaml`) execute `alembic upgrade head` before launching the web server, ensuring zero-downtime schema readiness.
+> Both Docker container startups (`backend/Dockerfile`) and Render deployments (`render.yaml`) execute `python -m scripts.migrate` before launching the web server, ensuring zero-downtime schema readiness. Unlike a bare `alembic upgrade head`, it stamps the head revision when the schema was built by `supabase/schema.sql`, and builds the schema from the models on an empty database (see `backend/scripts/migrate.py`).
 
 ---
 

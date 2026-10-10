@@ -14,7 +14,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { setChannel } from '../lib/api'
+import { setChannel, setDeviceMode } from '../lib/api'
 import { LANGUAGES, useLanguage } from '../lib/i18n'
 import { useInstitution } from '../state/institution'
 import { useSession } from '../state/session'
@@ -143,7 +143,12 @@ export function KioskShell({ children, onReset }: { children: ReactNode; onReset
       <KioskSupervisorModal
         isOpen={showSupervisorModal}
         onClose={() => setShowSupervisorModal(false)}
-        onLogout={logout}
+        onLogout={() => {
+          // Decommissioning returns the tablet to a personal device, so it does
+          // not keep opening the kiosk sign-in after it is retired.
+          setDeviceMode('personal')
+          logout()
+        }}
       />
     </div>
   )

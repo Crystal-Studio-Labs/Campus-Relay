@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070c18"/>
+      <stop offset="100%" stop-color="#03060d"/>
+    </linearGradient>
+    <linearGradient id="cyanBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="50%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <filter id="neonGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Dark Rounded Squircle Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="4"/>
+  <rect x="12" y="12" width="488" height="488" rx="100" fill="none" stroke="url(#cyanBlue)" stroke-width="2" stroke-opacity="0.35"/>
+
+  <!-- Shield Emblem with Antenna Relay -->
+  <g filter="url(#neonGlow)" transform="translate(256, 256) scale(1.1) translate(-256, -256)">
+    <!-- Outer Shield Crest Contour -->
+    <path d="M 140 185 L 256 130 L 372 185 L 372 275 C 372 345 256 395 256 395 C 256 395 140 345 140 275 Z"
+          fill="none" stroke="url(#cyanBlue)" stroke-width="24" stroke-linejoin="round" stroke-linecap="round"/>
+
+    <!-- Relay Chain Loops traversing through shield -->
+    <path d="M 185 300 C 160 300 148 275 148 250 C 148 225 168 210 195 210 C 225 210 256 255 256 255"
+          fill="none" stroke="url(#cyanBlue)" stroke-width="18" stroke-linecap="round"/>
+    <path d="M 327 300 C 352 300 364 275 364 250 C 364 225 344 210 317 210 C 287 210 256 255 256 255"
+          fill="none" stroke="url(#cyanBlue)" stroke-width="18" stroke-linecap="round"/>
+
+    <!-- Central Antenna & Relay Waves -->
+    <line x1="256" y1="240" x2="256" y2="340" stroke="url(#cyanBlue)" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="256" cy="235" r="15" fill="#00f2fe"/>
+    
+    <!-- Broadcast Waves -->
+    <path d="M 226 215 C 215 228 215 242 226 255" fill="none" stroke="#00f2fe" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 286 215 C 297 228 297 242 286 255" fill="none" stroke="#00f2fe" stroke-width="12" stroke-linecap="round"/>
+    <path d="M 205 200 C 188 222 188 248 205 270" fill="none" stroke="#00f2fe" stroke-width="9" stroke-linecap="round" stroke-opacity="0.8"/>
+    <path d="M 307 200 C 324 222 324 248 307 270" fill="none" stroke="#00f2fe" stroke-width="9" stroke-linecap="round" stroke-opacity="0.8"/>
+  </g>
+</svg>

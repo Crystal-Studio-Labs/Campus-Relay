@@ -139,7 +139,7 @@ export const DEFAULT_INSTITUTION: InstitutionConfig = {
     default_theme: 'light',
     allow_user_theme_override: true,
     accent: null,
-    crest_url: '',
+    crest_url: '/icons/icon-192.png',
     direction: 'ltr',
   },
   vocabulary: {

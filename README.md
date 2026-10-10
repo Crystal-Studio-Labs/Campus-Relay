@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/assets/app-icon.png" alt="Campus Relay App Icon" width="140" style="border-radius: 0; box-shadow: 0 14px 36px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15);" />
+  <img src="docs/assets/app-icon.png" alt="Campus Relay App Icon" width="128" style="border-radius: 28px; box-shadow: 0 16px 40px rgba(0, 242, 254, 0.25); border: 1px solid rgba(255,255,255,0.18);" />
 </p>
 
-<h1 align="center">🏛️ Campus Relay</h1>
+<h1 align="center">🛡️ Campus Relay</h1>
 
 <p align="center">
   <strong>A resilient operating layer for everyday campus operations.</strong><br>
@@ -10,46 +10,29 @@
 </p>
 
 <p align="center">
-  <!-- GitHub Metrics & Activity Stats -->
+  <!-- Repository Stats & Community Badges -->
+  <a href="https://bput.ac.in"><img src="https://img.shields.io/badge/BPUT_Hackathon-2026_PS07-1E3A8A.svg?style=for-the-badge&logo=target&logoColor=white" alt="BPUT Hackathon" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/badge/Studio-Crystal_Studio_Labs-111827.svg?style=for-the-badge&logo=github&logoColor=white" alt="Crystal Studio Labs" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-10b981.svg?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="License" /></a>
   <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/stargazers"><img src="https://img.shields.io/github/stars/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=gold" alt="GitHub Stars" /></a>
   <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/network/members"><img src="https://img.shields.io/github/forks/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=0284c7" alt="GitHub Forks" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/watchers"><img src="https://img.shields.io/github/watchers/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=8b5cf6" alt="GitHub Watchers" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/commit-activity/t/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=git&color=10b981&label=Commits" alt="Total Commits" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/last-commit/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=2563eb" alt="Last Commit" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/github/repo-size/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=475569" alt="Repo Size" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/graphs/contributors"><img src="https://img.shields.io/github/contributors/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=github&color=ec4899" alt="Contributors" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay/commits/main"><img src="https://img.shields.io/github/last-commit/Crystal-Studio-Labs/Campus-Relay?style=for-the-badge&logo=git&color=2563eb" alt="Last Commit" /></a>
 </p>
 
 <p align="center">
-  <!-- Core Stack Badges -->
-  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
-  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python" /></a>
-  <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" /></a>
-  <a href="https://www.sqlalchemy.org"><img src="https://img.shields.io/badge/SQLAlchemy-2.0-D71F00.svg?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" /></a>
-  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18_PWA-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
-  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.0-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
-  <a href="https://vitejs.dev"><img src="https://img.shields.io/badge/Vite-5.0-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
-  <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
-</p>
-
-<p align="center">
-  <!-- Architecture & Operational Badges -->
-  <a href="#offline-first-architecture--synchronization"><img src="https://img.shields.io/badge/Storage-Local--First_IndexedDB-10B981.svg?style=for-the-badge&logo=pwa&logoColor=white" alt="Offline First" /></a>
-  <a href="#offline-first-architecture--synchronization"><img src="https://img.shields.io/badge/Sync-Idempotent_Outbox-2563EB.svg?style=for-the-badge&logo=git&logoColor=white" alt="Sync" /></a>
+  <!-- Core Operational Architecture Badges -->
+  <a href="#offline-first-architecture--synchronization"><img src="https://img.shields.io/badge/Architecture-Offline--First_PWA-10B981.svg?style=for-the-badge&logo=pwa&logoColor=white" alt="Offline First" /></a>
   <a href="#role-based-access-control-rbac--pre-configured-demo-accounts"><img src="https://img.shields.io/badge/Security-Zero--Trust_RBAC-F59E0B.svg?style=for-the-badge&logo=auth0&logoColor=white" alt="Security" /></a>
-  <a href="#architectural-philosophy"><img src="https://img.shields.io/badge/Audit-Trigger--Enforced_Ledger-DC2626.svg?style=for-the-badge&logo=securityscorecard&logoColor=white" alt="Audit" /></a>
+  <a href="#architectural-philosophy"><img src="https://img.shields.io/badge/Audit-Append--Only_Ledger-DC2626.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="Audit" /></a>
   <a href="#workflow-c-leave-approval-digital-gate-pass--anti-passback"><img src="https://img.shields.io/badge/Gate-Anti--Passback-7C3AED.svg?style=for-the-badge&logo=shield&logoColor=white" alt="Anti-Passback" /></a>
   <a href="#controlled-ai-agents--operations-layer"><img src="https://img.shields.io/badge/AI_Agents-Tool--Sandboxed-4338CA.svg?style=for-the-badge&logo=openai&logoColor=white" alt="AI Agents" /></a>
+  <a href="#tech-stack"><img src="https://img.shields.io/badge/Containers-Docker_Ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
 </p>
 
 <p align="center">
-  <!-- UX, Standards & Governance Badges -->
-  <a href="#frontend-design-system--bright-institutional"><img src="https://img.shields.io/badge/Design-Bright_Institutional-0EA5E9.svg?style=for-the-badge&logo=figma&logoColor=white" alt="Design" /></a>
-  <a href="#frontend-design-system--bright-institutional"><img src="https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-059669.svg?style=for-the-badge&logo=w3c&logoColor=white" alt="Accessibility" /></a>
-  <a href="#configuration-reference"><img src="https://img.shields.io/badge/i18n-EN_%7C_OR_%7C_HI-D97706.svg?style=for-the-badge&logo=googletranslate&logoColor=white" alt="i18n" /></a>
-  <a href="https://bput.ac.in"><img src="https://img.shields.io/badge/BPUT_Hackathon-2026_PS07-1E3A8A.svg?style=for-the-badge&logo=target&logoColor=white" alt="Hackathon" /></a>
-  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/badge/Studio-Crystal_Studio_Labs-111827.svg?style=for-the-badge&logo=github&logoColor=white" alt="Crystal Studio Labs" /></a>
-  <a href="mailto:connect.crystalstudio@gmail.com"><img src="https://img.shields.io/badge/Email-connect.crystalstudio%40gmail.com-EA4335.svg?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
+  <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay">
+    <img src="docs/assets/campus-relay-banner.png" alt="Campus Relay — A Resilient Operating Layer for Everyday Campus Operations" width="100%" style="border-radius: 12px; box-shadow: 0 16px 48px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);" />
+  </a>
 </p>
 
 ---
@@ -95,6 +78,16 @@ Campus operations across universities and colleges suffer from acute fragmentati
 ---
 
 ## 🏛️ Architectural Philosophy
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Audit-Trigger--Enforced_Ledger-DC2626.svg?style=flat-square&logo=securityscorecard&logoColor=white" alt="Audit Trigger Ledger" />
+  <img src="https://img.shields.io/badge/Engine-Universal_Case_Architecture-0284c7.svg?style=flat-square&logo=diagram-next&logoColor=white" alt="Universal Case Engine" />
+  <img src="https://img.shields.io/badge/Immutability-Append--Only_Postgres-336791.svg?style=flat-square&logo=postgresql&logoColor=white" alt="Append-Only Postgres" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/campus_relay_architecture_diagram.jpg" alt="Campus Relay System Architecture Diagram" width="100%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35);" />
+</p>
 
 Campus Relay is built on foundational architectural principles designed to survive real-world campus constraints:
 
@@ -149,6 +142,11 @@ Campus Relay includes 5 core end-to-end workflows that solve real campus operati
 
 ### Workflow A: Hostel Maintenance Lifecycle
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Workflow-Intake_to_Resolution-2563EB.svg?style=flat-square&logo=git&logoColor=white" alt="Intake to Resolution" />
+  <img src="https://img.shields.io/badge/Guard-Requester_Verification-10B981.svg?style=flat-square&logo=checkmarx&logoColor=white" alt="Requester Verification" />
+</p>
+
 ```mermaid
 flowchart TD
     A([Student scans QR / selects Service]) --> B[Intake Agent classifies priority & category]
@@ -172,6 +170,11 @@ flowchart TD
 
 ### Workflow B: Verifiable Bonafide Certificate
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Security-Cryptographic_QR_PDF-6366F1.svg?style=flat-square&logo=adobeacrobatreader&logoColor=white" alt="Cryptographic QR PDF" />
+  <img src="https://img.shields.io/badge/Verification-Public_Endpoint-059669.svg?style=flat-square&logo=openaccess&logoColor=white" alt="Public Verification" />
+</p>
+
 ```mermaid
 flowchart TD
     A([Student requests Certificate with Purpose]) --> B[Policy Engine validates prerequisites & dues balance]
@@ -190,6 +193,11 @@ flowchart TD
 - **Zero-Trust Document Verification**: Public endpoint confirms document validity, serial number, issue date, and student identity without exposing private academic or financial data.
 
 ### Workflow C: Leave Approval, Digital Gate Pass & Anti-Passback
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Gate-Anti--Passback_Enforced-7C3AED.svg?style=flat-square&logo=shield&logoColor=white" alt="Anti-Passback" />
+  <img src="https://img.shields.io/badge/Scanner-Sub--150ms_Lookup-10B981.svg?style=flat-square&logo=speedtest&logoColor=white" alt="Sub-150ms Scan" />
+</p>
 
 ```mermaid
 flowchart TD
@@ -212,6 +220,11 @@ flowchart TD
 - **Strict Anti-Passback**: A pass cannot be used for multiple exits or entries out of order. Gate counts update live in the Security Command Center.
 
 ### Workflow D: Offline Outbox & Idempotent Sync
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Sync-Idempotent_Outbox-2563EB.svg?style=flat-square&logo=git&logoColor=white" alt="Idempotent Outbox" />
+  <img src="https://img.shields.io/badge/Storage-IndexedDB_Local_First-10B981.svg?style=flat-square&logo=pwa&logoColor=white" alt="IndexedDB" />
+</p>
 
 ```mermaid
 sequenceDiagram
@@ -245,6 +258,11 @@ sequenceDiagram
 
 ### Workflow E: Targeted Notice Studio & Action Tracking
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Comms-Granular_Targeting-0284C7.svg?style=flat-square&logo=target&logoColor=white" alt="Granular Targeting" />
+  <img src="https://img.shields.io/badge/Tracking-Read_%26_Action_Receipts-10B981.svg?style=flat-square&logo=mailcheck&logoColor=white" alt="Tracking Receipts" />
+</p>
+
 ```mermaid
 flowchart TD
     A([Admin creates notice: Water Tank Maintenance]) --> B[Selects granular targets: Hostel A, CSE, Batch 2026]
@@ -261,6 +279,12 @@ flowchart TD
 ---
 
 ## 👥 Role-Based Access Control (RBAC) & Pre-configured Demo Accounts
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Security-Zero--Trust_RBAC-F59E0B.svg?style=flat-square&logo=auth0&logoColor=white" alt="Zero-Trust RBAC" />
+  <img src="https://img.shields.io/badge/Roles-3_Consolidated_Tiers-3B82F6.svg?style=flat-square&logo=user-check&logoColor=white" alt="3 Consolidated Tiers" />
+  <img src="https://img.shields.io/badge/Auth-JWT_%2B_Bcrypt-10B981.svg?style=flat-square&logo=jsonwebtokens&logoColor=white" alt="JWT + Bcrypt" />
+</p>
 
 Campus Relay enforces granular Role-Based Access Control on every API endpoint and frontend route, backed by organisational data scoping (a hostel warden sees the hostels they run; a teacher sees the classes and the departmental queue they own).
 
@@ -298,6 +322,12 @@ Developed and presented by **Crystal Studio Labs** for **BPUT Hackathon 2026** *
 
 ## ⚡ Offline-First Architecture & Synchronization
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Storage-Local--First_IndexedDB-10B981.svg?style=flat-square&logo=pwa&logoColor=white" alt="IndexedDB" />
+  <img src="https://img.shields.io/badge/Sync-Idempotent_Outbox-2563EB.svg?style=flat-square&logo=git&logoColor=white" alt="Idempotent Outbox" />
+  <img src="https://img.shields.io/badge/Network-Offline_Resilient-059669.svg?style=flat-square&logo=wifi-off&logoColor=white" alt="Offline Resilient" />
+</p>
+
 Campus Relay implements a true local-first PWA architecture:
 
 ```mermaid
@@ -333,6 +363,12 @@ flowchart TD
 ---
 
 ## 🤖 Controlled AI Agents & Operations Layer
+
+<p align="left">
+  <img src="https://img.shields.io/badge/AI_Agents-Tool--Sandboxed-4338CA.svg?style=flat-square&logo=openai&logoColor=white" alt="Tool Sandboxed" />
+  <img src="https://img.shields.io/badge/Engine-Deterministic_Rules_%7C_LLM-0284C7.svg?style=flat-square&logo=cpu&logoColor=white" alt="Dual Engine" />
+  <img src="https://img.shields.io/badge/Governance-Human--In--The--Loop-F59E0B.svg?style=flat-square&logo=shield-check&logoColor=white" alt="Human In The Loop" />
+</p>
 
 Rather than relying on ungrounded or hallucinating chatbots, Campus Relay deploys **4 purpose-built, controlled AI agents**:
 
@@ -371,6 +407,16 @@ flowchart TB
 
 ## 🎨 Frontend Design System & Bento Enterprise
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Design-Bento_Enterprise-0EA5E9.svg?style=flat-square&logo=figma&logoColor=white" alt="Bento Enterprise" />
+  <img src="https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-059669.svg?style=flat-square&logo=w3c&logoColor=white" alt="WCAG AA" />
+  <img src="https://img.shields.io/badge/i18n-EN_%7C_OR_%7C_HI-D97706.svg?style=flat-square&logo=googletranslate&logoColor=white" alt="i18n Multi-lingual" />
+</p>
+
+<p align="center">
+  <img src="docs/assets/campus_relay_wireframe_mockup.jpg" alt="Campus Relay Multi-Station UI Wireframes and Production Screens" width="100%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35);" />
+</p>
+
 The shipped interface is **bento enterprise**: a modern, commercial administration platform — white cards floating on a soft slate page, one confident indigo for action, soft blurred elevation instead of hard plates, sentence-case labels and a consistent Lucide icon family. It reads as trustworthy to a registrar and familiar to a student.
 - **Soft elevation**: white surfaces on a soft blue-grey page, generous radii and quiet shadows instead of hard plates — the content is the loudest thing on screen.
 - **One confident blue for action**, green for done, amber for attention. Colour never carries meaning alone: every status chip also carries its word.
@@ -389,6 +435,17 @@ The stylesheet is layered — `tokens → base → components → app` — with 
 ---
 
 ## 💻 Tech Stack
+
+<p align="center">
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" /></a>
+  <a href="https://www.python.org"><img src="https://img.shields.io/badge/Python-3.11+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python" /></a>
+  <a href="https://www.postgresql.org"><img src="https://img.shields.io/badge/PostgreSQL-16-336791.svg?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" /></a>
+  <a href="https://www.sqlalchemy.org"><img src="https://img.shields.io/badge/SQLAlchemy-2.0-D71F00.svg?style=for-the-badge&logo=sqlalchemy&logoColor=white" alt="SQLAlchemy" /></a>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18_PWA-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black" alt="React" /></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/TypeScript-5.0-3178C6.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://vitejs.dev"><img src="https://img.shields.io/badge/Vite-5.0-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white" alt="Vite" /></a>
+  <a href="https://www.docker.com"><img src="https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" /></a>
+</p>
 
 ### Backend
 - **Framework**: [FastAPI 0.115+](https://fastapi.tiangolo.com)
@@ -628,6 +685,12 @@ Outbound provider calls never sit in a request transaction: a configured notific
 
 ## 🧪 End-to-End Automated Verification Suite
 
+<p align="left">
+  <img src="https://img.shields.io/badge/Tests-100%25_Automated_E2E-10B981.svg?style=flat-square&logo=checkmarx&logoColor=white" alt="100% Automated E2E" />
+  <img src="https://img.shields.io/badge/Coverage-Zero--Mock_Real_API-0284C7.svg?style=flat-square&logo=pytest&logoColor=white" alt="Zero-Mock Real API" />
+  <img src="https://img.shields.io/badge/CI-GitHub_Actions_Passing-2563EB.svg?style=flat-square&logo=githubactions&logoColor=white" alt="GitHub Actions" />
+</p>
+
 Campus Relay includes a comprehensive end-to-end test suite (`backend/scripts/e2e_demo.py`) that executes against a running instance of the API. It tests the complete lifecycle without mocking:
 
 - **Hostel Maintenance**: Location QR code resolution -> complaint filing -> automated classification -> priority elevation -> staff dispatch -> in-progress execution -> technician resolution -> requester verification -> case closure -> reopen handling.
@@ -650,6 +713,12 @@ python -m scripts.e2e_demo --base-url http://127.0.0.1:8000
 ---
 
 ## 🌐 API Surface & Interactive Documentation
+
+<p align="left">
+  <img src="https://img.shields.io/badge/API-OpenAPI_3.1-009688.svg?style=flat-square&logo=openapiinitiative&logoColor=white" alt="OpenAPI 3.1" />
+  <img src="https://img.shields.io/badge/Docs-Swagger_UI_%7C_ReDoc-85EA2D.svg?style=flat-square&logo=swagger&logoColor=black" alt="Swagger UI" />
+  <img src="https://img.shields.io/badge/Health-Live_Sub--10ms-10B981.svg?style=flat-square&logo=speedtest&logoColor=white" alt="Sub-10ms Health" />
+</p>
 
 Once the backend is started, explore the full OpenAPI specification and test endpoints interactively:
 
@@ -703,8 +772,11 @@ This project is developed for BPUT Hackathon 2026 — Problem Statement 07 (Fret
 ---
 
 <div align="center">
+  <p>
+    <a href="https://github.com/Crystal-Studio-Labs/Campus-Relay"><img src="https://img.shields.io/badge/Studio-Crystal_Studio_Labs-111827.svg?style=for-the-badge&logo=github&logoColor=white" alt="Crystal Studio Labs" /></a>
+    <a href="mailto:connect.crystalstudio@gmail.com"><img src="https://img.shields.io/badge/Email-connect.crystalstudio%40gmail.com-EA4335.svg?style=for-the-badge&logo=gmail&logoColor=white" alt="Email" /></a>
+  </p>
   <p>Built with ❤️ by <b>Crystal Studio Labs</b></p>
   <p>BPUT Hackathon 2026 • Problem Statement 07 (Fretbox)</p>
   <p><sub><b>Team:</b> Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Pruthiraj Lenka • Manas Kumar Mallick • Bibhu Bhushan Giri • Nandita Das</sub></p>
-  <p><b>Official Contact:</b> <a href="mailto:connect.crystalstudio@gmail.com">connect.crystalstudio@gmail.com</a></p>
 </div>

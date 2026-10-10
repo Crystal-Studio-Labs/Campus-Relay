@@ -89,6 +89,15 @@ export function App() {
   }
 
   if (status === 'anonymous') {
+    // A tablet that was set up as a kiosk or helpdesk opens that station rather
+    // than the marketing page, so the next person to touch it meets the station
+    // sign-in instead of a brochure, and a personal sign-in here cannot quietly
+    // convert a shared terminal back into somebody's private device.
+    const stationMode = currentDeviceMode()
+    if (stationMode !== 'personal' && location.pathname === '/') {
+      return <Navigate to={stationMode === 'kiosk' ? '/kiosk' : '/login?mode=desk'} replace />
+    }
+
     // Signing out from a deep screen (or having a session expire there) must not
     // land on a 404: the deep screen belongs to a session that no longer exists,
     // so send the person to sign in and carry on. A signed-out visitor opening

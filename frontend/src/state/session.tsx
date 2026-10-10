@@ -21,6 +21,10 @@ interface SessionValue {
   error: string | null
   login: (email: string, password: string) => Promise<Profile>
   logout: () => void
+  /** Clear the session but stay on the current screen, so the screen itself can
+   *  explain the refusal (a station sign-in that rejects a personal account).
+   *  Navigating away would replace the sign-in screen and lose the reason. */
+  logoutInPlace: () => void
   refresh: () => Promise<void>
   /** Permission check mirroring the server's RBAC keys. The server re-checks
    *  everything; this only decides what to render. */
@@ -108,6 +112,12 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     navigate('/login', { replace: true })
   }, [navigate])
 
+  const logoutInPlace = useCallback(() => {
+    tokenStore.clear()
+    setProfile(null)
+    setStatus('anonymous')
+  }, [])
+
   const value = useMemo<SessionValue>(() => {
     const permissions = new Set(profile?.permissions ?? [])
     return {
@@ -116,10 +126,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       error,
       login,
       logout,
+      logoutInPlace,
       refresh,
       can: (...required: string[]) => required.every((permission) => permissions.has(permission)),
     }
-  }, [profile, status, error, login, logout, refresh])
+  }, [profile, status, error, login, logout, logoutInPlace, refresh])
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>
 }

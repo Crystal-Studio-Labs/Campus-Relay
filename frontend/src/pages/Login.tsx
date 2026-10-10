@@ -15,7 +15,7 @@
 
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ApiError, api, currentDeviceMode, setDeviceMode, type DeviceMode } from '../lib/api'
+import { ApiError, api, setDeviceMode, type DeviceMode } from '../lib/api'
 import { useSession } from '../state/session'
 import { useInstitution } from '../state/institution'
 import { useTheme } from '../state/theme'
@@ -35,6 +35,10 @@ interface DemoAccount {
 
 const KIOSK_ROLES: RoleKey[] = ['MANAGEMENT']
 const DESK_ROLES: RoleKey[] = ['MANAGEMENT']
+
+/** Shown when a personal account is offered to a shared station sign-in. */
+const STATION_LOCKOUT_MESSAGE =
+  'SECURITY LOCKOUT: a kiosk terminal can only be authorised by the management role. Personal student and teacher accounts cannot hijack or run a shared public kiosk.'
 
 
 
@@ -83,7 +87,7 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
     title: variant === 'kiosk' ? 'Kiosk Operator Sign In' : variant === 'desk' ? 'Helpdesk Staff Sign In' : 'Sign In',
     description: 'Secure sign-in for students, teachers, and administrators.',
   })
-  const { login, logout, status } = useSession()
+  const { login, logoutInPlace, status, profile } = useSession()
   const institution = useInstitution()
   const navigate = useNavigate()
   const { section, setSection, allSections } = useKioskSection()
@@ -107,21 +111,44 @@ export function LoginPage({ variant = 'standard' }: { variant?: 'standard' | 'ki
       .catch(() => setAccounts([]))
   }, [])
 
+  // A shared kiosk must never carry somebody's personal session. If a
+  // signed-in student or teacher reaches the kiosk sign-in, clear that session
+  // in place and say why, rather than leaving them staring at a form while
+  // "signed in". Clearing in place keeps this screen mounted, so the notice
+  // stays visible instead of being unmounted by a redirect (the loop).
+  useEffect(() => {
+    if (variant !== 'kiosk') return
+    if (status !== 'authenticated' || !profile) return
+    if (KIOSK_ROLES.includes(profile.role as RoleKey)) return
+    logoutInPlace()
+    setError(STATION_LOCKOUT_MESSAGE)
+  }, [variant, status, profile, logoutInPlace])
+
   const submit = async (nextEmail = email, nextPassword = password, mode?: DeviceMode) => {
     setBusy(true)
     setError(null)
-    const station: DeviceMode = mode ?? (variant === 'kiosk' ? 'kiosk' : variant === 'desk' ? 'desk' : currentDeviceMode())
+    // The station is what the *variant* says, never the device's remembered
+    // mode. A personal sign-in at /login on a tablet that was once a kiosk must
+    // not be judged as a kiosk sign-in: that rejected the account, signed it
+    // straight back out, and landed on this same screen with the reason erased
+    // by the redirect - the sign-in loop. Only the kiosk/desk variants commit a
+    // station, and only they enforce that station's allow-list. Signing in
+    // personally also makes the device personal again, so a retired station is
+    // not permanently trapped in kiosk mode.
+    const station: DeviceMode =
+      mode ?? (variant === 'kiosk' ? 'kiosk' : variant === 'desk' ? 'desk' : 'personal')
     setDeviceMode(station)
     try {
-      const profile = await login(nextEmail, nextPassword)
-      if (station === 'kiosk' && !KIOSK_ROLES.includes(profile.role as RoleKey)) {
-        await logout()
-        setError(
-          'SECURITY LOCKOUT: a kiosk terminal can only be authorised by the management role. Personal student and teacher accounts cannot hijack or run a shared public kiosk.',
-        )
+      const signedIn = await login(nextEmail, nextPassword)
+      const stationRoles = station === 'kiosk' ? KIOSK_ROLES : station === 'desk' ? DESK_ROLES : null
+      if (stationRoles && !stationRoles.includes(signedIn.role as RoleKey)) {
+        // Keep this screen mounted so the refusal is actually readable, and let
+        // the operator retry with a management account.
+        logoutInPlace()
+        setError(STATION_LOCKOUT_MESSAGE)
         return
       }
-      navigate(landingFor(profile, station), { replace: true })
+      navigate(landingFor(signedIn, station), { replace: true })
     } catch (requestError) {
       setError(
         requestError instanceof ApiError

@@ -370,7 +370,9 @@ def create_presentation():
                "Deterministic, sub-second performance engineered for thousands of concurrent campus users")
 
     # Image: campus_relay_architecture_diagram.jpg
-    arch_img_path = r"d:\Projects\Campus-Relay\campus_relay_architecture_diagram.jpg"
+    arch_img_path = os.path.join(ROOT_DIR, "docs", "assets", "campus_relay_architecture_diagram.jpg")
+    if not os.path.exists(arch_img_path):
+        arch_img_path = os.path.join(ROOT_DIR, "campus_relay_architecture_diagram.jpg")
     if os.path.exists(arch_img_path):
         s3.shapes.add_picture(arch_img_path, Inches(0.8), Inches(2.1), Inches(18.4), Inches(6.8))
 
@@ -625,7 +627,9 @@ def create_presentation():
                "Dedicated, high-contrast screens for Students, Security Guards, and Administrators")
 
     # Image: campus_relay_wireframe_mockup.jpg
-    mockup_img_path = r"d:\Projects\Campus-Relay\campus_relay_wireframe_mockup.jpg"
+    mockup_img_path = os.path.join(ROOT_DIR, "docs", "assets", "campus_relay_wireframe_mockup.jpg")
+    if not os.path.exists(mockup_img_path):
+        mockup_img_path = os.path.join(ROOT_DIR, "campus_relay_wireframe_mockup.jpg")
     if os.path.exists(mockup_img_path):
         s6.shapes.add_picture(mockup_img_path, Inches(0.8), Inches(2.1), Inches(18.4), Inches(6.8))
 
