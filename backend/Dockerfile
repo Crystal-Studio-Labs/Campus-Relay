@@ -36,5 +36,6 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=5 \
 
 # Apply migrations, then serve. Seeding is a separate, explicit step (see
 # docker-compose.selfhost.yml) so a production database is never wiped by a
-# redeploy.
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# redeploy. scripts.migrate tolerates a schema built by supabase/schema.sql
+# instead of Alembic.
+CMD ["sh", "-c", "python -m scripts.migrate && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

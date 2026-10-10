@@ -40,7 +40,10 @@ jobs:
         run: pip install -r requirements.txt
       - name: Apply migrations
         working-directory: backend
-        run: python -m alembic upgrade head
+        # scripts.migrate builds the schema from the models on an empty database
+        # (the hand-written migrations predate several models), then stamps head;
+        # on a managed database it upgrades normally.
+        run: python -m scripts.migrate
       - name: Seed the demo campus
         working-directory: backend
         run: python -m app.seed.seed_data

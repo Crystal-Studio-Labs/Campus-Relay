@@ -59,7 +59,7 @@ services:
         condition: service_healthy
     # Migrate, then seed only if the database is empty, then serve.
     command: >
-      sh -c "alembic upgrade head
+      sh -c "python -m scripts.migrate
       && python -m scripts.bootstrap
       && uvicorn app.main:app --host 0.0.0.0 --port 8000"
     expose:

@@ -33,3 +33,6 @@ Thumbs.db
 *.log
 .runtime-*.log
 
+# --- Local Backups ---
+*.backup.pptx
+

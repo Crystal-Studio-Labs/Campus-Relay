@@ -66,12 +66,6 @@ HEADER = """-- =================================================================
 -- used by Supabase tooling, and JSONB is built in.
 create extension if not exists pgcrypto;
 
--- ---------------------------------------------------------------------------
--- 2. Schema
--- ---------------------------------------------------------------------------
--- Everything lives in `public`, which is what PostgREST exposes and what the
--- API's search_path resolves to.
-
 """
 
 FOOTER = """
@@ -150,13 +144,37 @@ on conflict (id) do nothing;
 -- ============================================================================
 -- 6. Verification
 -- ============================================================================
--- Expect 42 tables. A quick sanity check after running this file:
+-- A quick sanity check after running this file:
 --   select count(*) from information_schema.tables
 --    where table_schema = 'public' and table_type = 'BASE TABLE';
 select count(*) as campus_relay_tables
 from information_schema.tables
 where table_schema = 'public' and table_type = 'BASE TABLE';
 """
+
+# The tables this file owns, in drop order. Emitting an explicit DROP before
+# the CREATEs makes the file safe to re-run: on a database that still carries
+# the old tables - the usual state after "delete the rows but keep the schema" -
+# a bare CREATE would fail with "relation already exists". DROP ... CASCADE
+# takes the dependent foreign keys, triggers and indexes with it, which is
+# exactly what a from-scratch rebuild wants.
+DROP_HEADER = """-- ---------------------------------------------------------------------------
+-- 2. Schema
+-- ---------------------------------------------------------------------------
+-- Everything lives in `public`, which is what PostgREST exposes and what the
+-- API's search_path resolves to. The rebuild starts by dropping the Campus
+-- Relay tables this file recreates, so re-running it is safe. CASCADE also
+-- clears their foreign keys, triggers and indexes. This is destructive to
+-- Campus Relay data by design; Supabase's own objects live in other schemas
+-- and are untouched.
+"""
+
+
+def render_drops() -> str:
+    lines = ["drop table if exists public.%s cascade;" % table.name for table in reversed(Base.metadata.sorted_tables)]
+    lines.append("drop table if exists public.alembic_version cascade;")
+    lines.append("drop function if exists public.campus_relay_block_mutation() cascade;")
+    return "\n".join(lines)
 
 
 def render_ddl() -> str:
@@ -171,7 +189,8 @@ def render_ddl() -> str:
 
 def main() -> None:
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(HEADER + render_ddl() + FOOTER, encoding="utf-8")
+    body = HEADER + DROP_HEADER + render_drops() + "\n\n" + render_ddl() + FOOTER
+    OUTPUT.write_text(body, encoding="utf-8")
     print(f"wrote {OUTPUT} ({len(Base.metadata.sorted_tables)} tables)")
 
 

@@ -40,7 +40,73 @@ create extension if not exists pgcrypto;
 -- 2. Schema
 -- ---------------------------------------------------------------------------
 -- Everything lives in `public`, which is what PostgREST exposes and what the
--- API's search_path resolves to.
+-- API's search_path resolves to. The rebuild starts by dropping the Campus
+-- Relay tables this file recreates, so re-running it is safe. CASCADE also
+-- clears their foreign keys, triggers and indexes. This is destructive to
+-- Campus Relay data by design; Supabase's own objects live in other schemas
+-- and are untouched.
+drop table if exists public.notification_events cascade;
+drop table if exists public.notification_deliveries cascade;
+drop table if exists public.gate_logs cascade;
+drop table if exists public.notifications cascade;
+drop table if exists public.notice_actions cascade;
+drop table if exists public.gate_passes cascade;
+drop table if exists public.documents cascade;
+drop table if exists public.case_events cascade;
+drop table if exists public.case_comments cascade;
+drop table if exists public.case_attachments cascade;
+drop table if exists public.case_assignments cascade;
+drop table if exists public.case_approvals cascade;
+drop table if exists public.audit_logs cascade;
+drop table if exists public.payments cascade;
+drop table if exists public.cases cascade;
+drop table if exists public.marks cascade;
+drop table if exists public.leave_applications cascade;
+drop table if exists public.job_applications cascade;
+drop table if exists public.feedback cascade;
+drop table if exists public.fee_records cascade;
+drop table if exists public.clearance_requests cascade;
+drop table if exists public.book_loans cascade;
+drop table if exists public.attendance_records cascade;
+drop table if exists public.assets cascade;
+drop table if exists public.activity_registrations cascade;
+drop table if exists public.students cascade;
+drop table if exists public.locations cascade;
+drop table if exists public.timetable_slots cascade;
+drop table if exists public.rooms cascade;
+drop table if exists public.subjects cascade;
+drop table if exists public.notice_targets cascade;
+drop table if exists public.notice_shares cascade;
+drop table if exists public.notice_reads cascade;
+drop table if exists public.blocks cascade;
+drop table if exists public.workflow_steps cascade;
+drop table if exists public.sync_operations cascade;
+drop table if exists public.staff_leave cascade;
+drop table if exists public.staff cascade;
+drop table if exists public.services cascade;
+drop table if exists public.payslips cascade;
+drop table if exists public.notification_preferences cascade;
+drop table if exists public.notices cascade;
+drop table if exists public.job_postings cascade;
+drop table if exists public.hostels cascade;
+drop table if exists public.feedback_requests cascade;
+drop table if exists public.devices cascade;
+drop table if exists public.branches cascade;
+drop table if exists public.activities cascade;
+drop table if exists public.years cascade;
+drop table if exists public.workflows cascade;
+drop table if exists public.users cascade;
+drop table if exists public.sla_rules cascade;
+drop table if exists public.role_permissions cascade;
+drop table if exists public.policies cascade;
+drop table if exists public.departments cascade;
+drop table if exists public.books cascade;
+drop table if exists public.batches cascade;
+drop table if exists public.roles cascade;
+drop table if exists public.permissions cascade;
+drop table if exists public.campuses cascade;
+drop table if exists public.alembic_version cascade;
+drop function if exists public.campus_relay_block_mutation() cascade;
 
 CREATE TABLE campuses (
 	name VARCHAR(160) NOT NULL, 
@@ -77,7 +143,7 @@ CREATE TABLE roles (
 	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	PRIMARY KEY (id), 
-	CONSTRAINT ck_roles_key CHECK (key IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
+	CONSTRAINT ck_roles_key CHECK (key IN ('STUDENT', 'TEACHER', 'MANAGEMENT')), 
 	UNIQUE (key)
 );
 
@@ -183,7 +249,7 @@ CREATE TABLE sla_rules (
 	PRIMARY KEY (id), 
 	CONSTRAINT uq_sla_rule_scope UNIQUE (campus_id, service_key, priority), 
 	CONSTRAINT ck_sla_rules_priority CHECK (priority IN ('LOW', 'NORMAL', 'HIGH', 'CRITICAL', 'URGENT')), 
-	CONSTRAINT ck_sla_rules_escalate_role CHECK (escalate_to_role IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
+	CONSTRAINT ck_sla_rules_escalate_role CHECK (escalate_to_role IN ('STUDENT', 'TEACHER', 'MANAGEMENT')), 
 	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE
 );
 
@@ -310,6 +376,27 @@ CREATE TABLE devices (
 );
 
 CREATE INDEX ix_devices_campus_id ON devices (campus_id);
+
+CREATE TABLE feedback_requests (
+	campus_id INTEGER NOT NULL, 
+	created_by_user_id INTEGER NOT NULL, 
+	subject VARCHAR(160) NOT NULL, 
+	message TEXT NOT NULL, 
+	audience VARCHAR(40) NOT NULL, 
+	due_on TIMESTAMP WITH TIME ZONE, 
+	state VARCHAR(16) NOT NULL, 
+	id SERIAL NOT NULL, 
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
+	PRIMARY KEY (id), 
+	CONSTRAINT ck_feedback_requests_state CHECK (state IN ('OPEN', 'CLOSED')), 
+	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
+	FOREIGN KEY(created_by_user_id) REFERENCES users (id) ON DELETE CASCADE
+);
+
+CREATE INDEX ix_feedback_requests_campus_id ON feedback_requests (campus_id);
+
+CREATE INDEX ix_feedback_requests_state ON feedback_requests (state);
 
 CREATE TABLE hostels (
 	campus_id INTEGER NOT NULL, 
@@ -578,7 +665,7 @@ CREATE TABLE workflow_steps (
 	PRIMARY KEY (id), 
 	CONSTRAINT uq_workflow_step_key UNIQUE (workflow_id, key), 
 	CONSTRAINT ck_step_type CHECK (step_type IN ('APPROVAL', 'ASSIGNMENT', 'ACTION', 'RESOLUTION', 'VERIFICATION', 'NOTIFICATION')), 
-	CONSTRAINT ck_workflow_steps_role CHECK (responsible_role IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
+	CONSTRAINT ck_workflow_steps_role CHECK (responsible_role IN ('STUDENT', 'TEACHER', 'MANAGEMENT')), 
 	FOREIGN KEY(workflow_id) REFERENCES workflows (id) ON DELETE CASCADE
 );
 
@@ -791,7 +878,6 @@ CREATE TABLE students (
 	room_id INTEGER, 
 	is_hosteller BOOLEAN NOT NULL, 
 	guardian_phone VARCHAR(24), 
-	guardian_user_id INTEGER, 
 	dues_amount INTEGER NOT NULL, 
 	dues_paid INTEGER NOT NULL, 
 	has_smartphone BOOLEAN NOT NULL, 
@@ -807,8 +893,7 @@ CREATE TABLE students (
 	FOREIGN KEY(year_id) REFERENCES years (id) ON DELETE SET NULL, 
 	FOREIGN KEY(batch_id) REFERENCES batches (id) ON DELETE SET NULL, 
 	FOREIGN KEY(hostel_id) REFERENCES hostels (id) ON DELETE SET NULL, 
-	FOREIGN KEY(room_id) REFERENCES rooms (id) ON DELETE SET NULL, 
-	FOREIGN KEY(guardian_user_id) REFERENCES users (id) ON DELETE SET NULL
+	FOREIGN KEY(room_id) REFERENCES rooms (id) ON DELETE SET NULL
 );
 
 CREATE INDEX ix_students_campus_id ON students (campus_id);
@@ -978,6 +1063,7 @@ CREATE INDEX ix_fee_records_student_id ON fee_records (student_id);
 CREATE INDEX ix_fee_student ON fee_records (student_id);
 
 CREATE TABLE feedback (
+	request_id INTEGER, 
 	campus_id INTEGER NOT NULL, 
 	submitted_by_user_id INTEGER NOT NULL, 
 	student_id INTEGER, 
@@ -996,6 +1082,7 @@ CREATE TABLE feedback (
 	PRIMARY KEY (id), 
 	CONSTRAINT ck_feedback_kind CHECK (kind IN ('ACADEMIC', 'FACULTY', 'FACILITY', 'MESS', 'HOSTEL', 'ADMINISTRATION', 'OTHER')), 
 	CONSTRAINT ck_feedback_state CHECK (state IN ('OPEN', 'ACKNOWLEDGED', 'RESOLVED')), 
+	FOREIGN KEY(request_id) REFERENCES feedback_requests (id) ON DELETE SET NULL, 
 	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
 	FOREIGN KEY(submitted_by_user_id) REFERENCES users (id) ON DELETE CASCADE, 
 	FOREIGN KEY(student_id) REFERENCES students (id) ON DELETE SET NULL, 
@@ -1003,6 +1090,8 @@ CREATE TABLE feedback (
 );
 
 CREATE INDEX ix_feedback_campus_id ON feedback (campus_id);
+
+CREATE INDEX ix_feedback_request_id ON feedback (request_id);
 
 CREATE INDEX ix_feedback_state ON feedback (state);
 
@@ -1256,7 +1345,7 @@ CREATE TABLE case_approvals (
 	updated_at TIMESTAMP WITH TIME ZONE DEFAULT now() NOT NULL, 
 	PRIMARY KEY (id), 
 	CONSTRAINT ck_state CHECK (state IN ('PENDING', 'APPROVED', 'REJECTED', 'CANCELLED', 'EXPIRED')), 
-	CONSTRAINT ck_case_approvals_role CHECK (approver_role IN ('STUDENT', 'TEACHER', 'PARENT', 'MANAGEMENT')), 
+	CONSTRAINT ck_case_approvals_role CHECK (approver_role IN ('STUDENT', 'TEACHER', 'MANAGEMENT')), 
 	FOREIGN KEY(campus_id) REFERENCES campuses (id) ON DELETE CASCADE, 
 	FOREIGN KEY(case_id) REFERENCES cases (id) ON DELETE CASCADE, 
 	FOREIGN KEY(approver_id) REFERENCES users (id) ON DELETE SET NULL
@@ -1646,7 +1735,7 @@ on conflict (id) do nothing;
 -- ============================================================================
 -- 6. Verification
 -- ============================================================================
--- Expect 42 tables. A quick sanity check after running this file:
+-- A quick sanity check after running this file:
 --   select count(*) from information_schema.tables
 --    where table_schema = 'public' and table_type = 'BASE TABLE';
 select count(*) as campus_relay_tables

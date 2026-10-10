@@ -63,7 +63,9 @@ flowchart TD
    ```text
    postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres?sslmode=require
    ```
-4. Retain this connection URI for the Render configuration step. You do **not** need to manually create tables — Alembic applies migrations automatically on the first boot.
+4. Retain this connection URI for the Render configuration step. You have two equivalent ways to create the tables (pick one, not both):
+   - **SQL Editor (recommended for Supabase):** open **Database → SQL Editor → New query**, paste the whole of [`supabase/schema.sql`](../../supabase/schema.sql), and Run. It drops and recreates every Campus Relay table, adds the append-only triggers, enables row-level security and creates the media storage bucket. It is safe to re-run.
+   - **Let the backend do it:** skip this step. On first boot `scripts/migrate` builds the schema from the models (or applies pending Alembic migrations on an already-managed database), then `scripts/bootstrap` seeds the demo campus.
 
 > [!NOTE]
 > The backend automatically normalizes `postgresql://` URIs to `postgresql+psycopg://` at runtime (`app/core/config.py::normalise_database_url`), so you can paste the Supabase string verbatim.
@@ -74,7 +76,7 @@ flowchart TD
 3. Supply required environment variables:
    - `DATABASE_URL`: The pooled Supabase URI from Step 1.1.
    - `CORS_ORIGINS`: Your Vercel frontend domain (e.g. `https://campus-relay.vercel.app`).
-4. Click **Deploy**. Alembic runs database migrations automatically (`alembic upgrade head`).
+4. Click **Deploy**. The start command runs `python -m scripts.migrate` first. It upgrades a managed database, stamps the head revision when the schema was built by `supabase/schema.sql`, and builds the schema from the models on an empty database; then `scripts/bootstrap` seeds the demo campus only if no users exist.
 5. Seed initial realistic campus records from the Render Shell:
    ```bash
    python -m app.seed.seed_data
@@ -109,7 +111,7 @@ Access the application at `http://<server-ip>:8080`.
 
 ### Container Startup Orchestration
 1. The `db` container initializes PostgreSQL 16 and performs health checks.
-2. The `backend` container waits for database readiness, applies `alembic upgrade head`, runs `scripts/bootstrap.py` (which seeds demo data **only if the database is unpopulated**), and starts FastAPI.
+2. The `backend` container waits for database readiness, runs `scripts/migrate.py` (upgrade / stamp / build-from-models), then `scripts/bootstrap.py` (which seeds demo data **only if the database is unpopulated**), and starts FastAPI.
 3. The `web` container serves the PWA assets and proxies `/api` requests internally to the backend.
 
 ### Operational Commands
