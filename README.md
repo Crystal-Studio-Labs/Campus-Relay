@@ -264,18 +264,35 @@ flowchart TD
 
 Campus Relay enforces granular Role-Based Access Control on every API endpoint and frontend route, backed by organisational data scoping (a hostel warden sees the hostels they run; a teacher sees the classes and the departmental queue they own).
 
-There are **four roles**, and the staff functions that used to be roles of their own - hostel warden, department head, gate security, helpdesk operator, technician - are now *permissions* held by one of them. Management is deliberately a single role: running the campus day to day and running the deployment are the same job at a college, and what narrows a person's view is the scope the server resolves, never a second credential.
+There are **three consolidated system roles** (`MANAGEMENT`, `TEACHER`, `STUDENT`), and the operational functions that used to be separate roles—hostel warden, gate security, helpdesk operator, maintenance technician—are now *permissions* and specific operational stations held by them. Management is deliberately a single role: running the campus day-to-day and running the deployment are the same office at a college, and what narrows a person's view is the scope the server resolves, never a second credential.
 
 > [!NOTE]
 > All demo accounts use the standard password: **`Campus@2026`**
 
-| Role | Account Email | Role Scope & Responsibilities |
-| :--- | :--- | :--- |
-| **Management** | `admin@campusrelay.demo` | Runs the institution: command centre, hostel and mess, fees, certificates, clearance, library, leave, the gate, notices, plus accounts and configuration. |
-| **Teacher / faculty** | `teacher@campusrelay.demo` | Own subjects and classes, attendance and marks entry, the departmental case queue, approvals in scope. |
-| **Student** | `student@campusrelay.demo` | Personal dashboard, requests and complaints, leave, clearance, library, fees, notices. |
+| System Role | Functional Station / Account | Email | Operational Scope & Station Duties |
+| :--- | :--- | :--- | :--- |
+| **Management** | Central Admin | `admin@campusrelay.demo` | Runs the institution: command centre, hostel & mess, fees, certificates, clearance, library, leave, the gate, notices, plus accounts and configuration. |
+| **Management** | Residential Warden | `warden@campusrelay.demo` | Residential administration: hostel room inspections, leave approvals, gate pass issuance, curfew compliance. |
+| **Management** | Gate Security Desk | `security@campusrelay.demo` | Perimeter control: sub-150ms QR pass verification, anti-passback enforcement, live outside student headcount. |
+| **Management** | Central Helpdesk / Kiosk | `helpdesk@campusrelay.demo` | Digital equity station: assisted request filing and roll number status lookups on behalf of students without smartphones. |
+| **Teacher** | Faculty / Department | `teacher@campusrelay.demo` | Academic administration: class timetables, attendance & marks entry, departmental maintenance queue triage. |
+| **Student** | Student Primary | `student@campusrelay.demo` | Student portal: personal requests & complaints, room QR reporting, leave applications, fees, clearance, notices. |
+| **Student** | Student Secondary | `student2@campusrelay.demo` | Verification peer: used for automated testing of cross-student scoping and tenant privacy isolation. |
 
-A second management account exists for the residential side: `warden@campusrelay.demo` (Ms. Sunita Behera) holds the **same** role and signs leave, gate passes and hostel operations, which is how a campus actually staffs the post - two people, one office, different views.
+---
+
+### 🏆 Team Engineering Roles & Contributions (Crystal Studio Labs)
+
+Developed and presented by **Crystal Studio Labs** for **BPUT Hackathon 2026** *(Problem Statement 07: Fretbox)*.
+
+| Team Member | Engineering Role | Key Contribution & Delivered Scope |
+| :--- | :--- | :--- |
+| **Shuvransu Sekhar Sahoo** *(Captain)* | Lead Systems Architect & Orchestration | Architected the core system architecture, RBAC authorization engine, and full-stack integration. |
+| **Snehal Kumar Moharana** | Backend Services & Database Engineering | Built backend FastAPI service APIs, PostgreSQL database schema, and Alembic migrations. |
+| **Pruthiraj Lenka** | Frontend Engineering & Local-First PWA | Built the React TypeScript PWA, IndexedDB offline sync outbox, and self-service kiosk interface. |
+| **Manas Kumar Mallick** | Case Lifecycle Engine & Verification | Engineered the unified case lifecycle engine, SLA sweep dispatching, and requester verification guard. |
+| **Bibhu Bhushan Giri** | Perimeter Security & Verifiable Documents | Implemented the digital gate pass with anti-passback verification and cryptographic QR PDF engine. |
+| **Nandita Das** | UI Design System, Comms & Accreditation | Designed the responsive design system, targeted Notice Studio broadcast engine, and audit dashboards. |
 
 ---
 
@@ -688,6 +705,6 @@ This project is developed for BPUT Hackathon 2026 — Problem Statement 07 (Fret
 <div align="center">
   <p>Built with ❤️ by <b>Crystal Studio Labs</b></p>
   <p>BPUT Hackathon 2026 • Problem Statement 07 (Fretbox)</p>
-  <p><sub><b>Team:</b> Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Pruthiraj Lenka • Manas Kumar Mallick • Bibhu Bhusan Giri • Nandita Das</sub></p>
+  <p><sub><b>Team:</b> Shuvransu Sekhar Sahoo • Snehal Kumar Moharana • Pruthiraj Lenka • Manas Kumar Mallick • Bibhu Bhushan Giri • Nandita Das</sub></p>
   <p><b>Official Contact:</b> <a href="mailto:connect.crystalstudio@gmail.com">connect.crystalstudio@gmail.com</a></p>
 </div>
