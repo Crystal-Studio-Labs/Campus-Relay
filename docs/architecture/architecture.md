@@ -52,6 +52,14 @@ flowchart LR
 
 ## 🏢 Architectural Layers
 
+<p align="center">
+  <a href="../assets/campus_relay_architecture_diagram.svg" target="_blank">
+    <img src="../assets/campus_relay_architecture_diagram.png" alt="Campus Relay System Architecture Diagram" width="100%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35);" />
+  </a>
+  <br/>
+  <sub style="color: #94a3b8;">Click diagram to inspect the full-resolution vector SVG (100% scalable)</sub>
+</p>
+
 ```mermaid
 flowchart TD
     subgraph Clients ["Client Ecosystem (One PWA, Many Experiences)"]

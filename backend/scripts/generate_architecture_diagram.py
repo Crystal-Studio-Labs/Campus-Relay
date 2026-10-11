@@ -1,0 +1,642 @@
+"""Campus Relay System Architecture Diagram Generator.
+
+Produces:
+1. docs/assets/campus_relay_architecture_diagram.svg (Pure Vector)
+2. docs/assets/campus_relay_architecture_diagram.png (High-Resolution 2400x1350 Raster)
+3. docs/assets/campus_relay_architecture_diagram.jpg (High-Quality 2400x1350 JPEG)
+"""
+
+import os
+import subprocess
+from PIL import Image
+
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+ASSETS_DIR = os.path.join(ROOT_DIR, "docs", "assets")
+os.makedirs(ASSETS_DIR, exist_ok=True)
+
+SVG_PATH = os.path.join(ASSETS_DIR, "campus_relay_architecture_diagram.svg")
+PNG_PATH = os.path.join(ASSETS_DIR, "campus_relay_architecture_diagram.png")
+JPG_PATH = os.path.join(ASSETS_DIR, "campus_relay_architecture_diagram.jpg")
+
+CHROME_BIN = r"C:\Program Files\Google\Chrome\Application\chrome.exe"
+if not os.path.exists(CHROME_BIN):
+    CHROME_BIN = r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe"
+
+
+def build_svg() -> str:
+    # 2400 x 1350 canvas (16:9 widescreen ratio)
+    return """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1350" width="100%" height="100%" style="background:#070b14; font-family:'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="bgGlowCenter" cx="50%" cy="25%" r="60%">
+      <stop offset="0%" stop-color="#0284c7" stop-opacity="0.14"/>
+      <stop offset="50%" stop-color="#00f2fe" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#070b14" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="bgGlowLedger" cx="50%" cy="92%" r="50%">
+      <stop offset="0%" stop-color="#dc2626" stop-opacity="0.09"/>
+      <stop offset="60%" stop-color="#070b14" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Card Background Gradients -->
+    <linearGradient id="tier1Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0e1b33"/>
+      <stop offset="100%" stop-color="#091222"/>
+    </linearGradient>
+    <linearGradient id="tier2Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b203a"/>
+      <stop offset="100%" stop-color="#071526"/>
+    </linearGradient>
+    <linearGradient id="tier3Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a2233"/>
+      <stop offset="100%" stop-color="#071722"/>
+    </linearGradient>
+    <linearGradient id="tier4Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a1122"/>
+      <stop offset="100%" stop-color="#110b17"/>
+    </linearGradient>
+
+    <!-- Accent Gradients -->
+    <linearGradient id="cyanBlueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00f2fe"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="amberGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#d97706"/>
+    </linearGradient>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="crimsonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f43f5e"/>
+      <stop offset="100%" stop-color="#e11d48"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <!-- Flow Arrow Markers -->
+    <marker id="arrowCyan" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#00f2fe"/>
+    </marker>
+    <marker id="arrowEmerald" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrowAmber" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#f59e0b"/>
+    </marker>
+    <marker id="arrowRose" markerWidth="8" markerHeight="8" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#f43f5e"/>
+    </marker>
+
+    <!-- Filters -->
+    <filter id="cardShadow" x="-5%" y="-5%" width="110%" height="118%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.6"/>
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="2400" height="1350" fill="#070b14"/>
+  <rect width="2400" height="1350" fill="url(#bgGlowCenter)"/>
+  <rect width="2400" height="1350" fill="url(#bgGlowLedger)"/>
+
+  <!-- Subtle Cyber Grid -->
+  <g opacity="0.10" stroke="#1e293b" stroke-width="1">
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none"/>
+    </pattern>
+    <rect width="2400" height="1350" fill="url(#grid)"/>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- HEADER SECTION                                                            -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 40)">
+    <!-- Shield Logo Emblem -->
+    <g transform="translate(0, 0)">
+      <polygon points="28,4 54,15 54,44 28,60 2,44 2,15" fill="#0c1e38" stroke="#00f2fe" stroke-width="2.5" filter="url(#cardShadow)"/>
+      <polygon points="28,12 46,20 46,40 28,50 10,40 10,20" fill="url(#cyanBlueGrad)" opacity="0.35"/>
+      <!-- Inner Relay Arrows / Check -->
+      <path d="M20,32 L26,38 L38,24" fill="none" stroke="#00f2fe" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Main Title -->
+    <text x="74" y="32" font-size="33" font-weight="900" fill="#f8fafc" letter-spacing="1.5">
+      CAMPUS RELAY <tspan fill="#00f2fe">SYSTEM ARCHITECTURE</tspan>
+    </text>
+    <text x="74" y="56" font-size="14.5" font-weight="500" fill="#94a3b8" letter-spacing="0.5">
+      Local-First Modular Monolith • Universal Case State Machine • Trigger-Enforced Append-Only Audit Ledger
+    </text>
+
+    <!-- Header Meta Badges (Right Aligned) -->
+    <g transform="translate(1330, 8)">
+      <!-- Badge 1: Modular Monolith -->
+      <g transform="translate(0, 0)">
+        <rect width="160" height="34" rx="6" fill="#0f172a" stroke="#0284c7" stroke-width="1.2"/>
+        <circle cx="16" cy="17" r="4.5" fill="#00f2fe"/>
+        <text x="28" y="22" font-size="12" font-weight="700" fill="#e2e8f0">MODULAR MONOLITH</text>
+      </g>
+      <!-- Badge 2: FastAPI -->
+      <g transform="translate(170, 0)">
+        <rect width="155" height="34" rx="6" fill="#0f172a" stroke="#009688" stroke-width="1.2"/>
+        <circle cx="16" cy="17" r="4.5" fill="#10b981"/>
+        <text x="28" y="22" font-size="12" font-weight="700" fill="#e2e8f0">FASTAPI 0.115+ ASGI</text>
+      </g>
+      <!-- Badge 3: PostgreSQL 16 -->
+      <g transform="translate(335, 0)">
+        <rect width="165" height="34" rx="6" fill="#0f172a" stroke="#336791" stroke-width="1.2"/>
+        <circle cx="16" cy="17" r="4.5" fill="#38bdf8"/>
+        <text x="28" y="22" font-size="12" font-weight="700" fill="#e2e8f0">POSTGRESQL 16 ACID</text>
+      </g>
+      <!-- Badge 4: Trigger Audit Ledger -->
+      <g transform="translate(510, 0)">
+        <rect width="175" height="34" rx="6" fill="#0f172a" stroke="#dc2626" stroke-width="1.2"/>
+        <circle cx="16" cy="17" r="4.5" fill="#f43f5e"/>
+        <text x="28" y="22" font-size="12" font-weight="700" fill="#e2e8f0">TRIGGER AUDIT LEDGER</text>
+      </g>
+      <!-- Badge 5: IndexedDB Offline -->
+      <g transform="translate(695, 0)">
+        <rect width="165" height="34" rx="6" fill="#0f172a" stroke="#f59e0b" stroke-width="1.2"/>
+        <circle cx="16" cy="17" r="4.5" fill="#fbbf24"/>
+        <text x="28" y="22" font-size="12" font-weight="700" fill="#e2e8f0">INDEXEDDB OFFLINE</text>
+      </g>
+      <!-- Badge 6: Version -->
+      <g transform="translate(870, 0)">
+        <rect width="120" height="34" rx="6" fill="#0284c7" stroke="#00f2fe" stroke-width="1"/>
+        <text x="60" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">v1.0 • PROD</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 1: CLIENT ECOSYSTEM & EDGE STATIONS (Y: 125 to 335)                  -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 125)">
+    <!-- Tier Container Box -->
+    <rect width="2240" height="210" rx="14" fill="url(#tier1Grad)" stroke="#1e3a5f" stroke-width="1.5" filter="url(#cardShadow)"/>
+    
+    <!-- Tier Label Ribbon & Header -->
+    <rect x="0" y="0" width="8" height="210" rx="4" fill="#00f2fe"/>
+    <g transform="translate(24, 20)">
+      <rect width="290" height="26" rx="6" fill="#0284c7" opacity="0.25"/>
+      <text x="12" y="18" font-size="13" font-weight="800" fill="#00f2fe" letter-spacing="1">TIER 1 • CLIENT &amp; STATION ECOSYSTEM</text>
+      <text x="310" y="18" font-size="13" font-weight="500" fill="#94a3b8">One unified Progressive Web App (React 19 + TypeScript) tailored dynamically across 5 operational station personas</text>
+    </g>
+
+    <!-- Client Cards (5 stations + 1 offline outbox block) -->
+    <!-- Card 1: Student Mobile PWA -->
+    <g transform="translate(24, 62)">
+      <rect width="345" height="126" rx="10" fill="#0b172d" stroke="#2563eb" stroke-width="1.2"/>
+      <rect x="0" y="0" width="345" height="3" rx="1.5" fill="#3b82f6"/>
+      <g transform="translate(16, 26)">
+        <text x="0" y="12" font-size="15" font-weight="700" fill="#f8fafc">📱 Student Mobile PWA</text>
+        <text x="0" y="40" font-size="12" font-weight="400" fill="#cbd5e1">• Frictionless Service Catalogue Intake</text>
+        <text x="0" y="62" font-size="12" font-weight="400" fill="#cbd5e1">• Real-Time Case Lifecycle &amp; SLA Tracker</text>
+        <text x="0" y="84" font-size="12" font-weight="400" fill="#cbd5e1">• Digital Gate Pass QR &amp; Student Notices</text>
+      </g>
+    </g>
+
+    <!-- Card 2: Staff Workdesk Portal -->
+    <g transform="translate(385, 62)">
+      <rect width="345" height="126" rx="10" fill="#0b172d" stroke="#0284c7" stroke-width="1.2"/>
+      <rect x="0" y="0" width="345" height="3" rx="1.5" fill="#00f2fe"/>
+      <g transform="translate(16, 26)">
+        <text x="0" y="12" font-size="15" font-weight="700" fill="#f8fafc">🛠️ Staff Task Portal</text>
+        <text x="0" y="40" font-size="12" font-weight="400" fill="#cbd5e1">• Automated Work Order Queue &amp; Triage</text>
+        <text x="0" y="62" font-size="12" font-weight="400" fill="#cbd5e1">• Inspection Checklists &amp; Photo Proofs</text>
+        <text x="0" y="84" font-size="12" font-weight="400" fill="#cbd5e1">• Multi-Stage Departmental Signoffs</text>
+      </g>
+    </g>
+
+    <!-- Card 3: Gate Security Desk -->
+    <g transform="translate(745, 62)">
+      <rect width="345" height="126" rx="10" fill="#0b172d" stroke="#10b981" stroke-width="1.2"/>
+      <rect x="0" y="0" width="345" height="3" rx="1.5" fill="#10b981"/>
+      <g transform="translate(16, 26)">
+        <text x="0" y="12" font-size="15" font-weight="700" fill="#f8fafc">🛡️ Gate Security Terminal</text>
+        <text x="0" y="40" font-size="12" font-weight="400" fill="#cbd5e1">• Sub-150ms Camera QR Pass Scanner</text>
+        <text x="0" y="62" font-size="12" font-weight="400" fill="#cbd5e1">• Anti-Passback Exit/Entry Validation</text>
+        <text x="0" y="84" font-size="12" font-weight="400" fill="#cbd5e1">• Offline Gate Pass Cache &amp; Fallback</text>
+      </g>
+    </g>
+
+    <!-- Card 4: Lobby Kiosk & Helpdesk -->
+    <g transform="translate(1105, 62)">
+      <rect width="345" height="126" rx="10" fill="#0b172d" stroke="#f59e0b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="345" height="3" rx="1.5" fill="#f59e0b"/>
+      <g transform="translate(16, 26)">
+        <text x="0" y="12" font-size="15" font-weight="700" fill="#f8fafc">🖥️ Lobby Kiosk &amp; Helpdesk</text>
+        <text x="0" y="40" font-size="12" font-weight="400" fill="#cbd5e1">• No-Smartphone Roll Number Lookup</text>
+        <text x="0" y="62" font-size="12" font-weight="400" fill="#cbd5e1">• Touch-First Fast Case Lodging Mode</text>
+        <text x="0" y="84" font-size="12" font-weight="400" fill="#cbd5e1">• Supervisor PIN Proxy Authorization</text>
+      </g>
+    </g>
+
+    <!-- Card 5: Admin Command Centre -->
+    <g transform="translate(1465, 62)">
+      <rect width="345" height="126" rx="10" fill="#0b172d" stroke="#8b5cf6" stroke-width="1.2"/>
+      <rect x="0" y="0" width="345" height="3" rx="1.5" fill="#a855f7"/>
+      <g transform="translate(16, 26)">
+        <text x="0" y="12" font-size="15" font-weight="700" fill="#f8fafc">📊 Admin Command Centre</text>
+        <text x="0" y="40" font-size="12" font-weight="400" fill="#cbd5e1">• Campus SLA Governance &amp; Radar</text>
+        <text x="0" y="62" font-size="12" font-weight="400" fill="#cbd5e1">• Visual Workflow &amp; Policy Matrix Builder</text>
+        <text x="0" y="84" font-size="12" font-weight="400" fill="#cbd5e1">• Multi-Department Audit Inspector</text>
+      </g>
+    </g>
+
+    <!-- Card 6: Client Offline Outbox / IndexedDB -->
+    <g transform="translate(1825, 62)">
+      <rect width="390" height="126" rx="10" fill="#081b2e" stroke="#00f2fe" stroke-width="1.5" stroke-dasharray="4,3"/>
+      <rect x="0" y="0" width="390" height="3" rx="1.5" fill="url(#cyanBlueGrad)"/>
+      <g transform="translate(16, 26)">
+        <text x="0" y="12" font-size="15" font-weight="800" fill="#00f2fe">📶 Local-First Offline Outbox</text>
+        <text x="0" y="40" font-size="12" font-weight="500" fill="#e2e8f0">• IndexedDB Browser Mutation Queue</text>
+        <text x="0" y="62" font-size="12" font-weight="500" fill="#e2e8f0">• Client UUID Idempotency Keys</text>
+        <text x="0" y="84" font-size="12" font-weight="500" fill="#38bdf8">• Automatic Background Reconnect Sweep</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- CONNECTOR BUS 1: CLIENT -> API GATEWAY (Y: 335 to 380)                     -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 335)">
+    <!-- Data Flow Arrows & Lines -->
+    <line x1="195" y1="0" x2="195" y2="45" stroke="#00f2fe" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowCyan)"/>
+    <line x1="555" y1="0" x2="555" y2="45" stroke="#00f2fe" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowCyan)"/>
+    <line x1="915" y1="0" x2="915" y2="45" stroke="#00f2fe" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowCyan)"/>
+    <line x1="1275" y1="0" x2="1275" y2="45" stroke="#00f2fe" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowCyan)"/>
+    <line x1="1635" y1="0" x2="1635" y2="45" stroke="#00f2fe" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowCyan)"/>
+    <line x1="2020" y1="0" x2="2020" y2="45" stroke="#00f2fe" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#arrowCyan)"/>
+
+    <!-- Signal Badge -->
+    <g transform="translate(850, 10)">
+      <rect width="540" height="24" rx="12" fill="#0f172a" stroke="#0284c7" stroke-width="1.2"/>
+      <text x="270" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#38bdf8" letter-spacing="0.5">
+        HTTPS • REST JSON DTOs • IDEMPOTENCY TOKENS • OFFLINE SYNC REPLAY
+      </text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 2: FASTAPI GATEWAY & ZERO-TRUST SECURITY (Y: 380 to 520)             -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 380)">
+    <!-- Tier Container Box -->
+    <rect width="2240" height="140" rx="14" fill="url(#tier2Grad)" stroke="#0369a1" stroke-width="1.5" filter="url(#cardShadow)"/>
+    
+    <!-- Tier Label Ribbon & Header -->
+    <rect x="0" y="0" width="8" height="140" rx="4" fill="#0284c7"/>
+    <g transform="translate(24, 20)">
+      <rect width="400" height="26" rx="6" fill="#0369a1" opacity="0.3"/>
+      <text x="12" y="18" font-size="13" font-weight="800" fill="#38bdf8" letter-spacing="1">TIER 2 • FASTAPI GATEWAY &amp; ZERO-TRUST RBAC</text>
+      <text x="420" y="18" font-size="13" font-weight="500" fill="#94a3b8">Centralized OpenAPI 3.1 Contract Layer • Cryptographic Auth • Multi-Tenant Data Scoping Isolation</text>
+    </g>
+
+    <!-- Gateway Components (3 large modular blocks) -->
+    <!-- Block 1: Domain REST Routers (app/api/v1/) -->
+    <g transform="translate(24, 56)">
+      <rect width="700" height="68" rx="8" fill="#08172b" stroke="#1e40af" stroke-width="1.2"/>
+      <g transform="translate(18, 18)">
+        <text x="0" y="16" font-size="14.5" font-weight="800" fill="#f8fafc">REST OpenAPI 3.1 Routers (<tspan fill="#60a5fa">app/api/v1/*.py</tspan>)</text>
+        <text x="0" y="38" font-size="12" font-weight="400" fill="#cbd5e1">
+          Versioned Endpoints: <tspan fill="#93c5fd">/cases</tspan> • <tspan fill="#93c5fd">/gate</tspan> • <tspan fill="#93c5fd">/sync</tspan> • <tspan fill="#93c5fd">/notices</tspan> • <tspan fill="#93c5fd">/documents</tspan> • <tspan fill="#93c5fd">/analytics</tspan> • <tspan fill="#93c5fd">/org</tspan>
+        </text>
+      </g>
+    </g>
+
+    <!-- Block 2: Zero-Trust Security & Scope Injection (app/api/deps.py) -->
+    <g transform="translate(744, 56)">
+      <rect width="750" height="68" rx="8" fill="#08172b" stroke="#00f2fe" stroke-width="1.2"/>
+      <g transform="translate(18, 18)">
+        <text x="0" y="16" font-size="14.5" font-weight="800" fill="#00f2fe">Zero-Trust RBAC &amp; Data Scope Guard (<tspan fill="#38bdf8">app/api/deps.py</tspan>)</text>
+        <text x="0" y="38" font-size="12" font-weight="400" fill="#cbd5e1">
+          PyJWT Bearer Validation • Bcrypt Hashes • Role Matrix (Student/Staff/Admin) • Institution &amp; Dept Scope Injection
+        </text>
+      </g>
+    </g>
+
+    <!-- Block 3: Strict Pydantic DTOs & Public Verification Gateway -->
+    <g transform="translate(1514, 56)">
+      <rect width="702" height="68" rx="8" fill="#08172b" stroke="#10b981" stroke-width="1.2"/>
+      <g transform="translate(18, 18)">
+        <text x="0" y="16" font-size="14.5" font-weight="800" fill="#10b981">Pydantic DTO Contract Engine &amp; Public Verifier</text>
+        <text x="0" y="38" font-size="12" font-weight="400" fill="#cbd5e1">
+          Strict Request/Response Serialization • Sanitized AppError Hierarchy • Stateless Public QR Document Verifier
+        </text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- CONNECTOR BUS 2: GATEWAY -> ENGINES (Y: 520 to 565)                       -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 520)">
+    <!-- Central Distribution Trunk -->
+    <line x1="374" y1="0" x2="374" y2="45" stroke="#0284c7" stroke-width="2" marker-end="url(#arrowCyan)"/>
+    <line x1="1119" y1="0" x2="1119" y2="45" stroke="#00f2fe" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+    <line x1="1865" y1="0" x2="1865" y2="45" stroke="#10b981" stroke-width="2" marker-end="url(#arrowEmerald)"/>
+
+    <g transform="translate(850, 10)">
+      <rect width="540" height="24" rx="12" fill="#0f172a" stroke="#1e3a5f" stroke-width="1.2"/>
+      <text x="270" y="16" text-anchor="middle" font-size="11" font-weight="700" fill="#94a3b8" letter-spacing="0.5">
+        AUTHENTICATED CONTEXT • INJECTED TENANT SCOPE • STRICT PYDANTIC PAYLOADS
+      </text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 3: CORE OPERATING ENGINES & WORKERS (Y: 565 to 925)                  -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 565)">
+    <!-- Tier Container Box -->
+    <rect width="2240" height="360" rx="14" fill="url(#tier3Grad)" stroke="#0e3a47" stroke-width="1.5" filter="url(#cardShadow)"/>
+    
+    <!-- Tier Label Ribbon & Header -->
+    <rect x="0" y="0" width="8" height="360" rx="4" fill="#00f2fe"/>
+    <g transform="translate(24, 20)">
+      <rect width="400" height="26" rx="6" fill="#0891b2" opacity="0.25"/>
+      <text x="12" y="18" font-size="13" font-weight="800" fill="#00f2fe" letter-spacing="1">TIER 3 • CORE OPERATING ENGINES &amp; WORKERS</text>
+      <text x="420" y="18" font-size="13" font-weight="500" fill="#94a3b8">Autonomous Business Logic • 13 Pure Domain Engines (<tspan fill="#38bdf8">backend/app/services/</tspan>) • High-Throughput State Machines</text>
+    </g>
+
+    <!-- 8 Domain Engine Cards in a 4x2 Responsive Grid -->
+    <!-- Row 1, Card 1: Universal Case Engine -->
+    <g transform="translate(24, 62)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#0284c7" stroke-width="1.5"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="url(#cyanBlueGrad)"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Universal Case Lifecycle Engine</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#00f2fe">services/case_engine.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Finite State Machine: SUBMITTED → TRIAGED → RESOLVED → CLOSED</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Guaranteed Legal Transitions (Rejects Out-of-Order Moves)</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Unified Architecture for Complaints, Approvals, Passes &amp; Docs</text>
+      </g>
+    </g>
+
+    <!-- Row 1, Card 2: Policy & Workflow Engine -->
+    <g transform="translate(578, 62)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#0891b2" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#0891b2"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Policy &amp; Workflow Engine</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#38bdf8">services/workflow.py &amp; services/policy.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Declarative Clause Verification (Prerequisites, Limits, Eligibility)</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Dynamic Workflow Step Sequencing &amp; Multi-Approver Assignment</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Instant Actionable Policy Explanations on Rejection</text>
+      </g>
+    </g>
+
+    <!-- Row 1, Card 3: Anti-Passback Gate Engine -->
+    <g transform="translate(1132, 62)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#10b981" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#10b981"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Anti-Passback Gate Security Engine</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#34d399">services/gate.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Sub-150ms Camera QR Validation &amp; Rolling Verification Tokens</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Anti-Passback Defense: Strictly Prohibits Double-Exit / Re-entry</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Guard Override Mode with Explicit Incident Attribution Reason</text>
+      </g>
+    </g>
+
+    <!-- Row 1, Card 4: SLA & Escalation Dispatcher -->
+    <g transform="translate(1686, 62)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#f59e0b" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#f59e0b"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">SLA &amp; Escalation Dispatcher</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#fbbf24">services/sla.py &amp; services/routing.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Business-Hour Window Computation &amp; Due Date Calendar</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Real-time Status: ON_TIME • AT_RISK • BREACHED • MET • MISSED</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Automatic Department Allocation &amp; Least-Loaded Staff Routing</text>
+      </g>
+    </g>
+
+    <!-- Row 2, Card 5: Offline Sync & Reconciliation -->
+    <g transform="translate(24, 208)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#0284c7" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#38bdf8"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Offline Sync &amp; Conflict Engine</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#60a5fa">services/sync.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Idempotent Mutation Replay via Client UUIDs (Zero Duplication)</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Optimistic Concurrency Control (Version &amp; Client Timestamp Check)</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Transparent Delta Synchronization for Spotty Campus Wi-Fi</text>
+      </g>
+    </g>
+
+    <!-- Row 2, Card 6: Cryptographic Document Engine -->
+    <g transform="translate(578, 208)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#6366f1" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#818cf8"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Cryptographic Document Engine</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#a5b4fc">services/documents.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• ReportLab PDF Generator (Bonafide, Leave Pass, NOC, Clearance)</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• SHA-256 Tamper-Evident Serial Hashes &amp; Embedded Verification QR</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Instant Third-Party Verification without System Login</text>
+      </g>
+    </g>
+
+    <!-- Row 2, Card 7: Async Notification Outbox Worker -->
+    <g transform="translate(1132, 208)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#ec4899" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#f472b6"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Multi-Channel Outbox Worker</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#f472b6">services/notifications.py &amp; delivery.py</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Asynchronous Background Outbox Drain with Exponential Backoff</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Multi-Channel Delivery: In-App Alerts • Telegram Bot • WhatsApp API</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Read Receipts &amp; Mandatory Notice Acknowledgements</text>
+      </g>
+    </g>
+
+    <!-- Row 2, Card 8: Sandboxed AI Agents -->
+    <g transform="translate(1686, 208)">
+      <rect width="530" height="126" rx="10" fill="#091b2b" stroke="#a855f7" stroke-width="1.2"/>
+      <rect x="0" y="0" width="530" height="3" rx="1.5" fill="#c084fc"/>
+      <g transform="translate(18, 22)">
+        <text x="0" y="14" font-size="15.5" font-weight="800" fill="#f8fafc">Sandboxed Operational AI Agents</text>
+        <text x="0" y="32" font-size="12" font-weight="600" fill="#d8b4fe">services/agents/ (Intake &amp; Triage)</text>
+        <text x="0" y="56" font-size="12" font-weight="400" fill="#cbd5e1">• Automated Case Categorization &amp; Priority Recommendation</text>
+        <text x="0" y="76" font-size="12" font-weight="400" fill="#cbd5e1">• Sentiment Analysis &amp; Campus Duplicate Cluster Detection</text>
+        <text x="0" y="96" font-size="12" font-weight="400" fill="#cbd5e1">• Strictly Human-in-the-Loop: Advisory-Only Behind RBAC Barrier</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- CONNECTOR BUS 3: ENGINES -> PERSISTENCE (Y: 925 to 965)                   -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 925)">
+    <!-- Data Flow Arrows & Lines -->
+    <line x1="289" y1="0" x2="289" y2="40" stroke="#00f2fe" stroke-width="2.5" marker-end="url(#arrowCyan)"/>
+    <line x1="843" y1="0" x2="843" y2="40" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowEmerald)"/>
+    <line x1="1397" y1="0" x2="1397" y2="40" stroke="#f43f5e" stroke-width="2.5" marker-end="url(#arrowRose)"/>
+    <line x1="1951" y1="0" x2="1951" y2="40" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrowAmber)"/>
+
+    <g transform="translate(840, 10)">
+      <rect width="560" height="24" rx="12" fill="#180e22" stroke="#dc2626" stroke-width="1.2"/>
+      <text x="280" y="16" text-anchor="middle" font-size="11" font-weight="800" fill="#f87171" letter-spacing="0.5">
+        ATOMIC TRANSACTIONS • APPEND-ONLY EVENT SOURCING • TRIGGER LEDGER
+      </text>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- TIER 4: PERSISTENCE & IMMUTABLE TRUST LEDGER (Y: 965 to 1235)             -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 965)">
+    <!-- Tier Container Box -->
+    <rect width="2240" height="270" rx="14" fill="url(#tier4Grad)" stroke="#451a28" stroke-width="1.5" filter="url(#cardShadow)"/>
+    
+    <!-- Tier Label Ribbon & Header -->
+    <rect x="0" y="0" width="8" height="270" rx="4" fill="#dc2626"/>
+    <g transform="translate(24, 20)">
+      <rect width="440" height="26" rx="6" fill="#991b1b" opacity="0.3"/>
+      <text x="12" y="18" font-size="13" font-weight="800" fill="#f87171" letter-spacing="1">TIER 4 • PERSISTENCE &amp; IMMUTABLE TRUST LEDGER</text>
+      <text x="460" y="18" font-size="13" font-weight="500" fill="#94a3b8">PostgreSQL 16 Engine • Database Trigger-Enforced Immutability • Non-Repudiable Evidence Storage</text>
+    </g>
+
+    <!-- 3 Big Architectural Persistence Pillars -->
+    <!-- Pillar 1: Append-Only Immutable Audit Ledger (THE CORE DIFFERENTIATOR) -->
+    <g transform="translate(24, 62)">
+      <rect width="720" height="184" rx="10" fill="#180c1e" stroke="#dc2626" stroke-width="1.8"/>
+      <rect x="0" y="0" width="720" height="4" rx="2" fill="url(#crimsonGrad)"/>
+      <g transform="translate(20, 24)">
+        <text x="0" y="15" font-size="17" font-weight="800" fill="#f87171">🛡️ Trigger-Enforced Append-Only Ledger</text>
+        <text x="0" y="42" font-size="13" font-weight="700" fill="#fca5a5">
+          Guaranteed by DB Triggers &amp; ORM Listeners (<tspan fill="#f87171">app/models/immutability.py</tspan>)
+        </text>
+        <text x="0" y="68" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">AuditLog</tspan>: Immutable snapshot of all actor mutations, headers &amp; IP addresses</text>
+        <text x="0" y="90" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">CaseEvent</tspan>: Tamper-proof lifecycle transition events with timestamps</text>
+        <text x="0" y="112" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">GateLog</tspan>: Physical entry/exit barrier timestamps &amp; security guard identity</text>
+        <text x="0" y="138" font-size="12" font-weight="600" fill="#f87171">⚡ HARD GUARANTEE: UPDATE and DELETE statements are unconditionally aborted at DB level</text>
+      </g>
+    </g>
+
+    <!-- Pillar 2: Operational Relational Schema (PostgreSQL 16) -->
+    <g transform="translate(768, 62)">
+      <rect width="720" height="184" rx="10" fill="#0d1424" stroke="#0284c7" stroke-width="1.4"/>
+      <rect x="0" y="0" width="720" height="4" rx="2" fill="url(#cyanBlueGrad)"/>
+      <g transform="translate(20, 24)">
+        <text x="0" y="15" font-size="17" font-weight="800" fill="#38bdf8">🗄️ Operational Relational Domain Store</text>
+        <text x="0" y="42" font-size="13" font-weight="700" fill="#93c5fd">
+          SQLAlchemy 2.0 ORM Engine • Declarative Models (<tspan fill="#60a5fa">app/models/*.py</tspan>)
+        </text>
+        <text x="0" y="68" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">Identity &amp; Scoping</tspan>: Users, Roles, Permissions, Campuses, Buildings, Units</text>
+        <text x="0" y="90" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">Workflows &amp; Catalog</tspan>: Services, SLA Policies, Workflow Steps, Escalations</text>
+        <text x="0" y="112" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">Case State Store</tspan>: CampusCase, Passes, Feedback, Attributed Evidence, Notes</text>
+        <text x="0" y="138" font-size="12" font-weight="600" fill="#38bdf8">⚡ Complete ACID transaction safety wrapped in session_scope() context manager</text>
+      </g>
+    </g>
+
+    <!-- Pillar 3: Resilient Outbox Queue & Migration Versioning -->
+    <g transform="translate(1512, 62)">
+      <rect width="704" height="184" rx="10" fill="#0d1820" stroke="#10b981" stroke-width="1.4"/>
+      <rect x="0" y="0" width="704" height="4" rx="2" fill="url(#emeraldGrad)"/>
+      <g transform="translate(20, 24)">
+        <text x="0" y="15" font-size="17" font-weight="800" fill="#34d399">📦 Reliability, Outbox &amp; Versioning</text>
+        <text x="0" y="42" font-size="13" font-weight="700" fill="#a7f3d0">
+          Guaranteed Zero Message Loss &amp; Deterministic Migrations
+        </text>
+        <text x="0" y="68" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">Transactional Outbox</tspan>: notification_deliveries table ensures at-least-once sends</text>
+        <text x="0" y="90" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">Exponential Backoff</tspan>: Automatic delivery retries for Telegram, WhatsApp &amp; Push</text>
+        <text x="0" y="112" font-size="12" font-weight="400" fill="#cbd5e1">• <tspan font-weight="700" fill="#ffffff">Alembic Versioning</tspan>: Strict schema migration chain with deterministic test seeders</text>
+        <text x="0" y="138" font-size="12" font-weight="600" fill="#34d399">⚡ No external Redis or RabbitMQ required — zero operational complexity</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================================================= -->
+  <!-- FOOTER & ARCHITECTURAL HIGHLIGHTS (Y: 1255 to 1325)                       -->
+  <!-- ========================================================================= -->
+  <g transform="translate(80, 1260)">
+    <!-- Left Footer -->
+    <text x="0" y="22" font-size="13" font-weight="700" fill="#94a3b8">
+      Campus Relay • Engineered by <tspan fill="#00f2fe">Crystal Studio Labs</tspan> • BPUT Hackathon 2026 (Problem Statement 07: Fretbox)
+    </text>
+    <text x="0" y="42" font-size="12" font-weight="400" fill="#64748b">
+      Strict Transaction Atomicity • Complete Cognitive Clarity • Low Deployment Friction • Production Ready
+    </text>
+
+    <!-- Right Footer Guarantees -->
+    <g transform="translate(1260, 10)">
+      <rect width="980" height="42" rx="8" fill="#0b172d" stroke="#1e3a5f" stroke-width="1"/>
+      <g transform="translate(20, 26)">
+        <text x="0" y="0" font-size="12" font-weight="700" fill="#38bdf8">CORE GUARANTEES:</text>
+        <text x="145" y="0" font-size="12" font-weight="500" fill="#e2e8f0">🛡️ Zero Data Loss</text>
+        <text x="280" y="0" font-size="12" font-weight="500" fill="#e2e8f0">⚡ Sub-150ms Gate QR</text>
+        <text x="445" y="0" font-size="12" font-weight="500" fill="#e2e8f0">🔒 Tamper-Proof Audit</text>
+        <text x="620" y="0" font-size="12" font-weight="500" fill="#e2e8f0">📶 100% Offline PWA</text>
+        <text x="785" y="0" font-size="12" font-weight="500" fill="#e2e8f0">🚫 No Microservice Sprawl</text>
+      </g>
+    </g>
+  </g>
+</svg>
+"""
+
+
+def render_images(svg_content: str):
+    # 1. Save SVG
+    with open(SVG_PATH, "w", encoding="utf-8") as f:
+        f.write(svg_content)
+    print(f"Saved SVG to: {SVG_PATH} ({os.path.getsize(SVG_PATH)} bytes)")
+
+    # 2. Render PNG via Headless Chrome / Edge at 2400x1350
+    temp_html = os.path.join(ASSETS_DIR, "_temp_render.html")
+    html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <style>
+    * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+    body {{ background: #070b14; width: 2400px; height: 1350px; overflow: hidden; }}
+    svg {{ width: 2400px; height: 1350px; display: block; }}
+  </style>
+</head>
+<body>
+{svg_content}
+</body>
+</html>
+"""
+    with open(temp_html, "w", encoding="utf-8") as f:
+        f.write(html_content)
+
+    temp_html_url = f"file:///{temp_html.replace(chr(92), '/')}"
+    cmd = [
+        CHROME_BIN,
+        "--headless=new",
+        "--disable-gpu",
+        "--hide-scrollbars",
+        "--window-size=2400,1350",
+        f"--screenshot={PNG_PATH}",
+        temp_html_url
+    ]
+    print(f"Rendering high-res raster via {os.path.basename(CHROME_BIN)}...")
+    res = subprocess.run(cmd, capture_output=True, text=True)
+    if res.returncode != 0:
+        print(f"Browser screenshot warning / error: {res.stderr}")
+
+    if os.path.exists(temp_html):
+        os.remove(temp_html)
+
+    if os.path.exists(PNG_PATH):
+        print(f"Generated PNG: {PNG_PATH} ({os.path.getsize(PNG_PATH)} bytes)")
+        # 3. Create high-quality JPG from PNG
+        with Image.open(PNG_PATH) as img:
+            rgb_img = img.convert("RGB")
+            # Save at maximum fidelity (quality=95)
+            rgb_img.save(JPG_PATH, "JPEG", quality=95, optimize=True)
+        print(f"Generated JPG: {JPG_PATH} ({os.path.getsize(JPG_PATH)} bytes)")
+    else:
+        print("Error: PNG could not be generated!")
+
+
+if __name__ == "__main__":
+    svg = build_svg()
+    render_images(svg)

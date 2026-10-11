@@ -92,7 +92,11 @@ Campus operations across universities and colleges suffer from acute fragmentati
 </p>
 
 <p align="center">
-  <img src="docs/assets/campus_relay_architecture_diagram.jpg" alt="Campus Relay System Architecture Diagram" width="100%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35);" />
+  <a href="docs/assets/campus_relay_architecture_diagram.svg" target="_blank">
+    <img src="docs/assets/campus_relay_architecture_diagram.png" alt="Campus Relay System Architecture Diagram" width="100%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 10px 30px rgba(0,0,0,0.35);" />
+  </a>
+  <br/>
+  <sub style="color: #94a3b8;">Click diagram to inspect the full-resolution scalable vector SVG • Four-Tier Modular Monolith Architecture</sub>
 </p>
 
 Campus Relay is built on foundational architectural principles designed to survive real-world campus constraints:
